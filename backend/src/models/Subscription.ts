@@ -18,8 +18,8 @@ export interface Subscription extends Document {
   createdAt: Date;
 }
 const SubscriptionSchema = new Schema<Subscription>(
-    {
-         userId: {
+  {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -45,7 +45,11 @@ const SubscriptionSchema = new Schema<Subscription>(
 
     stripeCustomerId: String,
   },
-  { timestamps: { createdAt: true, updatedAt: false }
-    }
-)
-const Subscription = mongoose.model<Subscription>("Subscription",SubscriptionSchema)
+  { timestamps: { createdAt: true, updatedAt: false } },
+);
+const Subscription = mongoose.model<Subscription>(
+  "Subscription",
+  SubscriptionSchema,
+);
+
+export { Subscription };
