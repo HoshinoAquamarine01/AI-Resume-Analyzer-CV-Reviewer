@@ -1,13 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyJwt } from "../config/jwt";
 import { formatResponse } from "../utils/formatResponse";
+import type { JWTPayload, AuthUser } from "../types";
 
 export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-  };
+  user?: JWTPayload | AuthUser | null;
 }
 
 export const authenticateToken = (
@@ -33,7 +30,20 @@ export const authenticateToken = (
         .json(formatResponse(null, "Invalid or expired token", "error"));
     }
 
-    req.user = decoded as any;
+    
+    const payload = decoded as JWTPayload | null;
+    if (payload && (payload as JWTPayload).sub) {
+      req.user = {
+        id: (payload as JWTPayload).sub,
+        email: (payload as JWTPayload).email || "",
+       
+        role: Array.isArray((payload as JWTPayload).roles)
+          ? (payload as JWTPayload).roles![0]
+          : (payload as any).role || undefined,
+      } as any;
+    } else {
+      req.user = decoded as any;
+    }
     next();
   } catch (error) {
     return res
@@ -54,7 +64,18 @@ export const optionalAuth = (
     if (token) {
       const decoded = verifyJwt(token);
       if (decoded) {
-        req.user = decoded as any;
+        const payload = decoded as JWTPayload | null;
+        if (payload && (payload as JWTPayload).sub) {
+          req.user = {
+            id: (payload as JWTPayload).sub,
+            email: (payload as JWTPayload).email || "",
+            role: Array.isArray((payload as JWTPayload).roles)
+              ? (payload as JWTPayload).roles![0]
+              : (payload as any).role || undefined,
+          } as any;
+        } else {
+          req.user = decoded as any;
+        }
       }
     }
 
