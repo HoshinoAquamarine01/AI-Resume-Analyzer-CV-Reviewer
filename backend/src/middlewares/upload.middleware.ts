@@ -6,7 +6,7 @@ import { Request } from "express";
 const createStorage = (directory: string): StorageEngine => {
   const uploadDir = path.join(process.cwd(), "uploads", directory);
 
-  // Create directory if it doesn't exist
+
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
