@@ -12,7 +12,7 @@ export const authorize = (...allowedRoles: UserRole[]) => {
         .json(formatResponse(null, "Unauthorized", "error"));
     }
 
-    if (!allowedRoles.includes(req.user.role as UserRole)) {
+    if (!allowedRoles.includes((req.user as any).role as UserRole)) {
       return res
         .status(403)
         .json(

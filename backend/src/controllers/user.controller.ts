@@ -39,6 +39,47 @@ export const updateAvatar = asyncHandler(async (req: any, res: any) => {
   return res.status(200).json(formatResponse(updatedUser, "Avatar updated"));
 });
 
+export const uploadAvatar = asyncHandler(async (req: any, res: any) => {
+  const userId = req.user._id;
+  const avatarUrl = req.file?.filename;
+
+  if (!avatarUrl) {
+    return res.status(400).json(formatResponse(null, "No file uploaded"));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { avatar: avatarUrl },
+    { new: true },
+  ).select("-password");
+
+  return res.status(200).json(formatResponse(updatedUser, "Avatar uploaded"));
+});
+
+export const changePassword = asyncHandler(async (req: any, res: any) => {
+  const userId = req.user._id;
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json(formatResponse(null, "User not found"));
+  }
+
+  const isPasswordValid = await user.comparePassword(currentPassword);
+  if (!isPasswordValid) {
+    return res
+      .status(401)
+      .json(formatResponse(null, "Current password is incorrect"));
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return res
+    .status(200)
+    .json(formatResponse(null, "Password changed successfully"));
+});
+
 export const deleteAccount = asyncHandler(async (req: any, res: any) => {
   const userId = req.user._id;
 

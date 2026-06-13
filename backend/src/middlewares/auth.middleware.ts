@@ -7,7 +7,7 @@ export interface AuthRequest extends Request {
   user?: JWTPayload | AuthUser | null;
 }
 
-export const authenticateToken = (
+export const authMiddleware = (
   req: AuthRequest,
   res: Response,
   next: NextFunction,
@@ -30,13 +30,12 @@ export const authenticateToken = (
         .json(formatResponse(null, "Invalid or expired token", "error"));
     }
 
-    
     const payload = decoded as JWTPayload | null;
     if (payload && (payload as JWTPayload).sub) {
       req.user = {
         id: (payload as JWTPayload).sub,
         email: (payload as JWTPayload).email || "",
-       
+
         role: Array.isArray((payload as JWTPayload).roles)
           ? (payload as JWTPayload).roles![0]
           : (payload as any).role || undefined,

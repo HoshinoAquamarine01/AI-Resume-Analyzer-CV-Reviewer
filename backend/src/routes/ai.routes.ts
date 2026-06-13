@@ -1,12 +1,12 @@
 import { Router } from "express";
 import {
   analyzeResume,
-  optimizeForATS,
-  suggestImprovements,
-  generateJobMatches,
+  generateAtsOptimization as optimizeForATS,
+  improveResume as suggestImprovements,
+  matchJobDescriptions as generateJobMatches,
 } from "../controllers/ai.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { rateLimit } from "../middlewares/rateLimit.middleware";
+import { apiRateLimit as rateLimit } from "../middlewares/rateLimit.middleware";
 
 const router = Router();
 

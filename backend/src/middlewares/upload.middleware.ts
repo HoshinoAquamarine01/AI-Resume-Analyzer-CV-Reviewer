@@ -6,7 +6,6 @@ import { Request } from "express";
 const createStorage = (directory: string): StorageEngine => {
   const uploadDir = path.join(process.cwd(), "uploads", directory);
 
-
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
@@ -44,7 +43,7 @@ export const uploadResume = multer({
   ]),
 });
 
-export const uploadAvatar = multer({
+export const uploadMiddleware = multer({
   storage: createStorage("avatars"),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: fileFilter(["image/jpeg", "image/png", "image/webp"]),

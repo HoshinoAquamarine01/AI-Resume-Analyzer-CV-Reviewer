@@ -2,17 +2,17 @@ import { Router } from "express";
 import {
   getAdminDashboard,
   manageUsers,
-  getAdminLogs,
-  updateSystemSettings,
-  getSystemStats,
+  viewReports as getAdminLogs,
+  manageSettings as updateSystemSettings,
+  viewAnalytics as getSystemStats,
 } from "../controllers/admin.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { roleMiddleware } from "../middlewares/role.middleware";
+import { authorize } from "../middlewares/role.middleware";
 
 const router = Router();
 
 router.use(authMiddleware);
-router.use(roleMiddleware("admin"));
+router.use(authorize("admin"));
 
 router.get("/dashboard", getAdminDashboard);
 router.post("/users/manage", manageUsers);

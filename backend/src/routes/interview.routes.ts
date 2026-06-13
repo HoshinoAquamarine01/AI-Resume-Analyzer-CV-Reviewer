@@ -1,11 +1,11 @@
 import { Router } from "express";
 import {
-  startInterviewSession,
-  getInterviewSessions,
-  getInterviewSessionById,
-  submitInterviewAnswer,
-  endInterviewSession,
-  getInterviewFeedback,
+  createInterviewSession as startInterviewSession,
+  getSessions as getInterviewSessions,
+  getSessionById as getInterviewSessionById,
+  addAnswer as submitInterviewAnswer,
+  endSession as endInterviewSession,
+  getSessionFeedback as getInterviewFeedback,
 } from "../controllers/interview.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 

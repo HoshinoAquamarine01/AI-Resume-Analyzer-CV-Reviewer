@@ -2,6 +2,8 @@ import { Resume } from "../models/Resume";
 import { asyncHandler } from "../utils/asyncHandler";
 import { formatResponse } from "../utils/formatResponse";
 import { resumeService } from "../services/resume.service";
+import { ResumeAnalysis } from "../models/ResumeAnalysis";
+import { aiService } from "../services/ai.service";
 
 export const createResume = asyncHandler(async (req: any, res: any) => {
   const { title, fileUrl, fileType } = req.body;
@@ -211,4 +213,42 @@ export const searchResumes = asyncHandler(async (req: any, res: any) => {
         "Search results",
       ),
     );
+});
+
+export const generateResumeAnalysis = asyncHandler(async (req: any, res: any) => {
+  const { resumeId } = req.params;
+  const userId = req.user._id;
+
+  const resume = await Resume.findById(resumeId);
+  if (!resume || resume.userId.toString() !== userId.toString()) {
+    return res.status(404).json(formatResponse(null, "Resume not found"));
+  }
+
+  const analysisResult = await aiService.analyzeResume(resume.extractedText || "");
+
+  const analysis = await ResumeAnalysis.create({
+    resumeId,
+    userId,
+    overallScore: analysisResult.score,
+    analyzedAt: new Date()
+  });
+
+  return res.status(200).json(formatResponse(analysis, "Resume analysis completed"));
+});
+
+export const getResumeAnalysis = asyncHandler(async (req: any, res: any) => {
+  const { resumeId } = req.params;
+  const userId = req.user._id;
+
+  const resume = await Resume.findById(resumeId);
+  if (!resume || resume.userId.toString() !== userId.toString()) {
+    return res.status(404).json(formatResponse(null, "Resume not found"));
+  }
+
+  const analysis = await ResumeAnalysis.findOne({ resumeId, userId });
+  if (!analysis) {
+    return res.status(404).json(formatResponse(null, "Analysis not found"));
+  }
+
+  return res.status(200).json(formatResponse(analysis, "Resume analysis retrieved"));
 });

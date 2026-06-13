@@ -112,7 +112,7 @@ export const refreshToken = asyncHandler(async (req: any, res: any) => {
     return res.status(401).json(formatResponse(null, "Invalid refresh token"));
   }
 
-  const newToken = await authService.generateToken(decoded.userId);
+  const newToken = await authService.generateToken((decoded as any).userId);
 
   return res
     .status(200)
@@ -127,7 +127,7 @@ export const verifyEmail = asyncHandler(async (req: any, res: any) => {
     return res.status(400).json(formatResponse(null, "Invalid token"));
   }
 
-  await User.findByIdAndUpdate(decoded.userId, { emailVerified: true });
+  await User.findByIdAndUpdate((decoded as any).userId, { emailVerified: true });
 
   return res
     .status(200)
@@ -167,7 +167,7 @@ export const resetPassword = asyncHandler(async (req: any, res: any) => {
   }
 
   const hashedPassword = await authService.hashPassword(newPassword);
-  await User.findByIdAndUpdate(decoded.userId, { password: hashedPassword });
+  await User.findByIdAndUpdate((decoded as any).userId, { password: hashedPassword });
 
   return res
     .status(200)

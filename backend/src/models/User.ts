@@ -1,4 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { comparePassword as comparePasswordUtil } from "../utils/comparePassword";
+import { hashPassword } from "../utils/hashPassword";
 
 export interface IUser extends Document {
   name: string;
@@ -15,6 +17,7 @@ export interface IUser extends Document {
   preferredJobTitles?: string[];
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(password: string): Promise<boolean>;
 }
 const userSchema = new Schema<IUser>(
   {
@@ -54,4 +57,17 @@ const userSchema = new Schema<IUser>(
   },
   { timestamps: true },
 );
-export const User = mongoose.model<IUser>("User",userSchema)
+
+
+userSchema.pre<IUser>("save", async function () {
+  if (!this.isModified("password")) {
+    return;
+  }
+  this.password = await hashPassword(this.password);
+});
+
+userSchema.methods.comparePassword = async function (password: string) {
+  return comparePasswordUtil(password, this.password);
+};
+
+export const User = mongoose.model<IUser>("User", userSchema);
