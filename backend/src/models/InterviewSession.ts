@@ -1,64 +1,56 @@
-import mongoose, { Schema, Document } from "mongoose";
-export interface IInterviewSession extends Document {
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
+
+@Schema({ timestamps: { createdAt: true, updatedAt: false } })
+export class InterviewSession extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   userId: mongoose.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Resume", required: true })
   resumeId: mongoose.Types.ObjectId;
 
-  jobTitle: string;
-  companyName: string;
+  @Prop()
+  jobTitle?: string;
 
-  questions: string[];
-  answers: string[];
-  feedback: string[];
+  @Prop()
+  companyName?: string;
 
-  score: number;
+  @Prop({ type: [String] })
+  questions?: string[];
 
-  strengths: string[];
-  weaknesses: string[];
+  @Prop({ type: [String] })
+  answers?: string[];
 
-  sessionType: "technical" | "hr";
+  @Prop({ type: [String] })
+  feedback?: string[];
 
+  @Prop()
+  score?: number;
+
+  @Prop({ type: [String] })
+  strengths?: string[];
+
+  @Prop({ type: [String] })
+  weaknesses?: string[];
+
+  @Prop({
+    type: String,
+    enum: ["technical", "hr"],
+  })
+  sessionType?: "technical" | "hr";
+
+  @Prop()
   videoUrl?: string;
+
+  @Prop()
   audioUrl?: string;
+
+  @Prop()
   confidenceScore?: number;
 
   createdAt: Date;
 }
-const InterviewSessionSchema = new Schema<IInterviewSession>(
-    {
-       userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
 
-    resumeId: {
-      type: Schema.Types.ObjectId,
-      ref: "Resume",
-      required: true,
-    },
-
-    jobTitle: String,
-    companyName: String,
-
-    questions: [String],
-    answers: [String],
-    feedback: [String],
-
-    score: Number,
-
-    strengths: [String],
-    weaknesses: [String],
-
-    sessionType: {
-      type: String,
-      enum: ["technical", "hr"],
-    },
-
-    videoUrl: String,
-    audioUrl: String,
-    confidenceScore: Number,
-  },
-  { timestamps: { createdAt: true, updatedAt: false } 
-    }
-)
-export const InterviewSession = mongoose.model<IInterviewSession>("InterviewSession",InterviewSessionSchema)
+export type InterviewSessionDocument = InterviewSession & Document;
+export const InterviewSessionSchema =
+  SchemaFactory.createForClass(InterviewSession);

@@ -1,62 +1,52 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
 
-export interface IJobMatch {
+@Schema({ timestamps: { createdAt: true, updatedAt: false } })
+export class JobMatch extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   userId: mongoose.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Resume", required: true })
   resumeId: mongoose.Types.ObjectId;
 
-  jobTitle: string;
-  companyName: string;
-  jobDescription: string;
+  @Prop()
+  jobTitle?: string;
 
-  matchScore: number;
+  @Prop()
+  companyName?: string;
 
-  matchedSkills: string[];
-  missingSkills: string[];
-  recommendations: string[];
+  @Prop()
+  jobDescription?: string;
 
+  @Prop()
+  matchScore?: number;
+
+  @Prop({ type: [String] })
+  matchedSkills?: string[];
+
+  @Prop({ type: [String] })
+  missingSkills?: string[];
+
+  @Prop({ type: [String] })
+  recommendations?: string[];
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "CoverLetter" })
   coverLetterId?: mongoose.Types.ObjectId;
 
+  @Prop()
   salaryRange?: string;
+
+  @Prop()
   location?: string;
+
+  @Prop()
   remote?: boolean;
+
+  @Prop()
   industry?: string;
 
   createdAt: Date;
 }
-const JobMatchSchema = new Schema<IJobMatch>(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
 
-    resumeId: {
-      type: Schema.Types.ObjectId,
-      ref: "Resume",
-      required: true,
-    },
-
-    jobTitle: String,
-    companyName: String,
-    jobDescription: String,
-
-    matchScore: Number,
-
-    matchedSkills: [String],
-    missingSkills: [String],
-    recommendations: [String],
-
-    coverLetterId: {
-      type: Schema.Types.ObjectId,
-      ref: "CoverLetter",
-    },
-
-    salaryRange: String,
-    location: String,
-    remote: Boolean,
-    industry: String,
-  },
-  { timestamps: { createdAt: true, updatedAt: false } },
-)
-export const JobMatch = mongoose.model<IJobMatch>("JobMatch",JobMatchSchema)
+export type JobMatchDocument = JobMatch & Document;
+export const JobMatchSchema = SchemaFactory.createForClass(JobMatch);

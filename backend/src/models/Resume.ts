@@ -1,58 +1,54 @@
-// Placeholder for Resume model
-import mongoose, { Schema, Document } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
 
-export interface IResume extends Document {
+@Schema({ timestamps: true })
+export class Resume extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   userId: mongoose.Types.ObjectId;
+
+  @Prop({ required: true })
   title: string;
+
+  @Prop({ required: true })
   fileUrl: string;
+
+  @Prop({
+    type: String,
+    enum: ["pdf", "docx"],
+    required: true,
+  })
   fileType: "pdf" | "docx";
-  extractedText: string;
 
-  skills: string[];
-  education: string[];
-  experience: string[];
-  projects: string[];
-  certifications: string[];
-  languages: string[];
+  @Prop()
+  extractedText?: string;
 
-  totalExperienceYears: number;
-  aiScore: number;
-  atsScore: number;
+  @Prop({ type: [String] })
+  skills?: string[];
 
-  createdAt: Date;
-  updatedAt: Date;
+  @Prop({ type: [String] })
+  education?: string[];
+
+  @Prop({ type: [String] })
+  experience?: string[];
+
+  @Prop({ type: [String] })
+  projects?: string[];
+
+  @Prop({ type: [String] })
+  certifications?: string[];
+
+  @Prop({ type: [String] })
+  languages?: string[];
+
+  @Prop()
+  totalExperienceYears?: number;
+
+  @Prop()
+  aiScore?: number;
+
+  @Prop()
+  atsScore?: number;
 }
-const ResumeSchema = new Schema<IResume>(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
 
-    title: { type: String, required: true },
-    fileUrl: { type: String, required: true },
-
-    fileType: {
-      type: String,
-      enum: ["pdf", "docx"],
-      required: true,
-    },
-
-    extractedText: String,
-
-    skills: [String],
-    education: [String],
-    experience: [String],
-    projects: [String],
-    certifications: [String],
-    languages: [String],
-
-    totalExperienceYears: Number,
-    aiScore: Number,
-    atsScore: Number,
-  },
-  { timestamps: true }
-)
-
-export const Resume = mongoose.model<IResume>("Resume",ResumeSchema)
+export type ResumeDocument = Resume & Document;
+export const ResumeSchema = SchemaFactory.createForClass(Resume);
