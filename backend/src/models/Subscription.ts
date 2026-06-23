@@ -1,55 +1,48 @@
-import mongoose, { Schema, Document } from "mongoose";
-export interface Subscription extends Document {
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
+
+@Schema({ timestamps: { createdAt: true, updatedAt: false } })
+export class Subscription extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   userId: mongoose.Types.ObjectId;
 
+  @Prop({
+    type: String,
+    enum: ["free", "pro", "premium"],
+    default: "free",
+  })
   plan: "free" | "pro" | "premium";
 
-  price: number;
+  @Prop()
+  price?: number;
 
-  startDate: Date;
-  endDate: Date;
+  @Prop()
+  startDate?: Date;
 
-  features: string[];
+  @Prop()
+  endDate?: Date;
 
-  paymentStatus: "pending" | "paid" | "failed";
+  @Prop({ type: [String] })
+  features?: string[];
 
+  @Prop({
+    type: String,
+    enum: ["active", "expired", "cancelled"],
+    default: "active",
+  })
+  status: "active" | "expired" | "cancelled";
+
+  @Prop({
+    type: String,
+    enum: ["pending", "paid", "failed"],
+  })
+  paymentStatus?: "pending" | "paid" | "failed";
+
+  @Prop()
   stripeCustomerId?: string;
 
   createdAt: Date;
 }
-const SubscriptionSchema = new Schema<Subscription>(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
 
-    plan: {
-      type: String,
-      enum: ["free", "pro", "premium"],
-      default: "free",
-    },
-
-    price: Number,
-
-    startDate: Date,
-    endDate: Date,
-
-    features: [String],
-
-    paymentStatus: {
-      type: String,
-      enum: ["pending", "paid", "failed"],
-    },
-
-    stripeCustomerId: String,
-  },
-  { timestamps: { createdAt: true, updatedAt: false } },
-);
-const Subscription = mongoose.model<Subscription>(
-  "Subscription",
-  SubscriptionSchema,
-);
-
-export { Subscription };
+export type SubscriptionDocument = Subscription & Document;
+export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);

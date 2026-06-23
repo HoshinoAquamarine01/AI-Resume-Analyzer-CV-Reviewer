@@ -1,57 +1,37 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
 
-export interface ICoverLetter extends Document {
+@Schema({ timestamps: { createdAt: true, updatedAt: false } })
+export class CoverLetter extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   userId: mongoose.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Resume", required: true })
   resumeId: mongoose.Types.ObjectId;
-  jobMatchId: mongoose.Types.ObjectId;
 
-  companyName: string;
-  jobTitle: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "JobMatch" })
+  jobMatchId?: mongoose.Types.ObjectId;
 
-  content: string;
+  @Prop()
+  companyName?: string;
 
-  tone: "professional" | "formal" | "creative";
+  @Prop()
+  jobTitle?: string;
 
-  generatedByAI: boolean;
+  @Prop()
+  content?: string;
+
+  @Prop({
+    type: String,
+    enum: ["professional", "formal", "creative"],
+  })
+  tone?: "professional" | "formal" | "creative";
+
+  @Prop({ type: Boolean, default: true })
+  generatedByAI?: boolean;
 
   createdAt: Date;
 }
-const CoverLetterSchema = new Schema<ICoverLetter>(
-    {
-           userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
 
-    resumeId: {
-      type: Schema.Types.ObjectId,
-      ref: "Resume",
-      required: true,
-    },
-
-    jobMatchId: {
-      type: Schema.Types.ObjectId,
-      ref: "JobMatch",
-      required: true,
-    },
-
-    companyName: String,
-    jobTitle: String,
-
-    content: String,
-
-    tone: {
-      type: String,
-      enum: ["professional", "formal", "creative"],
-    },
-
-    generatedByAI: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  { timestamps: { createdAt: true, updatedAt: false } }
-    
-)
-export const CoverLetter = mongoose.model<ICoverLetter>("CoverLetter",CoverLetterSchema)
+export type CoverLetterDocument = CoverLetter & Document;
+export const CoverLetterSchema = SchemaFactory.createForClass(CoverLetter);

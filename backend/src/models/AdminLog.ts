@@ -1,32 +1,22 @@
-import mongoose, { Document, Schema } from "mongoose";
-export interface IAdminLog extends Document {
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
+
+@Schema({ timestamps: { createdAt: true, updatedAt: false } })
+export class AdminLog extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   adminId: mongoose.Types.ObjectId;
+
+  @Prop({ required: true })
   action: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User" })
   targetUserId?: mongoose.Types.ObjectId;
+
+  @Prop()
   details?: string;
 
   createdAt: Date;
 }
-const AdminLogSchema = new Schema<IAdminLog>(
-  {
-    adminId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
 
-    action: {
-      type: String,
-      required: true,
-    },
-
-    targetUserId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-
-    details: String,
-  },
-  { timestamps: { createdAt: true, updatedAt: false } },
-);
-export const AdminLog = mongoose.model<IAdminLog>("AdminLog", AdminLogSchema);
+export type AdminLogDocument = AdminLog & Document;
+export const AdminLogSchema = SchemaFactory.createForClass(AdminLog);

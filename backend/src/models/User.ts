@@ -1,73 +1,73 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
 import { comparePassword as comparePasswordUtil } from "../utils/comparePassword";
 import { hashPassword } from "../utils/hashPassword";
 
-export interface IUser extends Document {
+@Schema({ timestamps: true })
+export class User extends Document {
+  @Prop({ required: true })
   name: string;
+
+  @Prop({ required: true, unique: true })
   email: string;
+
+  @Prop({ required: true })
   password: string;
+
+  @Prop({
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  })
   role: "user" | "admin";
+
+  @Prop()
   phoneNumber?: string;
+
+  @Prop()
   avatarUrl?: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Subscription" })
   subscriptionId?: mongoose.Types.ObjectId;
+
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resume" }] })
   resumeIds?: mongoose.Types.ObjectId[];
+
+  @Prop()
   linkedInUrl?: string;
+
+  @Prop()
   githubUrl?: string;
+
+  @Prop({
+    type: String,
+    enum: ["student", "junior", "mid", "senior"],
+  })
   careerLevel?: "student" | "junior" | "mid" | "senior";
+
+  @Prop({ type: [String] })
   preferredJobTitles?: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  comparePassword(password: string): Promise<boolean>;
+
+  // Define instance method signatures on class
+  comparePassword: (password: string) => Promise<boolean>;
 }
-const userSchema = new Schema<IUser>(
-  {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
 
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
-    },
-    phoneNumber: String,
-    avatarUrl: String,
+export type UserDocument = User & Document;
+export const UserSchema = SchemaFactory.createForClass(User);
 
-    subscriptionId: {
-      type: Schema.Types.ObjectId,
-      ref: "Subscription",
-    },
-
-    resumeIds: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Resume",
-      },
-    ],
-
-    linkedInUrl: String,
-    githubUrl: String,
-
-    careerLevel: {
-      type: String,
-      enum: ["student", "junior", "mid", "senior"],
-    },
-
-    preferredJobTitles: [String],
-  },
-  { timestamps: true },
-);
-
-
-userSchema.pre<IUser>("save", async function () {
+// Bind Mongoose middleware
+UserSchema.pre<UserDocument>("save", async function (next) {
   if (!this.isModified("password")) {
-    return;
+    return next();
   }
-  this.password = await hashPassword(this.password);
+  try {
+    this.password = await hashPassword(this.password);
+    next();
+  } catch (err: any) {
+    next(err);
+  }
 });
 
-userSchema.methods.comparePassword = async function (password: string) {
+UserSchema.methods.comparePassword = async function (password: string) {
   return comparePasswordUtil(password, this.password);
 };
-
-export const User = mongoose.model<IUser>("User", userSchema);

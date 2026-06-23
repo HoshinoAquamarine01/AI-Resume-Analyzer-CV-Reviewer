@@ -1,52 +1,47 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
 
-export interface IResumeAnalysis extends Document {
+@Schema()
+export class ResumeAnalysis extends Document {
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Resume", required: true })
   resumeId: mongoose.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   userId: mongoose.Types.ObjectId;
 
-  overallScore: number;
-  atsCompatibility: number;
+  @Prop()
+  overallScore?: number;
 
-  strengths: string[];
-  weaknesses: string[];
-  missingSkills: string[];
-  keywordSuggestions: string[];
-  grammarIssues: string[];
-  formattingIssues: string[];
-  recommendedRoles: string[];
-  improvementTips: string[];
+  @Prop()
+  atsCompatibility?: number;
 
+  @Prop({ type: [String] })
+  strengths?: string[];
+
+  @Prop({ type: [String] })
+  weaknesses?: string[];
+
+  @Prop({ type: [String] })
+  missingSkills?: string[];
+
+  @Prop({ type: [String] })
+  keywordSuggestions?: string[];
+
+  @Prop({ type: [String] })
+  grammarIssues?: string[];
+
+  @Prop({ type: [String] })
+  formattingIssues?: string[];
+
+  @Prop({ type: [String] })
+  recommendedRoles?: string[];
+
+  @Prop({ type: [String] })
+  improvementTips?: string[];
+
+  @Prop({ type: Date, default: Date.now })
   analyzedAt: Date;
 }
 
-const ResumeAnalysisSchema = new Schema<IResumeAnalysis>({
-  resumeId: {
-    type: Schema.Types.ObjectId,
-    ref: "Resume",
-    required: true,
-  },
-
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-
-  overallScore: Number,
-  atsCompatibility: Number,
-
-  strengths: [String],
-  weaknesses: [String],
-  missingSkills: [String],
-  keywordSuggestions: [String],
-  grammarIssues: [String],
-  formattingIssues: [String],
-  recommendedRoles: [String],
-  improvementTips: [String],
-
-  analyzedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-export const ResumeAnalysis = mongoose.model<IResumeAnalysis>("ResumeAnalysis",ResumeAnalysisSchema)
+export type ResumeAnalysisDocument = ResumeAnalysis & Document;
+export const ResumeAnalysisSchema = SchemaFactory.createForClass(ResumeAnalysis);
