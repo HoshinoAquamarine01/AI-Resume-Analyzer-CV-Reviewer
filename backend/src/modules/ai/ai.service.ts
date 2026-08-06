@@ -5,12 +5,19 @@ import { Model, Types } from "mongoose";
 import { GoogleGenAI } from "@google/genai";
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { ResumeAnalysis, ResumeAnalysisDocument } from "../../models/ResumeAnalysis";
+import {
+  getResumeAnalysisPrompt,
+  getAtsOptimizationPrompt,
+  getCoverLetterPrompt,
+  getInterviewQuestionsPrompt,
+  getJobMatchPrompt,
+} from "../../prompts";
 
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
   private ai: GoogleGenAI | null = null;
-  private defaultModel = "gemini-2.5-flash";
+  private defaultModel = "gemini-3.5-flash";
 
   constructor(
     @InjectModel(Resume.name) private readonly resumeModel: Model<ResumeDocument>,
@@ -118,31 +125,7 @@ export class AiService {
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a world-class HR Director, Resume Auditor, and Senior Recruiter.
-Analyze the following candidate resume thoroughly and evaluate its overall score, ATS compatibility, strengths, weaknesses, missing skills, keyword suggestions, grammar/phrasing issues, formatting recommendations, suitable roles, and actionable improvement steps.
-
-Candidate Resume Text:
-"""
-${resumeText}
-"""
-
-Return ONLY a valid JSON object matching this exact schema:
-{
-  "overallScore": 85,
-  "atsCompatibility": 80,
-  "strengths": ["Strong TypeScript background", "Good experience with microservices"],
-  "weaknesses": ["Lacks quantitative metrics in bullet points", "Summary section is brief"],
-  "missingSkills": ["Docker", "Kubernetes", "CI/CD"],
-  "keywordSuggestions": ["Scalability", "Unit Testing", "System Architecture"],
-  "grammarIssues": ["Consider changing 'responsible for' to active verbs like 'spearheaded'"],
-  "formattingIssues": ["Add clear section dividers"],
-  "recommendedRoles": ["Fullstack Engineer", "Backend Developer", "Node.js Developer"],
-  "improvementTips": ["Quantify experience achievements with percentage increases or revenue impact"]
-}
-
-All scores must be integers between 0 and 100.
-All arrays should contain clear, actionable strings.
-Return ONLY pure JSON.`;
+    const prompt = getResumeAnalysisPrompt(resumeText);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{
@@ -194,29 +177,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are an expert ATS (Applicant Tracking System) Specialist and Executive Resume Writer.
-Analyze this resume against the target job description. Optimize the text to maximize ATS match score and highlight relevant skills.
-
-Candidate Resume Text:
-"""
-${resumeText}
-"""
-
-Target Job Description:
-"""
-${jobDescription}
-"""
-
-Return ONLY a valid JSON object matching this schema:
-{
-  "atsScore": 88,
-  "matchingKeywords": ["TypeScript", "NestJS", "REST API"],
-  "missingKeywords": ["GraphQL", "Docker"],
-  "optimizedResumeText": "Full rewritten and ATS-optimized resume content here...",
-  "optimizationSuggestions": ["Emphasize experience with REST APIs in the summary section"]
-}
-
-Return ONLY pure JSON.`;
+    const prompt = getAtsOptimizationPrompt(resumeText, jobDescription);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{
@@ -257,28 +218,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a Professional Career Coach and Executive Resume Writer.
-Generate a high-converting, professional cover letter tailored for the target role and company based on the candidate's resume.
-
-Candidate Resume:
-"""
-${resumeText}
-"""
-
-Target Role: ${jobTitle}
-Company Name: ${companyName}
-Job Description:
-"""
-${jobDescription}
-"""
-
-Return ONLY a valid JSON object matching this schema:
-{
-  "coverLetter": "Dear Hiring Manager at ${companyName}...",
-  "keyHighlights": ["Highlight 1", "Highlight 2"]
-}
-
-Return ONLY pure JSON.`;
+    const prompt = getCoverLetterPrompt(resumeText, jobTitle, companyName, jobDescription);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{
@@ -300,29 +240,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a Recruitment AI Matcher.
-Compare the candidate's resume against each of the provided job descriptions. Evaluate match percentage, matched skills, missing skills, and recommendations for each job.
-
-Candidate Resume:
-"""
-${resumeText}
-"""
-
-Job Descriptions:
-${jobDescriptions.map((desc, i) => `--- Job #${i} ---\n${desc}`).join("\n\n")}
-
-Return ONLY a valid JSON array of objects, one per job description in exact sequence:
-[
-  {
-    "index": 0,
-    "matchScore": 85,
-    "matchedSkills": ["TypeScript", "Node.js"],
-    "missingSkills": ["AWS"],
-    "recommendations": ["Add cloud deployment experience to your resume"]
-  }
-]
-
-Return ONLY pure JSON.`;
+    const prompt = getJobMatchPrompt(resumeText, jobDescriptions);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<
@@ -352,33 +270,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a Hiring Manager and Technical Interviewer.
-Based on the candidate's resume and target job description, generate top interview questions along with key points the candidate should address in their answers.
-
-Candidate Resume:
-"""
-${resumeText}
-"""
-
-Job Description:
-"""
-${jobDescription}
-"""
-
-Return ONLY a valid JSON object:
-{
-  "questions": [
-    {
-      "question": "Can you describe a challenging backend problem you solved with NestJS?",
-      "category": "technical",
-      "purpose": "Evaluate backend depth and framework mastery",
-      "answerOutline": "Mention architecture, caching, MongoDB indexing, and performance results."
-    }
-  ],
-  "generalTips": ["Focus on quantifiable achievements during technical questions"]
-}
-
-Return ONLY pure JSON.`;
+    const prompt = getInterviewQuestionsPrompt(resumeText, jobDescription);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{

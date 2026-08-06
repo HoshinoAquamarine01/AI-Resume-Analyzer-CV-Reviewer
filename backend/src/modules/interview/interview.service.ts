@@ -17,12 +17,21 @@ export class InterviewService {
 
     if (resumeId) {
       try {
-        const result = await this.aiService.generateInterviewQuestions(
+        const result: any = await this.aiService.generateInterviewQuestions(
           resumeId,
           `Target Position: ${jobTitle} at ${companyName}. Session Type: ${sessionType}`
         );
-        if (Array.isArray(result)) {
-          generatedQuestions = result.map((q: any) => (typeof q === "string" ? q : q.question || JSON.stringify(q)));
+        const questionArray = Array.isArray(result)
+          ? result
+          : Array.isArray(result?.questions)
+          ? result.questions
+          : [];
+        if(questionArray.length > 0){
+          generatedQuestions =
+          questionArray.map((q:string | {question: string}) => {
+            if(typeof q === 'string') return q;
+            return q?.question || JSON.stringify(q);
+          })
         }
       } catch (err) {
         generatedQuestions = [

@@ -11,13 +11,23 @@ export class ResumeService {
     @InjectModel(ResumeAnalysis.name) private analysisModel: Model<ResumeAnalysisDocument>
   ) {}
 
-  async create(userId: string, title: string, fileUrl: string, fileType: "pdf" | "docx") {
+  async create(
+    userId: string,
+    title: string,
+    fileUrl: string,
+    fileType: "pdf" | "docx",
+    extractedText?: string
+  ) {
+    const cleanText = extractedText
+      ? extractedText.replace(/\n\s*\n/g, "\n").trim()
+      : "Sample extracted text from resume.";
+
     return this.resumeModel.create({
       userId: new Types.ObjectId(userId),
       title,
       fileUrl,
       fileType,
-      extractedText: "Sample extracted text from resume.", // default placeholder
+      extractedText: cleanText,
     });
   }
 
