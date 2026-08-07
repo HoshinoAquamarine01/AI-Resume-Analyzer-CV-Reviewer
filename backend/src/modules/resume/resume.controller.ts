@@ -188,12 +188,12 @@ export class ResumeController {
     @Res() res: Response
   ) {
     const resume = await this.resumeService.share(user._id, resumeId);
-    const pdfBuffer = await this.resumeService.generatePdf(resume.extractedText || "");
+    const pdfBuffer = await this.resumeService.generatePdf(resume);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${resume.title}.pdf"`
+      `attachment; filename="${encodeURIComponent(resume.title)}.pdf"`
     );
     res.send(pdfBuffer);
   }
@@ -209,22 +209,22 @@ export class ResumeController {
     let exported: any;
 
     if (format === "pdf") {
-      exported = await this.resumeService.generatePdf(resume.extractedText || "");
+      exported = await this.resumeService.generatePdf(resume);
       res.setHeader("Content-Type", "application/pdf");
     } else if (format === "docx") {
-      exported = await this.resumeService.generateDocx(resume.extractedText || "");
+      exported = await this.resumeService.generateDocx(resume);
       res.setHeader(
         "Content-Type",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       );
     } else {
-      exported = Buffer.from(resume.extractedText || "");
+      exported = Buffer.from(JSON.stringify(resume, null, 2));
       res.setHeader("Content-Type", "application/json");
     }
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${resume.title}.${format}"`
+      `attachment; filename="${encodeURIComponent(resume.title)}.${format}"`
     );
     res.send(exported);
   }

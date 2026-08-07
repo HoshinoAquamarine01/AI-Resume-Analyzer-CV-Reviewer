@@ -118,7 +118,7 @@ export class CoverLetterController {
     @Res() res: Response
   ) {
     const coverLetter = await this.coverLetterService.findOne(coverLetterId);
-    const pdfBuffer = await this.coverLetterService.generatePdf(coverLetter.content || "");
+    const pdfBuffer = await this.coverLetterService.generatePdf(coverLetter);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
@@ -126,5 +126,35 @@ export class CoverLetterController {
       `attachment; filename="cover-letter-${coverLetter._id}.pdf"`
     );
     res.send(pdfBuffer);
+  }
+
+  @Get(":coverLetterId/export")
+  async exportCoverLetter(
+    @Param("coverLetterId") coverLetterId: string,
+    @Query("format") format = "pdf",
+    @Res() res: Response
+  ) {
+    const coverLetter = await this.coverLetterService.findOne(coverLetterId);
+    let exported: any;
+
+    if (format === "pdf") {
+      exported = await this.coverLetterService.generatePdf(coverLetter);
+      res.setHeader("Content-Type", "application/pdf");
+    } else if (format === "docx") {
+      exported = await this.coverLetterService.generateDocx(coverLetter);
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      );
+    } else {
+      exported = Buffer.from(JSON.stringify(coverLetter, null, 2));
+      res.setHeader("Content-Type", "application/json");
+    }
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="cover-letter-${coverLetter._id}.${format}"`
+    );
+    res.send(exported);
   }
 }
