@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { ResumeAnalysis, ResumeAnalysisDocument } from "../../models/ResumeAnalysis";
-
+import { DocumentGeneratorHelper, DocumentData, DocumentSection } from "../../common/helpers/document-generator.helper";
 @Injectable()
 export class ResumeService {
   constructor(
@@ -11,13 +11,23 @@ export class ResumeService {
     @InjectModel(ResumeAnalysis.name) private analysisModel: Model<ResumeAnalysisDocument>
   ) {}
 
-  async create(userId: string, title: string, fileUrl: string, fileType: "pdf" | "docx") {
+  async create(
+    userId: string,
+    title: string,
+    fileUrl: string,
+    fileType: "pdf" | "docx",
+    extractedText?: string
+  ) {
+    const cleanText = extractedText
+      ? extractedText.replace(/\n\s*\n/g, "\n").trim()
+      : "Sample extracted text from resume.";
+
     return this.resumeModel.create({
       userId: new Types.ObjectId(userId),
       title,
       fileUrl,
       fileType,
-      extractedText: "Sample extracted text from resume.", // default placeholder
+      extractedText: cleanText,
     });
   }
 
@@ -83,12 +93,83 @@ export class ResumeService {
     return resume;
   }
 
-  async generatePdf(content: string): Promise<Buffer> {
-    return Buffer.from(content || "");
+  private buildResumeDocumentData(input: any, defaultTitle = 'Resume'): DocumentData {
+    if (typeof input === 'string') {
+      return DocumentGeneratorHelper.parseTextToDocumentData(input, defaultTitle);
+    }
+
+    if (input && typeof input === 'object') {
+      const title = input.title || defaultTitle;
+      const sections: DocumentSection[] = [];
+
+      if (input.skills && Array.isArray(input.skills) && input.skills.length > 0) {
+        sections.push({
+          title: 'Skills & Competencies',
+          bullets: input.skills,
+        });
+      }
+
+      if (input.experience && Array.isArray(input.experience) && input.experience.length > 0) {
+        sections.push({
+          title: 'Work Experience',
+          bullets: input.experience,
+        });
+      }
+
+      if (input.education && Array.isArray(input.education) && input.education.length > 0) {
+        sections.push({
+          title: 'Education',
+          bullets: input.education,
+        });
+      }
+
+      if (input.projects && Array.isArray(input.projects) && input.projects.length > 0) {
+        sections.push({
+          title: 'Projects',
+          bullets: input.projects,
+        });
+      }
+
+      if (input.certifications && Array.isArray(input.certifications) && input.certifications.length > 0) {
+        sections.push({
+          title: 'Certifications',
+          bullets: input.certifications,
+        });
+      }
+
+      if (input.languages && Array.isArray(input.languages) && input.languages.length > 0) {
+        sections.push({
+          title: 'Languages',
+          bullets: input.languages,
+        });
+      }
+
+      if (sections.length === 0 && input.extractedText) {
+        return DocumentGeneratorHelper.parseTextToDocumentData(input.extractedText, title);
+      }
+
+      return {
+        title,
+        sections: sections.length > 0 ? sections : [{ content: input.extractedText || 'No detailed content.' }],
+        rawText: input.extractedText,
+      };
+    }
+
+    return DocumentGeneratorHelper.parseTextToDocumentData('', defaultTitle);
   }
 
-  async generateDocx(content: string): Promise<Buffer> {
-    return Buffer.from(content || "");
+  async generatePdf(input?: any, title?: string): Promise<Buffer> {
+    const docData = this.buildResumeDocumentData(input, title);
+    return DocumentGeneratorHelper.generatePdfBuffer(docData);
+  }
+
+  async generatePDF(input?: any, title?: string): Promise<Buffer> {
+    return this.generatePdf(input, title);
+  }
+
+  async generateDocx(input?: any, title?: string): Promise<Buffer> {
+    const docData = this.buildResumeDocumentData(input, title);
+    return DocumentGeneratorHelper.generateDocxBuffer(docData);
   }
 
   async getAvailableTemplates() {

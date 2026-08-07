@@ -1,11 +1,25 @@
+import {Resend} from 'resend'
+const resendApiKey = process.env.RESEND_API_KEY as string
+const resend = resendApiKey ? new Resend(resendApiKey) : null
 export const sendEmail = async (
   to: string,
   subject: string,
   body: string,
 ): Promise<boolean> => {
-  console.log(`[Email Service] Simulated Email Sent:`);
-  console.log(`  To: ${to}`);
-  console.log(`  Subject: ${subject}`);
-  console.log(`  Content Preview: ${body.replace(/\n/g, " | ").substring(0, 100)}...`);
-  return true;
+  if (!resend) {
+    return false
+  }
+  try{
+      const {data, error} = await resend.emails.send({
+        from: '<noreply@yourdomain.com>',
+        to,
+        subject,
+        html:body
+      })
+      if(error) return false
+      return true
+  }catch(error){
+
+    return false
+  }
 };

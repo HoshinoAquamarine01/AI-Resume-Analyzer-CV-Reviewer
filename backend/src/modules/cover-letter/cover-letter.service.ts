@@ -2,17 +2,25 @@ import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/commo
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { CoverLetter, CoverLetterDocument } from "../../models/CoverLetter";
+import { AiService } from "../ai/ai.service";
+import { DocumentGeneratorHelper, DocumentData } from "../../common/helpers/document-generator.helper";
 
 @Injectable()
 export class CoverLetterService {
   constructor(
-    @InjectModel(CoverLetter.name) private readonly coverLetterModel: Model<CoverLetterDocument>
+    @InjectModel(CoverLetter.name) private readonly coverLetterModel: Model<CoverLetterDocument>,
+    private readonly aiService: AiService
   ) {}
 
   async generate(userId: string, resumeId: string, jobTitle: string, companyName: string, jobDescription: string) {
-    // Simulated cover letter content generation
-    const content = `Dear Hiring Team,\n\nI am writing to express my strong interest in the ${jobTitle} position at ${companyName}.\n\nBased on my resume, I have the required skills and experience described in: "${jobDescription}".\n\nSincerely,\nCandidate`;
-    
+    let content = "";
+    try {
+      const aiRes = await this.aiService.generateCoverLetter(resumeId, jobTitle, companyName, jobDescription);
+      content = aiRes.coverLetter || "";
+    } catch (err) {
+      content = `Dear Hiring Team at ${companyName},\n\nI am writing to express my strong interest in the ${jobTitle} position.\n\nSincerely,\nApplicant`;
+    }
+
     return this.coverLetterModel.create({
       userId: new Types.ObjectId(userId),
       resumeId: new Types.ObjectId(resumeId),
@@ -72,8 +80,16 @@ export class CoverLetterService {
       throw new ForbiddenException("Unauthorized to modify this cover letter");
     }
 
-    // Simple improvement mock
-    const improvedContent = `${coverLetter.content}\n\n[Improved Section - ${section}]: Emphasized key strengths and alignment with role requirements.`;
+    let improvedContent = coverLetter.content;
+    try {
+      const aiRes = await this.aiService.improveResume(
+        coverLetter.resumeId.toString(),
+        `Cover Letter Section: ${section}\nCurrent Content: ${coverLetter.content}`
+      );
+      improvedContent = aiRes.improvedContent || aiRes.extractedText || coverLetter.content;
+    } catch (err) {
+      improvedContent = `${coverLetter.content}\n\n[Improved ${section}]`;
+    }
 
     return this.coverLetterModel.findByIdAndUpdate(
       coverLetterId,
@@ -95,8 +111,33 @@ export class CoverLetterService {
     });
   }
 
-  async generatePdf(content: string): Promise<Buffer> {
-    return Buffer.from(content || "");
+  private buildCoverLetterDocumentData(input: any, defaultTitle = 'Cover Letter'): DocumentData {
+    if (typeof input === 'string') {
+      return DocumentGeneratorHelper.parseTextToDocumentData(input, defaultTitle);
+    }
+
+    if (input && typeof input === 'object') {
+      const jobTitle = input.jobTitle || '';
+      const companyName = input.companyName || '';
+      const title = jobTitle ? `Cover Letter - ${jobTitle}` : defaultTitle;
+      const subtitle = companyName ? `Application for ${companyName}` : undefined;
+
+      const parsed = DocumentGeneratorHelper.parseTextToDocumentData(input.content || '', title);
+      parsed.subtitle = subtitle || parsed.subtitle;
+      return parsed;
+    }
+
+    return DocumentGeneratorHelper.parseTextToDocumentData('', defaultTitle);
+  }
+
+  async generatePdf(input: any, title?: string): Promise<Buffer> {
+    const docData = this.buildCoverLetterDocumentData(input, title);
+    return DocumentGeneratorHelper.generatePdfBuffer(docData);
+  }
+
+  async generateDocx(input: any, title?: string): Promise<Buffer> {
+    const docData = this.buildCoverLetterDocumentData(input, title);
+    return DocumentGeneratorHelper.generateDocxBuffer(docData);
   }
 
   async search(userId: string, query: string, page = 1, limit = 10) {

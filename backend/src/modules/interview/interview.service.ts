@@ -2,15 +2,45 @@ import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/commo
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { InterviewSession, InterviewSessionDocument } from "../../models/InterviewSession";
+import { AiService } from "../ai/ai.service";
 
 @Injectable()
 export class InterviewService {
   constructor(
     @InjectModel(InterviewSession.name)
-    private readonly sessionModel: Model<InterviewSessionDocument>
+    private readonly sessionModel: Model<InterviewSessionDocument>,
+    private readonly aiService: AiService
   ) {}
 
   async create(userId: string, resumeId: string, jobTitle: string, companyName: string, sessionType: "technical" | "hr") {
+    let generatedQuestions: string[] = [];
+
+    if (resumeId) {
+      try {
+        const result: any = await this.aiService.generateInterviewQuestions(
+          resumeId,
+          `Target Position: ${jobTitle} at ${companyName}. Session Type: ${sessionType}`
+        );
+        const questionArray = Array.isArray(result)
+          ? result
+          : Array.isArray(result?.questions)
+          ? result.questions
+          : [];
+        if(questionArray.length > 0){
+          generatedQuestions =
+          questionArray.map((q:string | {question: string}) => {
+            if(typeof q === 'string') return q;
+            return q?.question || JSON.stringify(q);
+          })
+        }
+      } catch (err) {
+        generatedQuestions = [
+          `Can you describe your experience relevant to the ${jobTitle} role?`,
+          `How do you handle technical challenges and project deadlines?`,
+        ];
+      }
+    }
+
     return this.sessionModel.create({
       userId: new Types.ObjectId(userId),
       resumeId: new Types.ObjectId(resumeId),
@@ -18,7 +48,7 @@ export class InterviewService {
       companyName,
       sessionType,
       score: 0,
-      questions: [],
+      questions: generatedQuestions,
       answers: [],
       feedback: [],
       strengths: [],
