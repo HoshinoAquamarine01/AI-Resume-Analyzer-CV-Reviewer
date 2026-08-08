@@ -5,6 +5,7 @@ import {
   Post,
   Delete,
   Body,
+  Query,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -119,8 +120,12 @@ export class UserController {
   }
 
   @Get("activity-log")
-  async getActivityLog(@UserDec() user: any) {
-    const logs = await this.userService.getActivityLog(user._id);
+  async getActivityLog(
+    @UserDec() user: any,
+    @Query("page") page = 1,
+    @Query("limit") limit = 10
+  ) {
+    const logs = await this.userService.getActivityLog(user._id, Number(page), Number(limit));
     return formatResponse(logs, "Activity log retrieved");
   }
 

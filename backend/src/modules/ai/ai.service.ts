@@ -13,6 +13,8 @@ import {
   getJobMatchPrompt,
 } from "../../prompts";
 
+import { ActivityLogService } from "../activity-log/activity-log.service";
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -22,7 +24,8 @@ export class AiService {
   constructor(
     @InjectModel(Resume.name) private readonly resumeModel: Model<ResumeDocument>,
     @InjectModel(ResumeAnalysis.name) private readonly analysisModel: Model<ResumeAnalysisDocument>,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly activityLogService: ActivityLogService
   ) {
     this.initGeminiClient();
   }
@@ -164,6 +167,12 @@ export class AiService {
     await this.resumeModel.findByIdAndUpdate(resumeId, {
       aiScore: overallScore,
       atsScore: atsCompatibility,
+    });
+
+    await this.activityLogService.createLog(userId, "RUN_AI_ANALYSIS", {
+      resumeId,
+      overallScore,
+      atsCompatibility,
     });
 
     return analysis;

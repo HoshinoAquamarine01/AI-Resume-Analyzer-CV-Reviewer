@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
   HttpCode,
   HttpStatus,
 } from "@nestjs/common";
@@ -14,6 +15,8 @@ import { InterviewService } from "./interview.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
 import { formatResponse } from "../../utils/formatResponse";
+import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
+import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
 @Controller("interview")
 @UseGuards(JwtAuthGuard)
@@ -21,6 +24,8 @@ export class InterviewController {
   constructor(private readonly interviewService: InterviewService) {}
 
   @Post("start")
+  @UseInterceptors(ActivityLogInterceptor)
+  @LogActivity("PRACTICE_INTERVIEW")
   async startInterviewSession(
     @UserDec() user: any,
     @Body("resumeId") resumeId: string,

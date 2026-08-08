@@ -7,10 +7,13 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import { sendEmail } from "../../services/email.service";
 
+import { ActivityLogService } from "../activity-log/activity-log.service";
+
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly activityLogService: ActivityLogService
   ) {}
 
   async register(dto: RegisterDto) {
@@ -42,7 +45,7 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, ipAddress?: string) {
     const user = await this.userModel.findOne({ email: dto.email });
     if (!user) {
       throw new UnauthorizedException("Invalid email or password");
@@ -55,6 +58,13 @@ export class AuthService {
 
     const token = await this.generateToken(user._id);
     const refreshToken = await this.generateRefreshToken(user._id);
+
+    await this.activityLogService.createLog(
+      user._id,
+      "LOGIN",
+      { email: dto.email },
+      ipAddress
+    );
 
     return {
       user: {

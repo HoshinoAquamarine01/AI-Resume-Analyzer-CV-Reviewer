@@ -145,7 +145,7 @@ Used in all "list" endpoints:
   ));
 
 Example:
-- Page 1, limit 10: skip 0, get items 0-9
+- Page 1, limit 10:  0, get items 0-9
 - Page 2, limit 10: skip 10, get items 10-19
 - Page 3, limit 10: skip 20, get items 20-29
 
