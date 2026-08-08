@@ -13,6 +13,7 @@ import { InterviewModule } from "./modules/interview/interview.module";
 import { AdminModule } from "./modules/admin/admin.module";
 import { AiModule } from "./modules/ai/ai.module";
 import { JobsModule } from "./modules/jobs/jobs.module";
+import { ActivityLogModule } from "./modules/activity-log/activity-log.module";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { JobsModule } from "./modules/jobs/jobs.module";
     ScheduleModule.forRoot(),
 
     // Feature Modules
+    ActivityLogModule,
     AuthModule,
     UserModule,
     ResumeModule,

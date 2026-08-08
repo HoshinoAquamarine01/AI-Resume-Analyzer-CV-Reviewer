@@ -4,11 +4,14 @@ import { Model, Types } from "mongoose";
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { ResumeAnalysis, ResumeAnalysisDocument } from "../../models/ResumeAnalysis";
 import { DocumentGeneratorHelper, DocumentData, DocumentSection } from "../../common/helpers/document-generator.helper";
+import { ActivityLogService } from "../activity-log/activity-log.service";
+
 @Injectable()
 export class ResumeService {
   constructor(
     @InjectModel(Resume.name) private resumeModel: Model<ResumeDocument>,
-    @InjectModel(ResumeAnalysis.name) private analysisModel: Model<ResumeAnalysisDocument>
+    @InjectModel(ResumeAnalysis.name) private analysisModel: Model<ResumeAnalysisDocument>,
+    private readonly activityLogService: ActivityLogService
   ) {}
 
   async create(
@@ -22,13 +25,22 @@ export class ResumeService {
       ? extractedText.replace(/\n\s*\n/g, "\n").trim()
       : "Sample extracted text from resume.";
 
-    return this.resumeModel.create({
+    const created = await this.resumeModel.create({
       userId: new Types.ObjectId(userId),
       title,
       fileUrl,
       fileType,
       extractedText: cleanText,
     });
+
+    await this.activityLogService.createLog(userId, "UPLOAD_CV", {
+      resumeId: created._id,
+      title: created.title,
+      fileUrl: created.fileUrl,
+      fileType: created.fileType,
+    });
+
+    return created;
   }
 
   async findAll(userId: string, page = 1, limit = 10) {
@@ -213,11 +225,18 @@ export class ResumeService {
   }
 
   async createAnalysis(userId: string, resumeId: string, score: number) {
-    return this.analysisModel.create({
+    const analysis = await this.analysisModel.create({
       resumeId: new Types.ObjectId(resumeId),
       userId: new Types.ObjectId(userId),
       overallScore: score,
       analyzedAt: new Date(),
     });
+
+    await this.activityLogService.createLog(userId, "RUN_AI_ANALYSIS", {
+      resumeId,
+      overallScore: score,
+    });
+
+    return analysis;
   }
 }

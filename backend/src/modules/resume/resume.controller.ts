@@ -23,6 +23,8 @@ import { ResumeService } from "./resume.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
 import { formatResponse } from "../../utils/formatResponse";
+import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
+import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
 @Controller("resume")
 @UseGuards(JwtAuthGuard)
@@ -31,6 +33,7 @@ export class ResumeController {
 
   @Post()
   @UseInterceptors(
+    ActivityLogInterceptor,
     FileInterceptor("file", {
       storage: diskStorage({
         destination: (req, file, cb) => {
@@ -62,6 +65,7 @@ export class ResumeController {
       },
     })
   )
+  @LogActivity("UPLOAD_CV")
   async createResume(
     @UserDec() user: any,
     @Body("title") title: string,
@@ -230,6 +234,8 @@ export class ResumeController {
   }
 
   @Post(":resumeId/analyze")
+  @UseInterceptors(ActivityLogInterceptor)
+  @LogActivity("RUN_AI_ANALYSIS")
   async generateResumeAnalysis(
     @UserDec() user: any,
     @Param("resumeId") resumeId: string

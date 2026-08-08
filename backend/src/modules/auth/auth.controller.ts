@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Res, Req, UseGuards, HttpStatus, HttpCode } from "@nestjs/common";
+import { Controller, Post, Body, Res, Req, UseGuards, UseInterceptors, HttpStatus, HttpCode } from "@nestjs/common";
 import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from "./dto/auth.dto";
 import { formatResponse } from "../../utils/formatResponse";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
+import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
+import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -33,6 +35,8 @@ export class AuthController {
   }
 
   @Post("login")
+  @UseInterceptors(ActivityLogInterceptor)
+  @LogActivity("LOGIN")
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,

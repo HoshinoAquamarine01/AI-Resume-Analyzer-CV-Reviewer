@@ -4,12 +4,15 @@ import { Model, Types } from "mongoose";
 import { InterviewSession, InterviewSessionDocument } from "../../models/InterviewSession";
 import { AiService } from "../ai/ai.service";
 
+import { ActivityLogService } from "../activity-log/activity-log.service";
+
 @Injectable()
 export class InterviewService {
   constructor(
     @InjectModel(InterviewSession.name)
     private readonly sessionModel: Model<InterviewSessionDocument>,
-    private readonly aiService: AiService
+    private readonly aiService: AiService,
+    private readonly activityLogService: ActivityLogService
   ) {}
 
   async create(userId: string, resumeId: string, jobTitle: string, companyName: string, sessionType: "technical" | "hr") {
@@ -41,7 +44,7 @@ export class InterviewService {
       }
     }
 
-    return this.sessionModel.create({
+    const session = await this.sessionModel.create({
       userId: new Types.ObjectId(userId),
       resumeId: new Types.ObjectId(resumeId),
       jobTitle,
@@ -54,6 +57,15 @@ export class InterviewService {
       strengths: [],
       weaknesses: [],
     });
+
+    await this.activityLogService.createLog(userId, "PRACTICE_INTERVIEW", {
+      sessionId: session._id,
+      jobTitle,
+      companyName,
+      sessionType,
+    });
+
+    return session;
   }
 
   async findAll(userId: string, page = 1, limit = 10) {
