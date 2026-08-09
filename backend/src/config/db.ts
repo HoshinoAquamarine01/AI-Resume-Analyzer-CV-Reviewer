@@ -1,34 +1,82 @@
-// Database and cache configuration
-import mongoose from "mongoose";
-
-class MockRedis {
-  private store = new Map<string, string>();
-
-  async get(key: string): Promise<string | null> {
-    return this.store.get(key) || null;
+import Redis, {RedisOptions} from 'ioredis'
+const redisOptions: RedisOptions = {
+  host: process.env.REDIS_HOST,
+  port: Number(process.env.REDIS_PORT),
+  password: process.env.REDIS_PASSWORD,
+  db: Number(process.env.REDIS_DB),
+  enableOfflineQueue: false,
+  connectTimeout: 5000,
+  retryStrategy(times){
+    const delay = Math.min(times * 50, 2000);
+    console.warn(`Redis lost connection, retrying in ${delay} ms`)
+    return delay;
   }
-
-  async set(key: string, value: string): Promise<string> {
-    this.store.set(key, value);
-    return "OK";
-  }
-
-  async del(key: string): Promise<number> {
-    const exists = this.store.delete(key);
-    return exists ? 1 : 0;
-  }
+  
 }
-
-export const redis = new MockRedis();
-
-export const ConnectDB = async () => {
-  try {
-    const uri = process.env.MONGO_URL;
-    if (!uri) throw new Error("MONGO_URL is not defined");
-    await mongoose.connect(uri);
-    console.log("Connected to MongoDB");
-  } catch (err) {
-    console.error("Failed to connect to MongoDB", err);
-    throw err;
+const redis = new Redis(redisOptions)
+let connected = false;
+redis.on('ready',()=>{
+  connected = true
+  console.log('Redis Connected')
+})
+redis.on('error',()=>{
+  console.error('Redis connection error')
+  connected = false
+})
+redis.on('reconnect',()=>{
+  console.log('Redis connected')
+  connected = true
+})
+redis.on('end',()=>{
+  console.error('Redis connection end')
+  connected = false
+})
+export const redisWrapper = {
+  async get(key:string) : Promise<string|null>{
+    if(!connected) return null;
+    try {
+      return await redis.get(key);
+    } catch (error) {
+      console.error('Redis Get Error : ',error)
+      return null
+    }
+  },
+  async set(key:string, value:string, ttlSeconds?: number):Promise<boolean>{
+    if(!connected) return false;
+    try {
+        if(ttlSeconds){
+          await redis.set(key,value,'EX',ttlSeconds)
+        }
+        else{
+          await redis.set(key,value)
+        }
+        return true;
+    }
+    catch(error){
+      console.error("Redis Set Error : ",error)
+      return false
+    }
+  },
+  async delete(key:string): Promise<boolean>{
+    if(!connected)return false
+    try{
+      await redis.del(key)
+      return true
+    }
+    catch(error){
+      console.error("Redis Delete Error : ",error)
+      return false
+    }
+  },
+  get client(){
+    return redis
   }
-};
+} 
+const gracefulShutdown = async()=>{
+  console.log('Closing Redis Connection')
+  await redis.quit()
+  process.exit(0)
+}
+process.on('SIGINT',gracefulShutdown)
+process.on('SIGTERM',gracefulShutdown)
+export default redis;

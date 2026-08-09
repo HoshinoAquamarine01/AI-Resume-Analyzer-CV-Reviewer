@@ -14,6 +14,7 @@ import { AdminModule } from "./modules/admin/admin.module";
 import { AiModule } from "./modules/ai/ai.module";
 import { JobsModule } from "./modules/jobs/jobs.module";
 import { ActivityLogModule } from "./modules/activity-log/activity-log.module";
+import { PaymentModule } from "./modules/payment/payment.module";
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ActivityLogModule } from "./modules/activity-log/activity-log.module";
     AdminModule,
     AiModule,
     JobsModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}
