@@ -10,7 +10,7 @@ import { Subscription, SubscriptionDocument } from "../../models/Subscription";
 import { AdminLog, AdminLogDocument } from "../../models/AdminLog";
 import { InterviewSession, InterviewSessionDocument } from "../../models/InterviewSession";
 import { sendEmail } from "../../services/email.service";
-import { redis } from "../../config/db";
+import redis from "../../config/db";
 
 @Injectable()
 export class JobsService implements OnApplicationBootstrap {
