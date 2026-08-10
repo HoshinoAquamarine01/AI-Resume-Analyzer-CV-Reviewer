@@ -5,7 +5,7 @@ import { User, UserDocument } from "../../models/User";
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { Subscription, SubscriptionDocument } from "../../models/Subscription";
 import { AdminLog, AdminLogDocument } from "../../models/AdminLog";
-import { redis } from "../../config/db";
+import redis from "../../config/db";
 
 @Injectable()
 export class AdminService {
