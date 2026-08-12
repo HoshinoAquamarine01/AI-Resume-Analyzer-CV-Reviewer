@@ -6,66 +6,51 @@ Tài liệu này tập trung **duy nhất vào các phần SỬA LOGIC CODE, VI�
 
 ## 🎯 Danh sách Logic Code cần sửa/viết mới (Sắp xếp theo ưu tiên)
 
-### 🔴 MỨC ĐỘ P0: Logic cốt lõi (Bắt buộc để ứng dụng chạy đúng nghiệp vụ)
+🔴 MỨC ĐỘ P0: Logic cốt lõi (Cực kỳ quan trọng để app chạy đúng)
+📄 Logic đọc file CV thực tế (PDF/DOCX Parser):
+Tệp: 
 
-#### 1. 📄 Logic Trích xuất văn bản từ File Upload (`PDF/DOCX Parser`)
-* **Tệp liên quan:** [`resume.service.ts`](file:///d:/AI%20resume%20analyze/backend/src/modules/resume/resume.service.ts), [`resume.controller.ts`](file:///d:/AI%20resume%20analyze/backend/src/modules/resume/resume.controller.ts)
-* **Vấn đề hiện tại:** Trường `extractedText` đang gán cứng chuỗi `"Sample extracted text from resume."`.
-* **Logic cần sửa/viết mới:**
-  * Thêm logic đọc file từ đường dẫn lưu trữ `uploads/resumes/` sau khi Multer upload.
-  * Tích hợp `pdf-parse` cho file PDF và `mammoth` cho file DOCX để trích xuất văn bản thực tế.
-  * Cập nhật văn bản trích xuất vào MongoDB để truyền vào làm ngữ cảnh cho AI.
+resume.service.ts
+Hiện trạng: Đang gán cứng chuỗi giả lập "Sample extracted text from resume.".
+Cần làm: Dùng pdf-parse (PDF) và mammoth (DOCX) để bóc tách văn bản thực từ file người dùng upload trong uploads/resumes/.
+🧩 Logic xử lý kết quả Phỏng vấn AI (Interview AI Parsing):
+Tệp: 
 
-#### 2. 🧩 Logic Parse kết quả Câu hỏi phỏng vấn AI (`Interview Session AI Matching`)
-* **Tệp liên quan:** [`interview.service.ts`](file:///d:/AI%20resume%20analyze/backend/src/modules/interview/interview.service.ts)
-* **Vấn đề hiện tại:** `aiService.generateInterviewQuestions` trả về Object `{ questions: [...], generalTips: [...] }`, nhưng trong `interview.service.ts` đang kiểm tra `Array.isArray(result)` dẫn đến rơi vào câu hỏi mặc định (fallback).
-* **Logic cần sửa:**
-  * Sửa lại logic đọc dữ liệu từ Object kết quả của `aiService`.
-  * Trích xuất mảng `questions` (lấy nội dung câu hỏi) và `generalTips` để lưu đúng cấu trúc vào `InterviewSession`.
+interview.service.ts
+Cần làm: Sửa logic nhận Object { questions, generalTips } từ AI thay vì check kiểu Array.isArray làm rơi vào dữ liệu mặc định (fallback).
+🟠 MỨC ĐỘ P1: Logic nghiệp vụ & Xuất dữ liệu
+🖨️ Logic xuất file PDF / DOCX chuyên nghiệp (Document Generator):
+Tệp: 
 
----
+resume.service.ts
+, 
 
-### 🟠 MỨC ĐỘ P1: Logic nghiệp vụ & Xuất dữ liệu
+cover-letter.service.ts
+Cần làm: Định dạng layout đẹp mắt (tiêu đề, font, căn lề) trước khi xuất Buffer tải về thay vì xuất file text thô.
+📧 Logic Gửi Email thực tế (Email Service):
+Tệp: 
 
-#### 3. 🖨️ Logic Tạo & Xuất File PDF / DOCX chuyên nghiệp (`Document Generator`)
-* **Tệp liên quan:** [`resume.service.ts`](file:///d:/AI%20resume%20analyze/backend/src/modules/resume/resume.service.ts), [`cover-letter.service.ts`](file:///d:/AI%20resume%20analyze/backend/src/modules/cover-letter/cover-letter.service.ts)
-* **Vấn đề hiện tại:** Các hàm `generatePdf` và `generateDocx` mới chỉ gọi `Buffer.from(content)` (trả về Buffer văn bản thô, không có layout).
-* **Logic cần sửa/viết mới:**
-  * Viết helper generator (dùng `pdfkit` / `puppeteer` cho PDF và `docx` cho Word).
-  * Định dạng bố cục trang (Header, tiêu đề, khoảng cách, font chữ, bullet points) trước khi render thành Buffer để người dùng tải xuống CV / Cover Letter chuẩn giao diện.
+email.service.ts
+Cần làm: Tích hợp nodemailer hoặc resend để gửi email kích hoạt tài khoản, OTP quên mật khẩu.
+🟡 MỨC ĐỘ P2: Nhật ký & Hạ tầng
+📜 Ghi nhận vết hoạt động (User Activity Tracker):
+Tệp: Tạo schema 
 
-#### 4. 📧 Logic Xử lý Transport Gửi Email (`Email Service Handler`)
-* **Tệp liên quan:** [`email.service.ts`](file:///d:/AI%20resume%20analyze/backend/src/services/email.service.ts)
-* **Vấn đề hiện tại:** Hàm `sendEmail` chỉ `console.log`.
-* **Logic cần sửa:**
-  * Viết logic tạo Transport (sử dụng `nodemailer` hoặc `resend`).
-  * Xử lý định dạng template email HTML (Xác thực tài khoản, Quên mật khẩu, Email nhắc nhở tự động từ Cron Job).
+ActivityLog.ts
+ & sửa 
 
----
+user.service.ts
+Cần làm: Lưu lịch sử Đăng nhập, Upload CV, Phân tích AI và viết API phân trang trả về cho màn hình Activity Log.
+🧹 Logic Xóa sạch dữ liệu liên quan (Cascade Delete User Account):
+Tệp: 
 
-### 🟡 MỨC ĐỘ P2: Logic Nhật ký & Hạ tầng
+user.service.ts
+Cần làm: Khi người dùng xóa tài khoản, tự động xóa tất cả Resume, CoverLetter, InterviewSession trong DB + xóa file CV vật lý trong ổ đĩa.
+⚡ Redis Wrapper & Fallback (Redis Driver):
+Tệp: 
 
-#### 5. 📜 Logic Ghi vết & Truy vấn Nhật ký hoạt động (`User Activity Tracker`)
-* **Tệp liên quan:** [`user.service.ts`](file:///d:/AI%20resume%20analyze/backend/src/modules/user/user.service.ts), tạo mới [`ActivityLog.ts`](file:///d:/AI%20resume%20analyze/backend/src/models/ActivityLog.ts)
-* **Vấn đề hiện tại:** `getActivityLog` đang trả về `{ activity: [] }` giả lập.
-* **Logic cần sửa/viết mới:**
-  * Tạo Schema MongoDB `ActivityLog` (`userId`, `action`, `details`, `ipAddress`, `createdAt`).
-  * Viết Interceptor hoặc Service method tự động tạo bản ghi nhật ký khi người dùng Đăng nhập, Upload CV, Chạy AI phân tích, Luyện phỏng vấn.
-  * Viết logic phân trang cho hàm `getActivityLog`.
-
-#### 6. 🧹 Logic Xóa dọn dẹp dữ liệu liên quan khi xóa tài khoản (`Cascade Delete User Account`)
-* **Tệp liên quan:** [`user.service.ts`](file:///d:/AI%20resume%20analyze/backend/src/modules/user/user.service.ts)
-* **Vấn đề hiện tại:** Hàm `deleteAccount` chỉ xóa record `User` trong DB, để lại các file CV và dữ liệu mồ côi.
-* **Logic cần sửa:**
-  * Xóa các tài liệu liên quan trong DB: `Resume`, `CoverLetter`, `InterviewSession`, `ResumeAnalysis`.
-  * Xóa các file vật lý đã upload tương ứng của người dùng trong thư mục `uploads/resumes/`.
-
-#### 7. ⚡ Logic Redis Wrapper & Fallback (`Redis Driver Wrapper`)
-* **Tệp liên quan:** [`db.ts`](file:///d:/AI%20resume%20analyze/backend/src/config/db.ts)
-* **Vấn đề hiện tại:** `MockRedis` dùng `Map` trong RAM Node.js.
-* **Logic cần sửa:** Chuyển sang dùng `ioredis` với logic Catch Exception an toàn (nếu mất kết nối Redis thì ứng dụng vẫn tự fallback ghi log thay vì gây crash toàn hệ thống).
-
----
+db.ts
+Cần làm: Kết nối ioredis thật và thêm cơ chế an toàn (nếu mất kết nối Redis app không bị crash).
 
 ### 🔵 MỨC ĐỘ P3: Logic Thanh toán & Kiểm thử
 
