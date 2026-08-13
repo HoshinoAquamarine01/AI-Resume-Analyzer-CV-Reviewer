@@ -17,6 +17,7 @@ export class InterviewService {
 
   async create(userId: string, resumeId: string, jobTitle: string, companyName: string, sessionType: "technical" | "hr") {
     let generatedQuestions: string[] = [];
+    let generalTips: string[] = [];
 
     if (resumeId) {
       try {
@@ -24,24 +25,39 @@ export class InterviewService {
           resumeId,
           `Target Position: ${jobTitle} at ${companyName}. Session Type: ${sessionType}`
         );
-        const questionArray = Array.isArray(result)
-          ? result
-          : Array.isArray(result?.questions)
-          ? result.questions
-          : [];
-        if(questionArray.length > 0){
-          generatedQuestions =
-          questionArray.map((q:string | {question: string}) => {
-            if(typeof q === 'string') return q;
+
+        let questionArray: any[] = [];
+        if (typeof result === "object" && result !== null) {
+          if (Array.isArray(result.questions)) {
+            questionArray = result.questions;
+          } else if (Array.isArray(result)) {
+            questionArray = result;
+          }
+
+          if (Array.isArray(result.generalTips)) {
+            generalTips = result.generalTips;
+          }
+        } else if (Array.isArray(result)) {
+          questionArray = result;
+        }
+
+        if (questionArray.length > 0) {
+          generatedQuestions = questionArray.map((q: string | { question: string }) => {
+            if (typeof q === "string") return q;
             return q?.question || JSON.stringify(q);
-          })
+          });
         }
       } catch (err) {
-        generatedQuestions = [
-          `Can you describe your experience relevant to the ${jobTitle} role?`,
-          `How do you handle technical challenges and project deadlines?`,
-        ];
+        console.error("[InterviewService] AI generation failed, using fallback questions:", err);
       }
+    }
+
+    if (generatedQuestions.length === 0) {
+      generatedQuestions = [
+        `Can you describe your experience relevant to the ${jobTitle} role?`,
+        `How do you handle technical challenges and project deadlines?`,
+        `What key achievements demonstrate your fit for ${companyName}?`,
+      ];
     }
 
     const session = await this.sessionModel.create({
@@ -56,6 +72,7 @@ export class InterviewService {
       feedback: [],
       strengths: [],
       weaknesses: [],
+      generalTips,
     });
 
     await this.activityLogService.createLog(userId, "PRACTICE_INTERVIEW", {

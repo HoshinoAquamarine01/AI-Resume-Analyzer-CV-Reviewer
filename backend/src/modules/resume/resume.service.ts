@@ -1,6 +1,11 @@
 import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
+import * as path from "path";
+import * as fs from "fs";
+import * as mammoth from "mammoth";
+const pdfParse = require("pdf-parse");
+
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { ResumeAnalysis, ResumeAnalysisDocument } from "../../models/ResumeAnalysis";
 import { DocumentGeneratorHelper, DocumentData, DocumentSection } from "../../common/helpers/document-generator.helper";
@@ -14,6 +19,44 @@ export class ResumeService {
     private readonly activityLogService: ActivityLogService
   ) {}
 
+  /**
+   * Extract text from uploaded PDF or DOCX file
+   */
+  async extractTextFromFile(fileUrl: string, fileType?: "pdf" | "docx"): Promise<string> {
+    if (!fileUrl) return "";
+
+    // Resolve file path locally
+    let filePath = fileUrl;
+    if (!path.isAbsolute(filePath)) {
+      const cleanPath = fileUrl.startsWith("/") ? fileUrl.substring(1) : fileUrl;
+      filePath = path.join(process.cwd(), cleanPath);
+    }
+
+    if (!fs.existsSync(filePath)) {
+      console.warn(`[ResumeService] File not found at path: ${filePath}`);
+      return "";
+    }
+
+    const type = fileType || (filePath.toLowerCase().endsWith(".pdf") ? "pdf" : "docx");
+
+    try {
+      if (type === "pdf") {
+        const dataBuffer = fs.readFileSync(filePath);
+        const pdfData = await pdfParse(dataBuffer);
+        const text = pdfData?.text || "";
+        return text.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, "\n\n").trim();
+      } else if (type === "docx" || type === "doc") {
+        const result = await mammoth.extractRawText({ path: filePath });
+        const text = result?.value || "";
+        return text.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, "\n\n").trim();
+      }
+    } catch (error) {
+      console.error(`[ResumeService] Error extracting text from ${filePath}:`, error);
+    }
+
+    return "";
+  }
+
   async create(
     userId: string,
     title: string,
@@ -21,9 +64,17 @@ export class ResumeService {
     fileType: "pdf" | "docx",
     extractedText?: string
   ) {
-    const cleanText = extractedText
-      ? extractedText.replace(/\n\s*\n/g, "\n").trim()
-      : "Sample extracted text from resume.";
+    let cleanText = extractedText ? extractedText.replace(/\n\s*\n/g, "\n").trim() : "";
+
+    // If extractedText wasn't provided, extract text directly from the uploaded file
+    if (!cleanText && fileUrl) {
+      cleanText = await this.extractTextFromFile(fileUrl, fileType);
+    }
+
+    // Default fallback if parsing produced empty output
+    if (!cleanText) {
+      cleanText = "Sample extracted text from resume.";
+    }
 
     const created = await this.resumeModel.create({
       userId: new Types.ObjectId(userId),
@@ -72,6 +123,14 @@ export class ResumeService {
     const updateData: any = { title, updatedAt: new Date() };
     if (fileUrl) updateData.fileUrl = fileUrl;
     if (fileType) updateData.fileType = fileType;
+
+    // Extract text if a new file is uploaded
+    if (fileUrl && fileUrl !== resume.fileUrl) {
+      const newExtractedText = await this.extractTextFromFile(fileUrl, fileType || resume.fileType);
+      if (newExtractedText) {
+        updateData.extractedText = newExtractedText;
+      }
+    }
 
     const updated = await this.resumeModel.findByIdAndUpdate(resumeId, updateData, { new: true });
     return updated;

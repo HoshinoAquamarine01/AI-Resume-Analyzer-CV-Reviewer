@@ -5,7 +5,7 @@ import { User, UserDocument } from "../../models/User";
 import { RegisterDto, LoginDto, ChangePasswordDto } from "./dto/auth.dto";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { sendEmail } from "../../services/email.service";
+import { sendEmail, sendActivationEmail, sendOtpResetPasswordEmail } from "../../services/email.service";
 
 import { ActivityLogService } from "../activity-log/activity-log.service";
 
@@ -32,6 +32,15 @@ export class AuthService {
 
     const token = await this.generateToken(createdUser._id);
     const refreshToken = await this.generateRefreshToken(createdUser._id);
+
+    // Send account activation / email verification email
+    try {
+      const emailToken = jwt.sign({ userId: createdUser._id }, process.env.EMAIL_TOKEN_SECRET || "secret", { expiresIn: "24h" });
+      const activationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/auth/verify-email?token=${emailToken}`;
+      await sendActivationEmail(createdUser.email, activationUrl, createdUser.name);
+    } catch (err) {
+      console.error("[AuthService] Failed to send activation email:", err);
+    }
 
     return {
       user: {
@@ -129,11 +138,7 @@ export class AuthService {
     }
 
     const resetToken = await this.generatePasswordResetToken(user._id);
-    await sendEmail(
-      email,
-      "Password Reset Request",
-      `To reset your password, please use the following token: ${resetToken}`
-    );
+    await sendOtpResetPasswordEmail(user.email, resetToken, user.name);
 
     return { message: "Password reset link sent to your email" };
   }
