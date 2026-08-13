@@ -292,14 +292,17 @@ export class AiService {
       generalTips?: string[];
     }>(rawResult);
 
-    return parsed.questions || [
-      {
-        question: `How does your experience align with the ${jobDescription.substring(0, 30)} role?`,
-        category: "general",
-        purpose: "Overall fit assessment",
-        answerOutline: "Connect key achievements from resume to role requirements.",
-      },
-    ];
+    return {
+      questions: parsed.questions || [
+        {
+          question: `How does your experience align with the ${jobDescription.substring(0, 30)} role?`,
+          category: "general",
+          purpose: "Overall fit assessment",
+          answerOutline: "Connect key achievements from resume to role requirements.",
+        },
+      ],
+      generalTips: parsed.generalTips || ["Focus on quantifiable achievements during interview responses"],
+    };
   }
 
   async improveResume(resumeId: string, section: string) {
