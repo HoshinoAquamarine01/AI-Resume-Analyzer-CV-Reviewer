@@ -35,14 +35,16 @@ export class AuthController {
   }
 
   @Post("login")
-  @UseInterceptors(ActivityLogInterceptor)
-  @LogActivity("LOGIN")
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    const result = await this.authService.login(dto);
+    const rawIp = req.headers["x-forwarded-for"] || req.ip || req.socket?.remoteAddress || "unknown";
+    const ipAddress = typeof rawIp === "string" ? rawIp.split(",")[0].trim() : String(rawIp);
+
+    const result = await this.authService.login(dto, ipAddress);
 
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,

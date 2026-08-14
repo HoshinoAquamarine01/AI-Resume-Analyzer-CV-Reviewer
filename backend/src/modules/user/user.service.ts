@@ -69,6 +69,26 @@ export class UserService {
     return updatedUser;
   }
 
+  private deletePhysicalFile(fileUrl?: string) {
+    if (!fileUrl) return;
+    try {
+      if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
+        return;
+      }
+      const cleanRelativePath = fileUrl.startsWith("/") ? fileUrl.substring(1) : fileUrl;
+      const absolutePath = path.isAbsolute(cleanRelativePath)
+        ? cleanRelativePath
+        : path.join(process.cwd(), cleanRelativePath);
+
+      if (fs.existsSync(absolutePath)) {
+        fs.unlinkSync(absolutePath);
+        console.log(`[UserService] Deleted physical file: ${absolutePath}`);
+      }
+    } catch (err) {
+      console.error(`[UserService] Failed to delete physical file: ${fileUrl}`, err);
+    }
+  }
+
   async deleteAccount(userId: string) {
     const userObjectId = new Types.ObjectId(userId);
 
@@ -78,43 +98,22 @@ export class UserService {
       throw new NotFoundException("User not found");
     }
 
-    // 2. Fetch all user resumes to clean up physical uploaded files
+    // 2. Clean up physical uploaded resume files
     const resumes = await this.resumeModel.find({ userId: userObjectId });
     for (const resume of resumes) {
-      if (resume.fileUrl) {
-        try {
-          const cleanRelativePath = resume.fileUrl.startsWith("/")
-            ? resume.fileUrl.substring(1)
-            : resume.fileUrl;
-          const absolutePath = path.isAbsolute(cleanRelativePath)
-            ? cleanRelativePath
-            : path.join(process.cwd(), cleanRelativePath);
-
-          if (fs.existsSync(absolutePath)) {
-            fs.unlinkSync(absolutePath);
-          }
-        } catch (fileErr) {
-          console.error(`Failed to delete physical resume file: ${resume.fileUrl}`, fileErr);
-        }
-      }
+      this.deletePhysicalFile(resume.fileUrl);
     }
 
-    // Clean up physical avatar file if uploaded locally
-    if (user.avatarUrl && user.avatarUrl.includes("uploads/avatars/")) {
-      try {
-        const cleanRelativeAvatar = user.avatarUrl.startsWith("/")
-          ? user.avatarUrl.substring(1)
-          : user.avatarUrl;
-        const absoluteAvatarPath = path.isAbsolute(cleanRelativeAvatar)
-          ? cleanRelativeAvatar
-          : path.join(process.cwd(), cleanRelativeAvatar);
+    // Clean up physical interview media files (video/audio)
+    const interviewSessions = await this.interviewModel.find({ userId: userObjectId });
+    for (const session of interviewSessions) {
+      this.deletePhysicalFile(session.videoUrl);
+      this.deletePhysicalFile(session.audioUrl);
+    }
 
-        if (fs.existsSync(absoluteAvatarPath)) {
-          fs.unlinkSync(absoluteAvatarPath);
-        }
-      } catch (avatarErr) {
-        console.error(`Failed to delete physical avatar file: ${user.avatarUrl}`, avatarErr);
-      }
+    // Clean up physical avatar file if stored locally
+    if (user.avatarUrl) {
+      this.deletePhysicalFile(user.avatarUrl);
     }
 
     // 3. Cascade delete related database records
