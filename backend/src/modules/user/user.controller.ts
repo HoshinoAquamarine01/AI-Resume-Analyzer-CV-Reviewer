@@ -23,12 +23,15 @@ import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
 import { formatResponse } from "../../utils/formatResponse";
 
+import { CloudStorageService } from "../../common/services/cloud-storage.service";
+
 @Controller("user")
 @UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly cloudStorageService: CloudStorageService
   ) {}
 
   @Get("profile")
@@ -79,7 +82,8 @@ export class UserController {
     if (!file) {
       throw new BadRequestException("No file uploaded");
     }
-    const updated = await this.userService.updateAvatar(user._id, file.filename);
+    const uploaded = await this.cloudStorageService.uploadFile(file, "avatars");
+    const updated = await this.userService.updateAvatar(user._id, uploaded.url);
     return formatResponse(updated, "Avatar uploaded");
   }
 
