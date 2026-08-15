@@ -1,4 +1,5 @@
 import { Controller, Post, Body, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { AiService } from "./ai.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
@@ -8,6 +9,7 @@ import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
 @Controller("ai")
 @UseGuards(JwtAuthGuard)
+@Throttle({ default: { limit: 10, ttl: 60000 } })
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 

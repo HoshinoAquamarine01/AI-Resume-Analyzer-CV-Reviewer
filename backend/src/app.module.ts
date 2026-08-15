@@ -4,6 +4,9 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { ScheduleModule } from "@nestjs/schedule";
 import * as path from "path";
 
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+
 // Import Custom Modules
 import { AuthModule } from "./modules/auth/auth.module";
 import { UserModule } from "./modules/user/user.module";
@@ -15,6 +18,8 @@ import { AiModule } from "./modules/ai/ai.module";
 import { JobsModule } from "./modules/jobs/jobs.module";
 import { ActivityLogModule } from "./modules/activity-log/activity-log.module";
 import { PaymentModule } from "./modules/payment/payment.module";
+import { GatewayModule } from "./modules/gateway/gateway.module";
+import { StorageModule } from "./common/services/storage.module";
 
 @Module({
   imports: [
@@ -35,8 +40,17 @@ import { PaymentModule } from "./modules/payment/payment.module";
       },
     }),
 
+    // Rate Limiting / Throttling Support (60 requests / minute global default)
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 60,
+    }]),
+
     // Cron Schedule Support
     ScheduleModule.forRoot(),
+
+    // Global Cloud Storage
+    StorageModule,
 
     // Feature Modules
     ActivityLogModule,
@@ -49,6 +63,13 @@ import { PaymentModule } from "./modules/payment/payment.module";
     AiModule,
     JobsModule,
     PaymentModule,
+    GatewayModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

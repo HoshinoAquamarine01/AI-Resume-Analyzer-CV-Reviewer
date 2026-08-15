@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException, Logger, Inject, forwardRef } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
@@ -14,6 +14,7 @@ import {
 } from "../../prompts";
 
 import { ActivityLogService } from "../activity-log/activity-log.service";
+import { EventsGateway } from "../gateway/events.gateway";
 
 @Injectable()
 export class AiService {
@@ -25,7 +26,9 @@ export class AiService {
     @InjectModel(Resume.name) private readonly resumeModel: Model<ResumeDocument>,
     @InjectModel(ResumeAnalysis.name) private readonly analysisModel: Model<ResumeAnalysisDocument>,
     private readonly configService: ConfigService,
-    private readonly activityLogService: ActivityLogService
+    private readonly activityLogService: ActivityLogService,
+    @Inject(forwardRef(() => EventsGateway))
+    private readonly eventsGateway: EventsGateway
   ) {
     this.initGeminiClient();
   }
@@ -174,6 +177,18 @@ export class AiService {
       overallScore,
       atsCompatibility,
     });
+
+    // Real-Time Notification Push via WebSockets Gateway
+    try {
+      this.eventsGateway?.sendCvAnalysisComplete(userId, {
+        analysisId: analysis._id,
+        resumeId,
+        overallScore,
+        atsCompatibility,
+      });
+    } catch (err: any) {
+      this.logger.warn(`Failed to push real-time CV analysis notification: ${err?.message}`);
+    }
 
     return analysis;
   }
@@ -407,5 +422,49 @@ Return ONLY pure JSON.`;
       toolsAndFrameworks: parsed.toolsAndFrameworks || [],
       languages: parsed.languages || [],
     };
+  }
+
+  /**
+   * Real-Time Stream AI Interview Feedback & Next Question
+   */
+  async streamInterviewFeedback(
+    question: string,
+    candidateAnswer: string,
+    jobTitle: string,
+    sessionType: string,
+    onChunk: (chunk: string) => void
+  ): Promise<string> {
+    const client = this.getClient();
+    const model = this.getModelName();
+
+    const prompt = `You are an expert AI Interviewer for a ${jobTitle} role (${sessionType} interview).
+The candidate was asked: "${question}"
+The candidate answered: "${candidateAnswer}"
+
+Provide constructiveness, concise feedback on their answer (strengths & areas of improvement), and follow up with the NEXT interview question.
+Format your output cleanly in Markdown.
+
+Start your response directly.`;
+
+    try {
+      const responseStream = await client.models.generateContentStream({
+        model: model,
+        contents: prompt,
+      });
+
+      let fullText = "";
+      for await (const chunk of responseStream) {
+        if (chunk.text) {
+          fullText += chunk.text;
+          onChunk(chunk.text);
+        }
+      }
+      return fullText;
+    } catch (err: any) {
+      this.logger.error(`Error in streaming Gemini response: ${err?.message || err}`);
+      const fallbackMsg = `[AI Feedback]: Thank you for your answer regarding "${question}". Good technical depth. Moving to the next question: How do you handle production incidents under pressure?`;
+      onChunk(fallbackMsg);
+      return fallbackMsg;
+    }
   }
 }

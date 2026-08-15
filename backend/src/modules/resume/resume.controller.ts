@@ -26,10 +26,15 @@ import { formatResponse } from "../../utils/formatResponse";
 import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
 import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
+import { CloudStorageService } from "../../common/services/cloud-storage.service";
+
 @Controller("resume")
 @UseGuards(JwtAuthGuard)
 export class ResumeController {
-  constructor(private readonly resumeService: ResumeService) {}
+  constructor(
+    private readonly resumeService: ResumeService,
+    private readonly cloudStorageService: CloudStorageService
+  ) {}
 
   @Post()
   @UseInterceptors(
@@ -78,7 +83,8 @@ export class ResumeController {
     let fileType = bodyFileType;
 
     if (file) {
-      fileUrl = `/uploads/resumes/${file.filename}`;
+      const uploaded = await this.cloudStorageService.uploadFile(file, "resumes");
+      fileUrl = uploaded.url;
       fileType = file.filename.endsWith(".pdf") ? "pdf" : "docx";
       if (!finalTitle) {
         finalTitle = path.basename(file.originalname, path.extname(file.originalname));
