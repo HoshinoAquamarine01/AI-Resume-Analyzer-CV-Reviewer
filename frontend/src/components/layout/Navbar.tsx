@@ -1,0 +1,7 @@
+import React from "react";
+
+export const Navbar: React.FC = () => {
+  return <nav>Navbar Placeholder</nav>;
+};
+
+export default Navbar;
