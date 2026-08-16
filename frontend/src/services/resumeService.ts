@@ -36,7 +36,7 @@ export const resumeService = {
     return response.data;
   },
 
-  
+
   getResumes: async (page = 1, limit = 10) => {
     const response = await axiosInstance.get('/api/resume', {
       params: { page, limit },
@@ -44,13 +44,13 @@ export const resumeService = {
     return response.data;
   },
 
-  
+
   getTemplates: async () => {
     const response = await axiosInstance.get('/api/resume/templates');
     return response.data;
   },
 
-  
+
   searchResumes: async (query: string, page = 1, limit = 10) => {
     const response = await axiosInstance.get('/api/resume/search', {
       params: { query, page, limit },
@@ -64,7 +64,7 @@ export const resumeService = {
     return response.data;
   },
 
-  
+
   updateResume: async (resumeId: string, payload: UpdateResumePayload | FormData) => {
     let response;
     if (payload instanceof FormData) {
@@ -85,7 +85,7 @@ export const resumeService = {
     return response.data;
   },
 
-  
+
   deleteResume: async (resumeId: string) => {
     const response = await axiosInstance.delete(`/api/resume/${resumeId}`);
     return response.data;
@@ -96,13 +96,13 @@ export const resumeService = {
     return response.data;
   },
 
-  
+
   shareResume: async (resumeId: string) => {
     const response = await axiosInstance.get(`/api/resume/${resumeId}/share`);
     return response.data;
   },
 
-  
+
   downloadResume: async (resumeId: string) => {
     const response = await axiosInstance.get(`/api/resume/${resumeId}/download`, {
       responseType: 'blob',
@@ -110,7 +110,7 @@ export const resumeService = {
     return response.data;
   },
 
- 
+
   exportResume: async (resumeId: string, format: 'pdf' | 'docx' | 'json' = 'pdf') => {
     const response = await axiosInstance.get(`/api/resume/${resumeId}/export`, {
       params: { format },
@@ -119,7 +119,7 @@ export const resumeService = {
     return response.data;
   },
 
- 
+
   analyzeResume: async (resumeId: string) => {
     const response = await axiosInstance.post(`/api/resume/${resumeId}/analyze`);
     return response.data;
