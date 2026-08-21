@@ -10,7 +10,6 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor to attach JWT Authorization token
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -22,7 +21,7 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for global error handling
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {

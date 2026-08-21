@@ -2,9 +2,7 @@ import axiosInstance from './axiosInstance';
 import { LoginCredentials, RegisterCredentials, AuthResponse, User } from '../types/auth';
 
 class AuthService {
-  /**
-   * Sends POST request to NestJS /auth/login endpoint
-   */
+
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       const response = await axiosInstance.post<{
@@ -14,7 +12,7 @@ class AuthService {
           user: User;
           token: string;
         };
-      }>('/auth/login', {
+      }>('/api/auth/login', {
         email: credentials.email,
         password: credentials.password,
       });
@@ -45,9 +43,7 @@ class AuthService {
     }
   }
 
-  /**
-   * Sends POST request to NestJS /auth/register endpoint
-   */
+  
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
     try {
       const response = await axiosInstance.post<{
@@ -57,7 +53,7 @@ class AuthService {
           user: User;
           token: string;
         };
-      }>('/auth/register', {
+      }>('/api/auth/register', {
         name: credentials.name,
         email: credentials.email,
         password: credentials.password,
@@ -83,12 +79,9 @@ class AuthService {
     }
   }
 
-  /**
-   * Sends POST request to NestJS /auth/logout endpoint
-   */
   async logout(): Promise<void> {
     try {
-      await axiosInstance.post('/auth/logout');
+      await axiosInstance.post('/api/auth/logout');
     } catch (error) {
       console.warn('Logout API warning:', error);
     } finally {
@@ -97,12 +90,9 @@ class AuthService {
     }
   }
 
-  /**
-   * OAuth Social Login Trigger (Redirects to Backend OAuth endpoint)
-   */
   async loginWithProvider(provider: 'google' | 'github'): Promise<void> {
     const backendUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
-    window.location.href = `${backendUrl}/auth/${provider}`;
+    window.location.href = `${backendUrl}/api/auth/${provider}`;
   }
 }
 

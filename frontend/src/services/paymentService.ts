@@ -16,25 +16,18 @@ export interface PaymentWebhookPayload {
 }
 
 export const paymentService = {
-  /**
-   * Request backend to generate payment checkout URL
-   */
+
   createPaymentUrl: async (payload: CreatePaymentUrlPayload) => {
     const response = await axiosInstance.post('/api/payment/create-url', payload);
     return response.data;
   },
 
-  /**
-   * Fetch current user subscription details
-   */
   getSubscriptionStatus: async () => {
     const response = await axiosInstance.get('/api/payment/subscription');
     return response.data;
   },
 
-  /**
-   * Trigger payment webhook callback verification (Client test or Admin retry)
-   */
+  
   processWebhook: async (payload: PaymentWebhookPayload) => {
     const response = await axiosInstance.post('/api/payment/webhook', payload);
     return response.data;
