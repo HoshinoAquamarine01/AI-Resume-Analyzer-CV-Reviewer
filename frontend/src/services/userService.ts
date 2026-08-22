@@ -69,6 +69,13 @@ export const userService = {
     const response = await axiosInstance.delete("/api/user/account");
     return response.data;
   },
+
+  getActivityLog: async (page = 1, limit = 10) => {
+    const response = await axiosInstance.get("/api/user/activity-log", {
+      params: { page, limit },
+    });
+    return response.data;
+  },
 };
 
 export default userService;
