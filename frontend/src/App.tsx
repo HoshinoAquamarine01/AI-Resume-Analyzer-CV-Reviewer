@@ -3,11 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import AdminRoute from "./components/common/AdminRoute";
 
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
@@ -35,6 +37,14 @@ export function App() {
                 <ProtectedRoute>
                   <DashboardPage />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboardPage />
+                </AdminRoute>
               }
             />
             <Route path="/pricing" element={<PricingPage />} />
