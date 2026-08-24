@@ -9,6 +9,7 @@ const LandingPage = lazy(() => import("./pages/LandingPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const ResumeListPage = lazy(() => import("./pages/ResumeListPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
@@ -36,6 +37,14 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resumes"
+              element={
+                <ProtectedRoute>
+                  <ResumeListPage />
                 </ProtectedRoute>
               }
             />
