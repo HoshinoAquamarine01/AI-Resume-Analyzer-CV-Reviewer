@@ -11,6 +11,7 @@ const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ResumeListPage = lazy(() => import("./pages/ResumeListPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const CoverLetterPage = lazy(() => import("./pages/CoverLetterPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
@@ -45,6 +46,14 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <ResumeListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cover-letter"
+              element={
+                <ProtectedRoute>
+                  <CoverLetterPage />
                 </ProtectedRoute>
               }
             />
