@@ -4,7 +4,7 @@ import { Model, Types } from "mongoose";
 import * as path from "path";
 import * as fs from "fs";
 import * as mammoth from "mammoth";
-const pdfParse = require("pdf-parse");
+import axios from "axios";
 
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { ResumeAnalysis, ResumeAnalysisDocument } from "../../models/ResumeAnalysis";
@@ -19,39 +19,71 @@ export class ResumeService {
     private readonly activityLogService: ActivityLogService
   ) {}
 
-  /**
-   * Extract text from uploaded PDF or DOCX file
-   */
-  async extractTextFromFile(fileUrl: string, fileType?: "pdf" | "docx"): Promise<string> {
-    if (!fileUrl) return "";
+ 
+  async extractTextFromFile(fileUrlOrPath: string, fileType?: "pdf" | "docx"): Promise<string> {
+    if (!fileUrlOrPath) return "";
 
-    // Resolve file path locally
-    let filePath = fileUrl;
-    if (!path.isAbsolute(filePath)) {
-      const cleanPath = fileUrl.startsWith("/") ? fileUrl.substring(1) : fileUrl;
-      filePath = path.join(process.cwd(), cleanPath);
-    }
-
-    if (!fs.existsSync(filePath)) {
-      console.warn(`[ResumeService] File not found at path: ${filePath}`);
-      return "";
-    }
-
-    const type = fileType || (filePath.toLowerCase().endsWith(".pdf") ? "pdf" : "docx");
+    let dataBuffer: Buffer | null = null;
+    let type = fileType || "pdf";
 
     try {
+      if (fileUrlOrPath.startsWith("http://") || fileUrlOrPath.startsWith("https://")) {
+     
+        const response = await axios.get(fileUrlOrPath, { responseType: "arraybuffer" });
+        dataBuffer = Buffer.from(response.data);
+        if (fileUrlOrPath.toLowerCase().includes(".docx")) {
+          type = "docx";
+        }
+      } else {
+      
+        let filePath = fileUrlOrPath;
+        if (!path.isAbsolute(filePath)) {
+          const cleanPath = fileUrlOrPath.startsWith("/") ? fileUrlOrPath.substring(1) : fileUrlOrPath;
+          filePath = path.join(process.cwd(), cleanPath);
+        }
+
+        if (fs.existsSync(filePath)) {
+          dataBuffer = fs.readFileSync(filePath);
+          if (filePath.toLowerCase().endsWith(".docx") || filePath.toLowerCase().endsWith(".doc")) {
+            type = "docx";
+          }
+        } else {
+          console.warn(`[ResumeService] Local file not found at path: ${filePath}`);
+        }
+      }
+
+      if (!dataBuffer || dataBuffer.length === 0) {
+        return "";
+      }
+
       if (type === "pdf") {
-        const dataBuffer = fs.readFileSync(filePath);
-        const pdfData = await pdfParse(dataBuffer);
-        const text = pdfData?.text || "";
-        return text.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, "\n\n").trim();
+        let extracted = "";
+        const pdfModule = require("pdf-parse");
+
+        if (typeof pdfModule === "function") {
+          const pdfData = await pdfModule(dataBuffer);
+          extracted = pdfData?.text || "";
+        } else if (pdfModule?.PDFParse) {
+          const parser = new pdfModule.PDFParse({ data: dataBuffer });
+          const parsed = await parser.getText();
+          extracted = typeof parsed === "string" ? parsed : (parsed?.text || "");
+          if (typeof parser.destroy === "function") {
+            try {
+              await parser.destroy();
+            } catch (_) {}
+          }
+        }
+
+       
+        extracted = extracted.replace(/--\s*\d+\s*of\s*\d+\s*--/gi, "");
+        return extracted.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, "\n\n").trim();
       } else if (type === "docx" || type === "doc") {
-        const result = await mammoth.extractRawText({ path: filePath });
-        const text = result?.value || "";
-        return text.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, "\n\n").trim();
+        const result = await mammoth.extractRawText({ buffer: dataBuffer });
+        const extracted = result?.value || "";
+        return extracted.replace(/\r\n/g, "\n").replace(/\n\s*\n/g, "\n\n").trim();
       }
     } catch (error) {
-      console.error(`[ResumeService] Error extracting text from ${filePath}:`, error);
+      console.error(`[ResumeService] Error extracting text from ${fileUrlOrPath}:`, error);
     }
 
     return "";
@@ -66,12 +98,12 @@ export class ResumeService {
   ) {
     let cleanText = extractedText ? extractedText.replace(/\n\s*\n/g, "\n").trim() : "";
 
-    // If extractedText wasn't provided, extract text directly from the uploaded file
+    
     if (!cleanText && fileUrl) {
       cleanText = await this.extractTextFromFile(fileUrl, fileType);
     }
 
-    // Default fallback if parsing produced empty output
+ 
     if (!cleanText) {
       cleanText = "Sample extracted text from resume.";
     }
@@ -124,7 +156,7 @@ export class ResumeService {
     if (fileUrl) updateData.fileUrl = fileUrl;
     if (fileType) updateData.fileType = fileType;
 
-    // Extract text if a new file is uploaded
+
     if (fileUrl && fileUrl !== resume.fileUrl) {
       const newExtractedText = await this.extractTextFromFile(fileUrl, fileType || resume.fileType);
       if (newExtractedText) {

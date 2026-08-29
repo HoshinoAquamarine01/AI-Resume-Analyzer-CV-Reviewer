@@ -43,6 +43,7 @@ export class UserService {
         name: dto.name,
         phoneNumber: dto.phone,
         bio: dto.bio,
+        targetRole: dto.targetRole,
         avatarUrl: dto.avatar,
         location: dto.location,
         updatedAt: new Date(),
