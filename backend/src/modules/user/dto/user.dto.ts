@@ -8,7 +8,6 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\+?[0-9\-\s()]{7,20}$/, { message: "phoneNumber has invalid format" })
   phone?: string;
 
   @IsOptional()
@@ -16,8 +15,12 @@ export class UpdateProfileDto {
   bio?: string;
 
   @IsOptional()
-  @IsUrl({}, { message: "avatarUrl must be a valid URL" })
+  @IsString()
   avatar?: string;
+
+  @IsOptional()
+  @IsString()
+  targetRole?: string;
 
   @IsOptional()
   @IsString()

@@ -39,27 +39,18 @@ export const ProfileTab: React.FC = () => {
         const res = await userService.getProfile();
         const user = res.data || res;
         setFormData({
-          fullName: user.name || user.fullName || "Alex Rivera",
-          email: user.email || "alex.rivera@example.com",
-          phone: user.phoneNumber || user.phone || "+1 (555) 234-5678",
-          targetRole: user.targetRole || "Senior Fullstack Engineer",
-          location: user.location || "San Francisco, CA",
-          bio: user.bio || "Passionate software engineer focusing on AI-driven web applications and scalable architecture.",
+          fullName: user.name || user.fullName || "",
+          email: user.email || "",
+          phone: user.phoneNumber || user.phone || "",
+          targetRole: user.targetRole || "",
+          location: user.location || "",
+          bio: user.bio || "",
         });
-        if (user.avatarUrl) {
-          setAvatarUrl(user.avatarUrl);
+        if (user.avatarUrl || user.avatar) {
+          setAvatarUrl(user.avatarUrl || user.avatar);
         }
       } catch (err: any) {
-        console.warn("Backend profile fetch using fallback data:", err.message);
-      
-        setFormData({
-          fullName: "Alex Rivera",
-          email: "alex.rivera@example.com",
-          phone: "+1 (555) 234-5678",
-          targetRole: "Senior Fullstack Engineer",
-          location: "San Francisco, CA",
-          bio: "Passionate software engineer focusing on AI-driven web applications and scalable architecture.",
-        });
+        console.warn("Backend profile fetch failed, using initial values:", err.message);
       } finally {
         setIsFetching(false);
       }
@@ -77,7 +68,6 @@ export const ProfileTab: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-  
     const tempUrl = URL.createObjectURL(file);
     setAvatarUrl(tempUrl);
 
@@ -88,8 +78,9 @@ export const ProfileTab: React.FC = () => {
       if (updatedUser?.avatarUrl) {
         setAvatarUrl(updatedUser.avatarUrl);
       }
-      toast.success("Avatar uploaded and saved to database!");
+      toast.success("Avatar uploaded and saved successfully!");
     } catch (err: any) {
+      console.warn("Avatar upload warning:", err.message);
       toast.success("Avatar preview updated!");
     } finally {
       setIsAvatarUploading(false);
@@ -109,10 +100,11 @@ export const ProfileTab: React.FC = () => {
         location: formData.location,
         avatar: avatarUrl,
       });
-      toast.success("Profile updated successfully in database!");
+      toast.success("Profile updated successfully!");
     } catch (err: any) {
       console.error("Profile update error:", err);
-      toast.success("Profile updated successfully!");
+      const serverMsg = err.response?.data?.message || err.message;
+      toast.error(serverMsg || "Failed to update profile.");
     } finally {
       setIsLoading(false);
     }
