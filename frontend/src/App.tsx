@@ -18,6 +18,7 @@ const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const PaymentCallbackPage = lazy(() => import("./pages/PaymentCallbackPage"));
+const InterviewPage = lazy(() => import("./pages/InterviewPage"));
 
 export function App() {
   return (
@@ -72,6 +73,14 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <CoverLetterPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/interview"
+              element={
+                <ProtectedRoute>
+                  <InterviewPage />
                 </ProtectedRoute>
               }
             />
