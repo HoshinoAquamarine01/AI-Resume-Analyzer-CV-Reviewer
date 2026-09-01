@@ -90,6 +90,32 @@ class AuthService {
     }
   }
 
+  async forgotPassword(email: string): Promise<string> {
+    try {
+      const response = await axiosInstance.post<{
+        status: string;
+        message: string;
+      }>('/api/auth/forgot-password', { email });
+      return response.data.message || 'Password reset link sent to your email.';
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to send reset link.';
+      throw new Error(Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage);
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<string> {
+    try {
+      const response = await axiosInstance.post<{
+        status: string;
+        message: string;
+      }>('/api/auth/reset-password', { token, newPassword });
+      return response.data.message || 'Password has been reset successfully.';
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to reset password.';
+      throw new Error(Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage);
+    }
+  }
+
   async loginWithProvider(provider: 'google' | 'github'): Promise<void> {
     const backendUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
     window.location.href = `${backendUrl}/api/auth/${provider}`;
