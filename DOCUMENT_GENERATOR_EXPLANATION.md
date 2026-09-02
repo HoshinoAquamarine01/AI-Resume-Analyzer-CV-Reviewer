@@ -4,11 +4,11 @@ Tài liệu này giải thích chi tiết các thay đổi code, cấu trúc hel
 
 ---
 
-## 1. 📦 Thư viện Phụ thuộc đã Cài đặt
+## 1. 📦 Installed Dependencies
 
-Đã cài đặt các thư viện vào `backend/package.json`:
-- **`pdfkit` & `@types/pdfkit`**: Thư viện cho phép vẽ và căn chỉnh bố cục trang PDF trực tiếp trong Node.js, xuất ra Buffer mà không cần trình duyệt headless (nhẹ, nhanh và tiết kiệm tài nguyên server).
-- **`docx`**: Thư viện mã nguồn mở tạo và đóng gói tài liệu Word (`.docx`) chuẩn với đầy đủ các đối tượng `Document`, `Paragraph`, `TextRun`, `HeadingLevel`, `Packer`.
+Dependencies added to `backend/package.json`:
+- **`pdfkit` & `@types/pdfkit`**: Node.js library for drawing PDF page layouts in memory, producing Buffer payloads directly without requiring a headless browser (lightweight, fast, and resource-friendly).
+- **`docx`**: Open-source library to construct and package Microsoft Word (`.docx`) documents using standard objects (`Document`, `Paragraph`, `TextRun`, `HeadingLevel`, `Packer`).
 
 ---
 
