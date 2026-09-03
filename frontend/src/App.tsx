@@ -23,6 +23,8 @@ const PaymentCallbackPage = lazy(() => import("./pages/PaymentCallbackPage"));
 const InterviewPage = lazy(() => import("./pages/InterviewPage"));
 const TermsPage = lazy(() => import("./pages/TermsPage"));
 const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const FaqPage = lazy(() => import("./pages/FaqPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
 
 export function App() {
   return (
@@ -38,6 +40,8 @@ export function App() {
         >
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/faq" element={<FaqPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/login" element={<LoginPage />} />

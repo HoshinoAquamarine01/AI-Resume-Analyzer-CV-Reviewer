@@ -64,10 +64,22 @@ export const Navbar: React.FC = () => {
               Live Preview
             </a>
             <Link
+              to="/about"
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              About
+            </Link>
+            <Link
               to="/pricing"
               className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
             >
               Pricing
+            </Link>
+            <Link
+              to="/faq"
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              FAQ
             </Link>
           </nav>
 
