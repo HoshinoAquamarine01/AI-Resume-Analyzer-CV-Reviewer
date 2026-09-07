@@ -20,16 +20,17 @@ export const DangerZone: React.FC = () => {
 
     try {
       await userService.deleteAccount();
-      toast.success("Account and all associated resume data deleted successfully.");
+      toast.success("Account and all associated data deleted successfully.");
       setIsModalOpen(false);
       localStorage.clear();
+      sessionStorage.clear();
       setTimeout(() => {
         window.location.href = "/";
       }, 1000);
     } catch (err: any) {
       console.error("Account deletion error:", err);
-      toast.success("Account deletion request submitted.");
-      setIsModalOpen(false);
+      const errMsg = err.response?.data?.message || err.message || "Failed to delete account. Please try again.";
+      toast.error(Array.isArray(errMsg) ? errMsg.join(", ") : errMsg);
     } finally {
       setIsDeleting(false);
     }

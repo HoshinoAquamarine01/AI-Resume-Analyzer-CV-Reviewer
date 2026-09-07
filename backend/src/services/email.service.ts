@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import * as nodemailer from "nodemailer";
 
 export interface EmailOptions {
   to: string;
@@ -7,17 +8,50 @@ export interface EmailOptions {
   from?: string;
 }
 
-/**
- * Core sendEmail helper using Resend API or Dev console fallback
- */
+
 export const sendEmail = async (
   to: string,
   subject: string,
   htmlBody: string,
   from?: string
 ): Promise<boolean> => {
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpPort = Number(process.env.SMTP_PORT) || 587;
+  const smtpSecure = process.env.SMTP_SECURE === "true" || smtpPort === 465;
+
   const apiKey = process.env.RESEND_API_KEY;
-  const fromEmail = from || process.env.EMAIL_FROM || "AI Resume Analyzer <onboarding@resend.dev>";
+  const defaultFrom = process.env.EMAIL_FROM || "AI Resume Analyzer <no-reply@resend.dev>";
+  const fromEmail = from || defaultFrom;
+
+  
+  if (smtpHost && smtpUser && smtpPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpSecure,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: fromEmail,
+        to,
+        subject,
+        html: htmlBody,
+      });
+
+      console.log(`[EmailService] SMTP email sent successfully to ${to} (MessageID: ${info.messageId})`);
+      return true;
+    } catch (error) {
+      console.error("[EmailService] SMTP error sending email:", error);
+    }
+  }
+
 
   if (apiKey && apiKey !== "re_123456789_your_resend_api_key") {
     try {
@@ -33,17 +67,17 @@ export const sendEmail = async (
         console.error("[EmailService] Resend API error:", error);
         return false;
       }
-      console.log(`[EmailService] Email sent successfully to ${to} (ID: ${data?.id})`);
+      console.log(`[EmailService] Resend email sent successfully to ${to} (ID: ${data?.id})`);
       return true;
     } catch (error) {
-      console.error("[EmailService] Exception sending email:", error);
+      console.error("[EmailService] Resend exception sending email:", error);
       return false;
     }
   }
 
-  // Development Fallback Log
+ 
   console.log(`\n======================================================`);
-  console.log(`[EmailService] Dev Mode (API Key not set) - Simulated Email Output:`);
+  console.log(`[EmailService] Dev Mode (No SMTP/Resend key configured) - Simulated Email Output:`);
   console.log(`To: ${to}`);
   console.log(`Subject: ${subject}`);
   console.log(`From: ${fromEmail}`);
@@ -51,9 +85,6 @@ export const sendEmail = async (
   return true;
 };
 
-/**
- * Send Account Activation Email with styled HTML template
- */
 export const sendActivationEmail = async (to: string, activationUrl: string, name?: string): Promise<boolean> => {
   const userName = name || "User";
   const html = `
@@ -97,9 +128,7 @@ export const sendActivationEmail = async (to: string, activationUrl: string, nam
   return sendEmail(to, "Xác thực & Kích hoạt tài khoản - AI Resume Analyzer", html);
 };
 
-/**
- * Send Password Reset OTP / Token Email with styled HTML template
- */
+
 export const sendOtpResetPasswordEmail = async (to: string, resetTokenOrOtp: string, name?: string): Promise<boolean> => {
   const userName = name || "User";
   const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/reset-password?token=${resetTokenOrOtp}`;

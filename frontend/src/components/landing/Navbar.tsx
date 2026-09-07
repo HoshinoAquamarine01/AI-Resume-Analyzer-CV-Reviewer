@@ -81,6 +81,12 @@ export const Navbar: React.FC = () => {
             >
               FAQ
             </Link>
+            <Link
+              to="/contact"
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Contact
+            </Link>
           </nav>
 
           {/* Action Buttons */}
