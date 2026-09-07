@@ -68,20 +68,28 @@ export const ProfileTab: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size exceeds 5MB limit.");
+      return;
+    }
+
     const tempUrl = URL.createObjectURL(file);
     setAvatarUrl(tempUrl);
 
     try {
       setIsAvatarUploading(true);
       const response = await userService.uploadAvatar(file);
-      const updatedUser = response.data || response;
-      if (updatedUser?.avatarUrl) {
-        setAvatarUrl(updatedUser.avatarUrl);
+      const userObj = response.data || response;
+      const realAvatarUrl = userObj?.avatarUrl || userObj?.data?.avatarUrl;
+
+      if (realAvatarUrl) {
+        setAvatarUrl(realAvatarUrl);
       }
       toast.success("Avatar uploaded and saved successfully!");
     } catch (err: any) {
-      console.warn("Avatar upload warning:", err.message);
-      toast.success("Avatar preview updated!");
+      console.error("Avatar upload error:", err);
+      const errMsg = err.response?.data?.message || err.message || "Failed to upload avatar.";
+      toast.error(Array.isArray(errMsg) ? errMsg.join(", ") : errMsg);
     } finally {
       setIsAvatarUploading(false);
     }
