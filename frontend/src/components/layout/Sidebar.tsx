@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Zap,
   X,
+  Layers,
 } from "lucide-react";
 import userService from "../../services/userService";
 
@@ -83,6 +84,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       path: "/resumes",
       icon: FileText,
       badge: "3",
+    },
+    {
+      label: "CV Templates",
+      path: "/templates",
+      icon: Layers,
+      badge: "New",
     },
     {
       label: "ATS Matcher",

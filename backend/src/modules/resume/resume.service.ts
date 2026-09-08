@@ -275,12 +275,206 @@ export class ResumeService {
     return DocumentGeneratorHelper.generateDocxBuffer(docData);
   }
 
-  async getAvailableTemplates() {
-    return [
-      { id: 1, name: "Modern" },
-      { id: 2, name: "Classic" },
-      { id: 3, name: "Creative" },
+  async getAvailableTemplates(category?: string, query?: string) {
+    const templates = [
+      {
+        id: "tpl-tech-modern",
+        title: "Silicon Tech Professional",
+        category: "tech",
+        categoryName: "Tech & Engineering",
+        description: "Clean single-column layout optimized for Software Engineers, System Architects, and Product Leads with high keyword parser precision.",
+        atsScore: 98,
+        popular: true,
+        recommendedFor: ["Software Engineer", "DevOps Engineer", "Frontend Developer", "Full Stack Developer"],
+        tags: ["Single Column", "Tech Focus", "High ATS Parsing", "Clean Skills Grid"],
+        colorScheme: { primary: "#2563eb", secondary: "#3b82f6", bg: "#0f172a" },
+        sections: [
+          { name: "Header", fields: ["Full Name", "Title", "GitHub", "LinkedIn", "Email", "Phone"] },
+          { name: "Professional Summary", fields: ["3-4 line targeted impact statement"] },
+          { name: "Technical Skills", fields: ["Languages", "Frameworks", "Cloud & DevOps", "Databases"] },
+          { name: "Work Experience", fields: ["Company", "Role", "Dates", "Bullet Points with Metrics"] },
+          { name: "Key Projects", fields: ["Project Name", "Tech Stack", "Outcome & Metrics"] },
+          { name: "Education", fields: ["Degree", "University", "Graduation Year"] }
+        ],
+        sampleData: {
+          name: "Alex Mercer",
+          title: "Senior Full Stack Engineer",
+          summary: "Results-driven Software Engineer with 6+ years of experience designing scalable microservices and real-time WebApps processing 1M+ daily API requests.",
+          skills: ["TypeScript", "React / Next.js", "Node.js (NestJS)", "Docker / K8s", "AWS / Cloudflare", "PostgreSQL / Redis"],
+          experience: [
+            "Architected real-time analytics pipeline using NestJS & Redis Pub/Sub, cutting latency by 45%",
+            "Spearheaded migration of legacy monolith to Dockerized microservices on AWS EKS",
+            "Mentored junior engineers and instituted automated CI/CD pipelines reducing deployment friction"
+          ]
+        }
+      },
+      {
+        id: "tpl-exec-suite",
+        title: "Executive Leadership Suite",
+        category: "executive",
+        categoryName: "Executive & Leadership",
+        description: "Authoritative design structured for Directors, VPs, and C-Level Executives highlighting revenue growth, team scaling, and strategy.",
+        atsScore: 96,
+        popular: true,
+        recommendedFor: ["Engineering Director", "VP of Technology", "Chief Product Officer", "General Manager"],
+        tags: ["Executive", "Leadership Metrics", "Strategic Impact", "Clean Spacing"],
+        colorScheme: { primary: "#4f46e5", secondary: "#6366f1", bg: "#1e1b4b" },
+        sections: [
+          { name: "Header", fields: ["Full Name", "Executive Title", "Contact Info", "Portfolio Link"] },
+          { name: "Executive Core Competencies", fields: ["Strategic Leadership", "P&L Management", "Team Scaling"] },
+          { name: "Career Accomplishments", fields: ["High-level key wins & ROI highlights"] },
+          { name: "Professional Experience", fields: ["Company", "Title", "Metrics & Organizational Growth"] },
+          { name: "Education & Credentials", fields: ["MBA / MS Degrees", "Board Seats", "Certifications"] }
+        ],
+        sampleData: {
+          name: "Eleanor Vance",
+          title: "Vice President of Product & Engineering",
+          summary: "Visionary Executive with 12+ years steering multi-disciplinary engineering departments, driving $50M+ annual recurring revenue growth.",
+          skills: ["Organizational Leadership", "P&L Management ($30M+)", "Agile Transformation", "Strategic M&A", "Global Hiring"],
+          experience: [
+            "Grew engineering org from 25 to 140+ engineers across 4 international tech hubs",
+            "Delivered 120% YoY ARR growth through strategic product line launches",
+            "Managed $35M annual operating budget with zero budget overrun for 4 consecutive years"
+          ]
+        }
+      },
+      {
+        id: "tpl-ats-minimal",
+        title: "Ultra Clean ATS Baseline",
+        category: "minimal",
+        categoryName: "Minimal & ATS Clean",
+        description: "100% fail-safe layout with strict standard headers, monochrome styling, and maximum compatibility with legacy Taleo & Workday scanners.",
+        atsScore: 100,
+        popular: true,
+        recommendedFor: ["All Professions", "Finance", "Healthcare", "Government & Enterprise"],
+        tags: ["100% Parsing Guarantee", "No Columns", "Standard Fonts", "Maximum Compatibility"],
+        colorScheme: { primary: "#0f172a", secondary: "#334155", bg: "#f8fafc" },
+        sections: [
+          { name: "Header", fields: ["Full Name", "Phone", "Email", "Location", "LinkedIn"] },
+          { name: "Summary", fields: ["Concise career overview"] },
+          { name: "Experience", fields: ["Chronological history"] },
+          { name: "Education", fields: ["Degrees & Honors"] },
+          { name: "Skills", fields: ["Hard skills & Certifications"] }
+        ],
+        sampleData: {
+          name: "David Sterling",
+          title: "Senior Business Analyst",
+          summary: "Detail-oriented Business Analyst specializing in process optimization, financial modeling, and cross-functional enterprise software delivery.",
+          skills: ["SQL", "Tableau / Power BI", "Financial Modeling", "Requirements Gathering", "Jira & Confluence"],
+          experience: [
+            "Optimized supply chain workflow resulting in $1.8M annual cost reduction",
+            "Authored 50+ detailed functional spec documents for enterprise ERP migration"
+          ]
+        }
+      },
+      {
+        id: "tpl-creative-pro",
+        title: "Creative Vanguard",
+        category: "creative",
+        categoryName: "Creative & Design",
+        description: "Modern visual hierarchy tailored for UI/UX Designers, Product Designers, and Creative Directors featuring portfolio highlight blocks.",
+        atsScore: 92,
+        popular: false,
+        recommendedFor: ["UI/UX Designer", "Product Designer", "Art Director", "Brand Strategist"],
+        tags: ["Visual Accent", "Portfolio Highlights", "Clean Typography", "Design Systems"],
+        colorScheme: { primary: "#06b6d4", secondary: "#0891b2", bg: "#083344" },
+        sections: [
+          { name: "Header", fields: ["Name", "Role", "Behance / Dribbble / Portfolio URL"] },
+          { name: "Design Philosophy", fields: ["Short user-centric approach summary"] },
+          { name: "Selected Projects", fields: ["Project Title", "Impact", "Dribbble Link"] },
+          { name: "Design & Technical Skills", fields: ["Figma", "Design Systems", "Prototyping"] },
+          { name: "Experience", fields: ["Roles & Product Achievements"] }
+        ],
+        sampleData: {
+          name: "Maya Lin",
+          title: "Lead UI/UX Product Designer",
+          summary: "User-centric Product Designer crafting intuitive digital products used by over 5 million active global users across iOS, Android, and Web.",
+          skills: ["Figma / Design Systems", "User Research & Usability Testing", "Interactive Prototyping", "Design Tokens", "HTML/CSS/Tailwind"],
+          experience: [
+            "Redesigned core mobile checkout flow, improving conversion by 28%",
+            "Established enterprise design system adopted across 8 distinct product teams"
+          ]
+        }
+      },
+      {
+        id: "tpl-marketing-growth",
+        title: "Growth & Performance Marketing",
+        category: "marketing",
+        categoryName: "Marketing & Sales",
+        description: "Metric-heavy layout built specifically for Growth Marketers, SEO Specialists, and Demand Generation Managers to show CAC/ROAS proof.",
+        atsScore: 95,
+        popular: false,
+        recommendedFor: ["Growth Marketer", "SEO Manager", "Demand Gen Lead", "Account Executive"],
+        tags: ["ROAS / Metric Focus", "Campaign Highlights", "Lead Gen Focus"],
+        colorScheme: { primary: "#ec4899", secondary: "#f43f5e", bg: "#4c0519" },
+        sections: [
+          { name: "Header", fields: ["Name", "Title", "LinkedIn", "Email"] },
+          { name: "Impact Metric Summary", fields: ["Highlighted total ad spend managed & revenue generated"] },
+          { name: "Core Marketing Stack", fields: ["Google Ads", "Meta Ads", "HubSpot", "GA4"] },
+          { name: "Experience", fields: ["Campaign results & conversion lift"] },
+          { name: "Education", fields: ["Degree & Google / HubSpot Certifications"] }
+        ],
+        sampleData: {
+          name: "Marcus Brody",
+          title: "Head of Growth Marketing",
+          summary: "Data-driven Growth Lead having scaled SaaS startup ARR from $1M to $12M through multi-channel performance advertising and funnel optimization.",
+          skills: ["Paid Search & Social", "Google Analytics 4 / Amplitude", "A/B Experimentation", "HubSpot CRM", "Conversion Rate Optimization"],
+          experience: [
+            "Scaled monthly ad spend from $10k to $250k while reducing Customer Acquisition Cost (CAC) by 32%",
+            "Built automated lifecycle email nurture series generating 40% of inbound sales pipeline"
+          ]
+        }
+      },
+      {
+        id: "tpl-finance-capital",
+        title: "Wall Street Financial Professional",
+        category: "finance",
+        categoryName: "Finance & Banking",
+        description: "Traditional corporate formatting ideal for Investment Banking, Financial Analysts, Corporate Accounting, and Risk Management.",
+        atsScore: 97,
+        popular: false,
+        recommendedFor: ["Financial Analyst", "Investment Banker", "Risk Manager", "Accountant"],
+        tags: ["Corporate Format", "CFA / CPA Focus", "Dense Information", "Conservative"],
+        colorScheme: { primary: "#1e3a8a", secondary: "#1d4ed8", bg: "#172554" },
+        sections: [
+          { name: "Header", fields: ["Name", "Professional Title", "CFA/CPA designation", "Email", "Phone"] },
+          { name: "Education & Certifications", fields: ["Top university degrees, CFA Charterholder"] },
+          { name: "Transaction & Deal History", fields: ["M&A deals, IPO underwriting, Portfolio sizes"] },
+          { name: "Professional Experience", fields: ["Banking & Financial analysis roles"] },
+          { name: "Technical Competencies", fields: ["Bloomberg Terminal", "Excel Financial Modeling", "SQL"] }
+        ],
+        sampleData: {
+          name: "Samantha Wright, CFA",
+          title: "Senior Investment Banking Associate",
+          summary: "CFA Charterholder with 5+ years of M&A transaction advisory experience, executing over $4.2B in aggregate closed deal volume.",
+          skills: ["Financial Modeling & Valuation (DCF, LBO)", "M&A Advisory", "Bloomberg / Capital IQ", "Corporate Credit Analysis", "SQL / Python"],
+          experience: [
+            "Led financial modeling for $1.5B cross-border tech acquisition",
+            "Prepared confidential information memoranda (CIM) and pitchbooks for 15+ prospective transactions"
+          ]
+        }
+      }
     ];
+
+    let filtered = templates;
+
+    if (category && category !== "all") {
+      filtered = filtered.filter((t) => t.category === category.toLowerCase());
+    }
+
+    if (query && query.trim() !== "") {
+      const q = query.toLowerCase().trim();
+      filtered = filtered.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          t.description.toLowerCase().includes(q) ||
+          t.categoryName.toLowerCase().includes(q) ||
+          t.recommendedFor.some((role) => role.toLowerCase().includes(q)) ||
+          t.tags.some((tag) => tag.toLowerCase().includes(q))
+      );
+    }
+
+    return filtered;
   }
 
   async search(userId: string, query: string, page = 1, limit = 10) {

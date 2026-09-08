@@ -13,6 +13,7 @@ const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const ResumeListPage = lazy(() => import("./pages/ResumeListPage"));
 const ResumeDetailPage = lazy(() => import("./pages/ResumeDetailPage"));
+const TemplatesPage = lazy(() => import("./pages/TemplatesPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
 const CoverLetterPage = lazy(() => import("./pages/CoverLetterPage"));
 const AtsMatchPage = lazy(() => import("./pages/AtsMatchPage"));
@@ -63,6 +64,14 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <ResumeListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/templates"
+              element={
+                <ProtectedRoute>
+                  <TemplatesPage />
                 </ProtectedRoute>
               }
             />

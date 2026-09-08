@@ -115,8 +115,11 @@ export class ResumeController {
   }
 
   @Get("templates")
-  async getTemplates() {
-    const templates = await this.resumeService.getAvailableTemplates();
+  async getTemplates(
+    @Query("category") category?: string,
+    @Query("query") query?: string
+  ) {
+    const templates = await this.resumeService.getAvailableTemplates(category, query);
     return formatResponse(templates, "Templates retrieved");
   }
 
