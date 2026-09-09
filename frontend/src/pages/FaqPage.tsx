@@ -11,7 +11,6 @@ export const FaqPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  // Calculate category counts
   const categories: FaqCategory[] = useMemo(() => {
     const counts = FAQ_DATA.reduce((acc, item) => {
       acc[item.category] = (acc[item.category] || 0) + 1;
@@ -28,14 +27,14 @@ export const FaqPage: React.FC = () => {
     ];
   }, []);
 
-  // Filter FAQ items by active category & search query
+ 
   const filteredItems = useMemo(() => {
     return FAQ_DATA.filter((item) => {
-      // Category filter
+   
       const matchesCategory =
         activeCategory === "all" || item.category === activeCategory;
 
-      // Search filter
+   
       const query = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !query ||
@@ -50,26 +49,25 @@ export const FaqPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-white overflow-x-hidden">
-      {/* Header Navigation */}
+    
       <Navbar />
 
-      {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
-        {/* Hero & Search Header */}
+     
         <FaqHeader
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           totalQuestions={filteredItems.length}
         />
 
-        {/* Category Pills Filter */}
+        
         <FaqCategories
           categories={categories}
           activeCategory={activeCategory}
           onSelectCategory={setActiveCategory}
         />
 
-        {/* Accordion FAQ List */}
+      
         <FaqList
           items={filteredItems}
           searchQuery={searchQuery}
@@ -79,11 +77,11 @@ export const FaqPage: React.FC = () => {
           }}
         />
 
-        {/* Support & Contact Banner */}
+     
         <FaqSupportCard />
       </main>
 
-      {/* Footer */}
+    
       <Footer />
     </div>
   );

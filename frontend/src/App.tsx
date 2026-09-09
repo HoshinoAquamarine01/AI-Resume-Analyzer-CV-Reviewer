@@ -27,6 +27,7 @@ const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const FaqPage = lazy(() => import("./pages/FaqPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const ActivityLogPage = lazy(() => import("./pages/ActivityLogPage"));
 
 export function App() {
   return (
@@ -121,6 +122,22 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/activity-log"
+              element={
+                <ProtectedRoute>
+                  <ActivityLogPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <ActivityLogPage />
                 </ProtectedRoute>
               }
             />

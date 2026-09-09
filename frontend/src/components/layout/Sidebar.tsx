@@ -8,6 +8,7 @@ import {
   MessageSquareCode,
   Settings,
   CreditCard,
+  History,
   LogOut,
   ChevronRight,
   Zap,
@@ -112,6 +113,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
   ];
 
   const secondaryNavItems = [
+    {
+      label: "Activity Log",
+      path: "/activity-log",
+      icon: History,
+    },
     {
       label: "Plans & Billing",
       path: "/pricing",
