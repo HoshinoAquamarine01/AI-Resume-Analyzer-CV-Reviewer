@@ -112,11 +112,22 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
                 <button
                   onClick={() => {
                     setShowMenu(false);
+                    navigate(`/resumes/builder/${resume._id}`);
+                  }}
+                  className="w-full px-3.5 py-2 flex items-center gap-2.5 hover:bg-slate-800 hover:text-indigo-400 transition-colors text-left"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Edit in Visual Builder</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
                     navigate(`/resumes/${resume._id}`);
                   }}
                   className="w-full px-3.5 py-2 flex items-center gap-2.5 hover:bg-slate-800 hover:text-blue-400 transition-colors text-left"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                  <FileText className="w-3.5 h-3.5 text-blue-400" />
                   <span>Analyze with AI</span>
                 </button>
 

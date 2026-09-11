@@ -85,9 +85,8 @@ export const TemplatesPage: React.FC = () => {
   }, [templates, filters.sortBy]);
 
   const handleSelectTemplate = (template: ResumeTemplate) => {
-    toast.success(`Selected template "${template.title}". Redirecting to CV Manager...`);
-   
-    navigate("/resumes", { state: { selectedTemplateId: template.id, templateTitle: template.title } });
+    toast.success(`Opening "${template.title}" in Visual Resume Builder...`);
+    navigate(`/resumes/builder?templateId=${template.id}`);
   };
 
   return (
