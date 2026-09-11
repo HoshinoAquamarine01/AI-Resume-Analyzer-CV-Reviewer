@@ -32,6 +32,14 @@ export const ResumeHeader: React.FC<ResumeHeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-3 shrink-0">
+        <a
+          href="/resumes/builder"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 font-medium text-sm transition-all"
+        >
+          <Sparkles className="w-4 h-4 text-indigo-400" />
+          <span>Visual Builder</span>
+        </a>
+
         <button
           onClick={onOpenUpload}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium text-sm shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all active:scale-[0.98]"
