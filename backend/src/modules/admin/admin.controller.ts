@@ -5,6 +5,7 @@ import {
   Put,
   Delete,
   Body,
+  Param,
   Query,
   UseGuards,
   HttpCode,
@@ -27,6 +28,28 @@ export class AdminController {
   async getAdminDashboard() {
     const data = await this.adminService.getDashboard();
     return formatResponse(data, "Dashboard data retrieved successfully");
+  }
+
+  @Get("financial-analytics")
+  async getFinancialAnalytics(@Query("period") period = "month") {
+    const analytics = await this.adminService.getFinancialAnalytics(period as any);
+    return formatResponse(analytics, "Financial analytics retrieved successfully");
+  }
+
+  @Get("users/:id")
+  async getUserDetail(@Param("id") id: string) {
+    const data = await this.adminService.getUserDetail(id);
+    return formatResponse(data, "User details retrieved successfully");
+  }
+
+  @Put("users/:id")
+  async updateUserDetail(
+    @UserDec() admin: any,
+    @Param("id") id: string,
+    @Body() body: any
+  ) {
+    const data = await this.adminService.updateUserDetail(admin._id, id, body);
+    return formatResponse(data, "User details updated successfully");
   }
 
   @Post("users/manage")

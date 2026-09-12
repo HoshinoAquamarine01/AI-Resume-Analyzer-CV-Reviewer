@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { AdminUserItem, UserRole } from "../../types/admin.types";
 import {
   Search,
@@ -13,6 +14,7 @@ import {
   MoreVertical,
   Calendar,
   Mail,
+  Eye,
 } from "lucide-react";
 
 interface UserManagementTableProps {
@@ -186,6 +188,13 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
                   </td>
                   <td className="px-5 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      <Link
+                        to={`/admin/users/${user._id || user.id}`}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all flex items-center gap-1"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> Details
+                      </Link>
+
                       <button
                         onClick={() => onOpenRoleModal(user)}
                         className="px-3 py-1.5 rounded-lg text-xs font-medium text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 transition-all"

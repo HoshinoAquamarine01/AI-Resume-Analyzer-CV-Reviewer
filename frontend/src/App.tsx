@@ -16,6 +16,8 @@ const ResumeDetailPage = lazy(() => import("./pages/ResumeDetailPage"));
 const TemplatesPage = lazy(() => import("./pages/TemplatesPage"));
 const ResumeBuilderPage = lazy(() => import("./pages/ResumeBuilderPage"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboardPage"));
+const AdminUserDetailPage = lazy(() => import("./pages/admin/AdminUserDetailPage"));
+const AdminFinancialAnalyticsPage = lazy(() => import("./pages/admin/AdminFinancialAnalyticsPage"));
 const CoverLetterPage = lazy(() => import("./pages/CoverLetterPage"));
 const AtsMatchPage = lazy(() => import("./pages/AtsMatchPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
@@ -130,6 +132,22 @@ export function App() {
               element={
                 <AdminRoute>
                   <AdminDashboardPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/users/:id"
+              element={
+                <AdminRoute>
+                  <AdminUserDetailPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/financial-analytics"
+              element={
+                <AdminRoute>
+                  <AdminFinancialAnalyticsPage />
                 </AdminRoute>
               }
             />

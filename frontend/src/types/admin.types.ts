@@ -133,3 +133,99 @@ export interface AdminPaymentMethod {
   enabled: boolean;
   createdAt?: string;
 }
+
+export interface AdminSubscriptionItem {
+  _id: string;
+  userId: string;
+  plan: "free" | "pro" | "premium";
+  price: number;
+  status: "active" | "cancelled" | "expired";
+  paymentStatus: "paid" | "pending" | "failed";
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+}
+
+export interface AdminResumeItem {
+  _id: string;
+  title: string;
+  targetRole?: string;
+  status?: string;
+  atsScore?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminActivityItem {
+  _id: string;
+  userId: string;
+  action: string;
+  details?: Record<string, any>;
+  ipAddress?: string;
+  createdAt: string;
+}
+
+export interface AdminUserDetailResponse {
+  user: AdminUserItem;
+  subscription: AdminSubscriptionItem | null;
+  subscriptionHistory: AdminSubscriptionItem[];
+  resumes: AdminResumeItem[];
+  totalResumes: number;
+  activities: AdminActivityItem[];
+}
+
+export interface UpdateUserDetailPayload {
+  name?: string;
+  email?: string;
+  role?: UserRole;
+  isActive?: boolean;
+  plan?: "free" | "pro" | "premium";
+  subscriptionStatus?: "active" | "cancelled" | "expired";
+  daysToAdd?: number;
+}
+
+export interface FinancialAnalyticsSummary {
+  totalRevenue: number;
+  periodRevenue: number;
+  activePaidSubscriptions: number;
+  totalSubscriptionsCount: number;
+  paidTransactionsCount: number;
+  pendingCount: number;
+  failedCount: number;
+  averageOrderValue: number;
+}
+
+export interface FinancialTimeSeriesItem {
+  _id: string; 
+  revenue: number;
+  transactions: number;
+}
+
+export interface FinancialPlanBreakdown {
+  _id: "free" | "pro" | "premium";
+  count: number;
+  revenue: number;
+}
+
+export interface FinancialTransactionItem {
+  _id: string;
+  userId?: {
+    _id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  };
+  plan: "free" | "pro" | "premium";
+  price: number;
+  status: "active" | "cancelled" | "expired";
+  paymentStatus: "paid" | "pending" | "failed";
+  createdAt: string;
+}
+
+export interface FinancialAnalyticsResponse {
+  summary: FinancialAnalyticsSummary;
+  timeSeries: FinancialTimeSeriesItem[];
+  planBreakdown: FinancialPlanBreakdown[];
+  recentTransactions: FinancialTransactionItem[];
+}
+
