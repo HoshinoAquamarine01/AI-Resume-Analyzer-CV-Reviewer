@@ -5,6 +5,7 @@ import { User, UserDocument } from "../../models/User";
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { Subscription, SubscriptionDocument } from "../../models/Subscription";
 import { AdminLog, AdminLogDocument } from "../../models/AdminLog";
+import { ActivityLog, ActivityLogDocument } from "../../models/ActivityLog";
 import redis from "../../config/db";
 
 @Injectable()
@@ -13,7 +14,8 @@ export class AdminService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Resume.name) private readonly resumeModel: Model<ResumeDocument>,
     @InjectModel(Subscription.name) private readonly subscriptionModel: Model<SubscriptionDocument>,
-    @InjectModel(AdminLog.name) private readonly logModel: Model<AdminLogDocument>
+    @InjectModel(AdminLog.name) private readonly logModel: Model<AdminLogDocument>,
+    @InjectModel(ActivityLog.name) private readonly activityModel: Model<ActivityLogDocument>
   ) {}
 
   async getDashboard() {
@@ -451,4 +453,237 @@ export class AdminService {
     await redis.set(paymentMethodsKey, JSON.stringify(paymentMethods));
     return paymentMethods;
   }
+
+
+  async getUserDetail(userId: string) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException("Invalid user ID format");
+    }
+
+    const user = await this.userModel.findById(userId).select("-password");
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+   
+    const userObjectId = new Types.ObjectId(userId);
+    const subscriptions = await this.subscriptionModel
+      .find({ userId: userObjectId })
+      .sort({ createdAt: -1 });
+
+    const activeSubscription = subscriptions.find((s) => s.status === "active") || subscriptions[0] || null;
+
+  
+    const resumes = await this.resumeModel
+      .find({ userId: userObjectId })
+      .select("title targetRole status createdAt updatedAt atsScore")
+      .sort({ updatedAt: -1 })
+      .limit(10);
+
+    const totalResumes = await this.resumeModel.countDocuments({ userId: userObjectId });
+
+    
+    const activities = await this.activityModel
+      .find({ userId: userObjectId })
+      .sort({ createdAt: -1 })
+      .limit(15);
+
+    return {
+      user,
+      subscription: activeSubscription,
+      subscriptionHistory: subscriptions,
+      resumes,
+      totalResumes,
+      activities,
+    };
+  }
+
+  
+  async updateUserDetail(
+    adminId: string,
+    userId: string,
+    payload: {
+      name?: string;
+      email?: string;
+      role?: string;
+      isActive?: boolean;
+      plan?: "free" | "pro" | "premium";
+      subscriptionStatus?: "active" | "cancelled" | "expired";
+      daysToAdd?: number;
+    }
+  ) {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new BadRequestException("Invalid user ID format");
+    }
+
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    const updates: Record<string, any> = {};
+    if (payload.name) updates.name = payload.name;
+    if (payload.email) updates.email = payload.email;
+    if (payload.role) updates.role = payload.role;
+    if (typeof payload.isActive === "boolean") updates.isActive = payload.isActive;
+
+    await this.userModel.findByIdAndUpdate(userId, { $set: updates });
+
+   
+    if (payload.plan) {
+      const userObjectId = new Types.ObjectId(userId);
+      let sub = await this.subscriptionModel.findOne({ userId: userObjectId }).sort({ createdAt: -1 });
+
+      const price = payload.plan === "premium" ? 499000 : payload.plan === "pro" ? 199000 : 0;
+      const now = new Date();
+      const durationDays = payload.daysToAdd || 30;
+      const endDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+      if (sub) {
+        sub.plan = payload.plan;
+        sub.price = price;
+        sub.status = payload.subscriptionStatus || "active";
+        sub.paymentStatus = "paid";
+        sub.startDate = now;
+        sub.endDate = endDate;
+        await sub.save();
+      } else {
+        sub = await this.subscriptionModel.create({
+          userId: userObjectId,
+          plan: payload.plan,
+          price,
+          status: payload.subscriptionStatus || "active",
+          paymentStatus: "paid",
+          startDate: now,
+          endDate,
+          features: payload.plan === "premium"
+            ? ["Unlimited Resume Analysis", "AI Cover Letter Generator", "Mock Interview AI", "Priority Support"]
+            : payload.plan === "pro"
+            ? ["50 Resume Analyses/month", "AI Cover Letter Generator", "Basic Interview Practice"]
+            : ["5 Free Resume Analyses"],
+        });
+
+        await this.userModel.findByIdAndUpdate(userId, { subscriptionId: sub._id });
+      }
+    }
+
+  
+    await this.logModel.create({
+      adminId: new Types.ObjectId(adminId),
+      action: "USER_DETAIL_UPDATED",
+      targetUserId: new Types.ObjectId(userId),
+      details: JSON.stringify(payload),
+    });
+
+    return this.getUserDetail(userId);
+  }
+
+
+  async getFinancialAnalytics(period: "week" | "month" | "year" | "all" = "month") {
+    const now = new Date();
+    let startDate: Date;
+
+    if (period === "week") {
+      startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    } else if (period === "month") {
+      startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    } else if (period === "year") {
+      startDate = new Date(now.getFullYear(), 0, 1);
+    } else {
+      startDate = new Date(0); 
+    }
+
+    const matchQuery = { createdAt: { $gte: startDate } };
+
+   
+    const totalRevenueAgg = await this.subscriptionModel.aggregate([
+      { $match: { paymentStatus: "paid" } },
+      { $group: { _id: null, total: { $sum: "$price" }, count: { $sum: 1 } } },
+    ]);
+
+    const periodRevenueAgg = await this.subscriptionModel.aggregate([
+      { $match: { ...matchQuery, paymentStatus: "paid" } },
+      { $group: { _id: null, total: { $sum: "$price" }, count: { $sum: 1 } } },
+    ]);
+
+    const totalRevenue = totalRevenueAgg[0]?.total || 0;
+    const periodRevenue = periodRevenueAgg[0]?.total || 0;
+    const paidTransactionsCount = totalRevenueAgg[0]?.count || 0;
+
+    const totalSubscriptionsCount = await this.subscriptionModel.countDocuments();
+    const activePaidSubscriptions = await this.subscriptionModel.countDocuments({
+      status: "active",
+      plan: { $ne: "free" },
+    });
+
+
+    const planBreakdown = await this.subscriptionModel.aggregate([
+      {
+        $group: {
+          _id: "$plan",
+          count: { $sum: 1 },
+          revenue: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "paid"] }, "$price", 0],
+            },
+          },
+        },
+      },
+    ]);
+
+    
+    const dateFormat = period === "year" || period === "all" ? "%Y-%m" : "%Y-%m-%d";
+    const timeSeries = await this.subscriptionModel.aggregate([
+      { $match: { ...matchQuery, paymentStatus: "paid" } },
+      {
+        $group: {
+          _id: { $dateToString: { format: dateFormat, date: "$createdAt" } },
+          revenue: { $sum: "$price" },
+          transactions: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    
+    const statusCounts = await this.subscriptionModel.aggregate([
+      {
+        $group: {
+          _id: "$paymentStatus",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const statusMap = statusCounts.reduce((acc, item) => {
+      acc[item._id || "unknown"] = item.count;
+      return acc;
+    }, {} as Record<string, number>);
+
+    
+    const recentTransactions = await this.subscriptionModel
+      .find()
+      .populate("userId", "name email avatar")
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    const averageOrderValue = paidTransactionsCount > 0 ? Math.round(totalRevenue / paidTransactionsCount) : 0;
+
+    return {
+      summary: {
+        totalRevenue,
+        periodRevenue,
+        activePaidSubscriptions,
+        totalSubscriptionsCount,
+        paidTransactionsCount,
+        pendingCount: statusMap["pending"] || 0,
+        failedCount: statusMap["failed"] || 0,
+        averageOrderValue,
+      },
+      timeSeries,
+      planBreakdown,
+      recentTransactions,
+    };
+  }
 }
+

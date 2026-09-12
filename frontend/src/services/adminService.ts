@@ -63,6 +63,24 @@ export const adminService = {
     const response = await axiosInstance.put("/api/admin/settings", { setting, value });
     return response.data;
   },
+
+  getUserDetail: async (id: string) => {
+    const response = await axiosInstance.get(`/api/admin/users/${id}`);
+    return response.data;
+  },
+
+  updateUserDetail: async (id: string, payload: any) => {
+    const response = await axiosInstance.put(`/api/admin/users/${id}`, payload);
+    return response.data;
+  },
+
+  getFinancialAnalytics: async (period: "week" | "month" | "year" | "all" = "month") => {
+    const response = await axiosInstance.get("/api/admin/financial-analytics", {
+      params: { period },
+    });
+    return response.data;
+  },
 };
 
 export default adminService;
+

@@ -21,6 +21,9 @@ export class User extends Document {
   })
   role: "user" | "admin";
 
+  @Prop({ default: true })
+  isActive?: boolean;
+
   @Prop()
   phoneNumber?: string;
 

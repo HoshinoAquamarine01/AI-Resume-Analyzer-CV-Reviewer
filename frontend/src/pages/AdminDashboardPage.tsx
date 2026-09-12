@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import useAdminDashboard from "../hooks/useAdminDashboard";
 import useAdminUsers from "../hooks/useAdminUsers";
 import useAdminLogs from "../hooks/useAdminLogs";
@@ -12,7 +13,7 @@ import UserStatusModal from "../components/admin/UserStatusModal";
 import SystemLogsTable from "../components/admin/SystemLogsTable";
 import AdminNotificationModal from "../components/admin/AdminNotificationModal";
 
-import { LayoutDashboard, Users, Clock, Settings, Megaphone } from "lucide-react";
+import { LayoutDashboard, Users, Clock, Settings, Megaphone, TrendingUp } from "lucide-react";
 
 export function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "users" | "logs" | "settings">("overview");
@@ -41,30 +42,39 @@ export function AdminDashboardPage() {
         loading={dashboardHook.loading || usersHook.loading}
       />
 
-      <div className="flex items-center gap-2 border-b border-gray-800/80 pb-3 overflow-x-auto">
-        {[
-          { id: "overview", label: "Overview & Analytics", icon: LayoutDashboard },
-          { id: "users", label: "User Management", icon: Users },
-          { id: "logs", label: "Audit Logs", icon: Clock },
-          { id: "settings", label: "System Broadcast", icon: Megaphone },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
-                isActive
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                  : "bg-gray-900/60 text-gray-400 border border-gray-800 hover:text-white hover:bg-gray-800"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          );
-        })}
+      <div className="flex items-center justify-between border-b border-gray-800/80 pb-3 gap-2 overflow-x-auto">
+        <div className="flex items-center gap-2">
+          {[
+            { id: "overview", label: "Overview & Analytics", icon: LayoutDashboard },
+            { id: "users", label: "User Management", icon: Users },
+            { id: "logs", label: "Audit Logs", icon: Clock },
+            { id: "settings", label: "System Broadcast", icon: Megaphone },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                    : "bg-gray-900/60 text-gray-400 border border-gray-800 hover:text-white hover:bg-gray-800"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <Link
+          to="/admin/financial-analytics"
+          className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2 whitespace-nowrap"
+        >
+          <TrendingUp className="w-4 h-4" /> Financial & Revenue Analytics
+        </Link>
       </div>
 
       
