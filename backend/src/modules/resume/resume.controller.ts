@@ -82,20 +82,25 @@ export class ResumeController {
     let fileUrl = bodyFileUrl;
     let fileType = bodyFileType;
 
+    let extractedText = "";
+
     if (file) {
-      const uploaded = await this.cloudStorageService.uploadFile(file, "resumes");
-      fileUrl = uploaded.url;
       fileType = file.filename.endsWith(".pdf") ? "pdf" : "docx";
       if (!finalTitle) {
         finalTitle = path.basename(file.originalname, path.extname(file.originalname));
       }
+      if (file.path && fs.existsSync(file.path)) {
+        extractedText = await this.resumeService.extractTextFromFile(file.path, fileType);
+      }
+      const uploaded = await this.cloudStorageService.uploadFile(file, "resumes");
+      fileUrl = uploaded.url;
     }
 
     if (!fileUrl || !fileType || !finalTitle) {
       throw new BadRequestException("Resume title, fileUrl/file and fileType are required");
     }
 
-    const resume = await this.resumeService.create(user._id, finalTitle, fileUrl, fileType);
+    const resume = await this.resumeService.create(user._id, finalTitle, fileUrl, fileType, extractedText);
     return formatResponse(resume, "Resume created");
   }
 
@@ -110,8 +115,11 @@ export class ResumeController {
   }
 
   @Get("templates")
-  async getTemplates() {
-    const templates = await this.resumeService.getAvailableTemplates();
+  async getTemplates(
+    @Query("category") category?: string,
+    @Query("query") query?: string
+  ) {
+    const templates = await this.resumeService.getAvailableTemplates(category, query);
     return formatResponse(templates, "Templates retrieved");
   }
 

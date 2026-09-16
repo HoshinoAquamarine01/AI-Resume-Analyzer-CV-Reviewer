@@ -21,11 +21,23 @@ export class User extends Document {
   })
   role: "user" | "admin";
 
+  @Prop({ default: true })
+  isActive?: boolean;
+
   @Prop()
   phoneNumber?: string;
 
   @Prop()
   avatarUrl?: string;
+
+  @Prop()
+  bio?: string;
+
+  @Prop()
+  targetRole?: string;
+
+  @Prop()
+  location?: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Subscription" })
   subscriptionId?: mongoose.Types.ObjectId;
@@ -48,14 +60,14 @@ export class User extends Document {
   @Prop({ type: [String] })
   preferredJobTitles?: string[];
 
-  // Define instance method signatures on class
+
   comparePassword: (password: string) => Promise<boolean>;
 }
 
 export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Bind Mongoose middleware
+
 UserSchema.pre<UserDocument>("save", async function (next) {
   if (!this.isModified("password")) {
     return next();

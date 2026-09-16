@@ -1,121 +1,174 @@
 # ResumeIQ-AI
 
-ResumeIQ-AI là một ứng dụng phân tích CV/resume dùng AI, tập trung vào việc chấm điểm hồ sơ, gợi ý tối ưu ATS, tạo cover letter và hỗ trợ luyện phỏng vấn. Repository này đang được tổ chức theo mô hình monorepo gồm `backend/` và `frontend/`.
+**ResumeIQ-AI** is an AI-powered resume and CV analysis platform designed to score resumes, optimize profiles for Applicant Tracking Systems (ATS), generate tailored cover letters, and provide interactive interview preparation. The project is structured as a monorepo containing `backend/` and `frontend/` workspaces.
 
-## Tính năng chính
+---
 
-- Tải lên và xử lý resume từ file PDF.
-- Phân tích resume bằng AI và trả về nhận xét/tối ưu hóa.
-- Hỗ trợ tối ưu ATS và so khớp với job description.
-- Tạo cover letter theo ngữ cảnh công việc.
-- Sinh câu hỏi phỏng vấn và hỗ trợ luyện tập.
-- Xác thực người dùng, phân quyền, quản trị và theo dõi hoạt động.
-- Hỗ trợ lưu trữ file upload, báo cáo và các tác vụ nền.
+## ✨ Features
 
-## Công nghệ
+- **📄 Resume Upload & Processing**: Parsing for PDF and DOCX files for fast, accurate text extraction.
+- **🤖 AI Analysis & Scoring**: Evaluates resume quality, pinpoints strengths and weaknesses, and suggests actionable improvements.
+- **🎯 ATS Optimization & Job Matching**: Optimizes resume content to match specific job descriptions and pass ATS filters.
+- **✉️ Dynamic Cover Letter Generation**: Generates customized, context-aware cover letters based on user profiles and target roles.
+- **🎙️ Interview Preparation**: Generates realistic interview questions and tailored practice scenarios.
+- **🔐 User Management & Security**: Features JWT-based authentication, role-based access control (RBAC), and administrative management.
+- **⚡ Real-Time & Background Processing**: Supports file uploads, PDF generation, background tasks, and real-time socket communications.
 
-- Backend: Node.js, Express, TypeScript, MongoDB, Mongoose.
-- Bảo mật: `helmet`, `cors`, `jsonwebtoken`, `bcrypt`.
-- Upload và xử lý file: `multer`, `pdf-parse`.
-- Tích hợp AI và các dịch vụ bên ngoài thông qua lớp service riêng.
+---
 
-## Cấu trúc dự án
+## 🛠️ Tech Stack
+
+### **Frontend**
+- **Framework**: React 18 + Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS, Lucide Icons
+- **Routing & State**: React Router v6, Axios, React Hot Toast
+
+### **Backend**
+- **Framework**: NestJS / Express
+- **Language**: TypeScript
+- **Database**: MongoDB + Mongoose, Redis
+- **AI Integration**: Google Gemini AI (`@google/genai`)
+- **File Parsing & Generation**: `pdf-parse`, `mammoth`, `docx`, `pdfkit`
+- **Security & Auth**: `jsonwebtoken`, `bcrypt`, `helmet`, `cors`, `@nestjs/throttler`
+- **Media & Communication**: Cloudinary, Nodemailer / Resend, Socket.IO
+
+---
+
+## 📁 Repository Structure
 
 ```text
-backend/
-	src/
-		config/        # Kết nối DB, AI, Cloudinary, JWT
-		controllers/   # Xử lý request/response
-		jobs/          # Các tác vụ nền
-		middlewares/   # Auth, validation, rate limit, security
-		models/        # Schema MongoDB
-		prompts/       # Prompt cho AI
-		routes/        # Khai báo API routes
-		services/      # Logic nghiệp vụ
-		utils/         # Hàm tiện ích
-		validators/    # Validate input
-frontend/
-	components/
-	src/
-shared/
-	constants/
-	types/
+├── backend/
+│   ├── src/
+│   │   ├── config/        # Database connection, AI config, Cloudinary, JWT
+│   │   ├── controllers/   # Request/response handlers
+│   │   ├── jobs/          # Background cron jobs & tasks
+│   │   ├── middlewares/   # Auth, rate limiting, and security middlewares
+│   │   ├── models/        # MongoDB schemas and models
+│   │   ├── modules/       # NestJS feature modules (Auth, User, Resume, etc.)
+│   │   ├── prompts/       # AI prompt templates
+│   │   ├── routes/        # API route definitions
+│   │   ├── services/      # Business logic & external service integrations
+│   │   └── utils/         # Helper functions & utilities
+├── frontend/
+│   ├── src/
+│   │   ├── components/    # Reusable React UI components
+│   │   ├── pages/         # Application pages/views
+│   │   ├── services/      # API communication services
+│   │   └── types/         # TypeScript interfaces & types
+└── shared/                # Shared constants and types
 ```
 
-## Yêu cầu môi trường
+---
 
-- Node.js 18+.
-- MongoDB connection string.
-- Các biến môi trường cần thiết cho AI, JWT, Cloudinary và frontend URL nếu dự án của bạn đang dùng các tích hợp này.
+## 📋 Prerequisites
 
-## Cài đặt
+- **Node.js**: `v18+` or `v20+`
+- **Package Manager**: `npm` or `pnpm`
+- **MongoDB**: Active connection string (local or MongoDB Atlas)
+- **API Keys**: Google Gemini API key, Cloudinary credentials, and SMTP settings.
 
-Từ thư mục gốc:
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
 
 ```bash
+git clone https://github.com/HoshinoAquamarine01/AI-Resume-Analyzer-CV-Reviewer.git
+cd AI-Resume-Analyzer-CV-Reviewer
+```
+
+### 2. Install Dependencies
+
+Install dependencies across workspaces or individually:
+
+```bash
+# Install root dependencies
+npm install
+
+# Install Frontend dependencies
+cd frontend
+npm install
+
+# Install Backend dependencies
+cd ../backend
 npm install
 ```
 
-Nếu bạn chạy riêng backend:
+---
 
-```bash
-cd backend
-npm install
-```
+## 🔑 Environment Variables
 
-## Biến môi trường
+Create `.env` files in both `backend/` and `frontend/` directories.
 
-Tạo file `.env` ở thư mục gốc với các biến tối thiểu sau:
+### Backend `.env`
 
 ```env
 PORT=5000
 MONGO_URL=your_mongodb_connection_string
 FRONTEND_URL=http://localhost:5173
+JWT_SECRET=your_jwt_secret_key
+GEMINI_API_KEY=your_google_gemini_api_key
+
+# Optional Integrations
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 ```
 
-Tùy vào phần AI, upload và auth trong backend, bạn có thể cần thêm các biến khác như API key, JWT secret hoặc thông tin Cloudinary.
+### Frontend `.env`
 
-## Chạy ứng dụng
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
 
-Backend ở chế độ dev:
+---
+
+## 🏃 Running the Application
+
+Both backend and frontend should be started separately during local development.
+
+### Start Backend
 
 ```bash
 cd backend
 npm run dev
 ```
+*Backend server runs on port `5000` (or configured `PORT`).*
 
-Build backend:
-
-```bash
-cd backend
-npm run build
-```
-
-Chạy bản build:
+### Start Frontend
 
 ```bash
-cd backend
-npm start
+cd frontend
+npm run dev
 ```
+*Frontend dev server runs on `http://localhost:5173`.*
 
-## Scripts
+---
 
-### Root
+## 📜 Available Scripts
 
-- `npm run dev`: thông báo rằng backend và frontend nên chạy riêng.
+### Backend (`/backend`)
+- `npm run dev`: Starts NestJS development server with watch mode (`nest start --watch`).
+- `npm run build`: Compiles TypeScript down to production-ready JS in `dist/`.
+- `npm start`: Runs the production server (`node dist/main.js`).
 
-### Backend
+### Frontend (`/frontend`)
+- `npm run dev`: Runs Vite dev server.
+- `npm run build`: Builds optimized production static assets.
+- `npm run preview`: Previews the production build locally.
 
-- `npm run dev`: chạy server với `nodemon` + `ts-node`.
-- `npm run build`: biên dịch TypeScript.
-- `npm start`: chạy file build trong `dist/`.
+---
 
-## Ghi chú
+## 📝 Important Notes
 
-- Server backend khởi động sau khi kết nối MongoDB thành công.
-- CORS đang cho phép origin từ `FRONTEND_URL` hoặc mặc định là `http://localhost:5173`.
-- Route index hiện đang là placeholder, nên nếu bạn muốn public API đầy đủ thì nên kiểm tra thêm các file `routes/` và `controllers/`.
+- **Database Connection**: The backend server starts after successfully establishing a MongoDB connection.
+- **CORS Setup**: Configured to allow origins specified in `FRONTEND_URL` (defaulting to `http://localhost:5173`).
+- **Security & Validation**: Production-grade request validation (`class-validator`), rate limiting, and security headers (`helmet`) are enabled.
 
-## License
+---
 
-Chưa cấu hình license riêng trong repository này.
+## 📄 License
+
+This project does not currently specify an open-source license.
