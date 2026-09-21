@@ -166,7 +166,6 @@ export class AiService {
       analyzedAt: new Date(),
     });
 
-    // Update resume scores
     await this.resumeModel.findByIdAndUpdate(resumeId, {
       aiScore: overallScore,
       atsScore: atsCompatibility,
@@ -178,7 +177,6 @@ export class AiService {
       atsCompatibility,
     });
 
-    // Real-Time Notification Push via WebSockets Gateway
     try {
       this.eventsGateway?.sendCvAnalysisComplete(userId, {
         analysisId: analysis._id,
@@ -408,7 +406,6 @@ Return ONLY pure JSON.`;
 
     const extractedSkills = parsed.skills || [];
 
-    // Save extracted skills back to resume model
     if (extractedSkills.length > 0) {
       await this.resumeModel.findByIdAndUpdate(resumeId, {
         skills: Array.from(new Set([...(resume.skills || []), ...extractedSkills])),
@@ -424,9 +421,6 @@ Return ONLY pure JSON.`;
     };
   }
 
-  /**
-   * Real-Time Stream AI Interview Feedback & Next Question
-   */
   async streamInterviewFeedback(
     question: string,
     candidateAnswer: string,

@@ -11,19 +11,16 @@ export const TermsPage: React.FC = () => {
      
       <Navbar />
 
-      
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
         
         <TermsHeader />
 
-       
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
           <TermsSidebar sections={TERMS_SECTIONS} />
           <TermsContent />
         </div>
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

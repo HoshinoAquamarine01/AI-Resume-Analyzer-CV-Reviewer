@@ -88,12 +88,11 @@ export const SubscriptionTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Monthly Usage Quotas */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm space-y-4">
         <h3 className="text-base font-semibold text-slate-100 mb-2">Monthly Usage Quotas</h3>
 
         <div className="space-y-4">
-          {/* Resume Analysis Usage */}
+          
           <div>
             <div className="flex justify-between text-xs font-medium mb-1.5">
               <span className="text-slate-300">AI Resume ATS Scans & Analyses</span>
@@ -111,7 +110,6 @@ export const SubscriptionTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Cover Letter Usage */}
           <div>
             <div className="flex justify-between text-xs font-medium mb-1.5">
               <span className="text-slate-300">AI Cover Letter Generation</span>
@@ -129,7 +127,6 @@ export const SubscriptionTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Interview Practice Sessions */}
           <div>
             <div className="flex justify-between text-xs font-medium mb-1.5">
               <span className="text-slate-300">AI Mock Interview Sessions</span>
@@ -149,7 +146,6 @@ export const SubscriptionTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Plan Features Included */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
         <h3 className="text-base font-semibold text-slate-100 mb-3">Plan Features & Privileges Included</h3>
 
@@ -173,7 +169,6 @@ export const SubscriptionTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Payment History */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">

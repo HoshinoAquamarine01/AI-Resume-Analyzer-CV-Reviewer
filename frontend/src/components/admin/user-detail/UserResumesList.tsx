@@ -26,7 +26,7 @@ export const UserResumesList: React.FC<UserResumesListProps> = ({ resumes, total
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {resumes.map((res) => {
-            const atsScore = res.atsScore ?? Math.floor(Math.random() * 25) + 70; // fallback mock for display
+            const atsScore = res.atsScore ?? Math.floor(Math.random() * 25) + 70; 
             return (
               <div
                 key={res._id}

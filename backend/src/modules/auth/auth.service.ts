@@ -22,7 +22,6 @@ export class AuthService {
       throw new BadRequestException("Email already registered");
     }
 
-    // Save the user in MongoDB. Schema pre-save hook will hash the password.
     const createdUser = await this.userModel.create({
       email: dto.email,
       password: dto.password,
@@ -33,7 +32,6 @@ export class AuthService {
     const token = await this.generateToken(createdUser._id);
     const refreshToken = await this.generateRefreshToken(createdUser._id);
 
-    // Send account activation / email verification email
     try {
       const emailToken = jwt.sign({ userId: createdUser._id }, process.env.EMAIL_TOKEN_SECRET || "secret", { expiresIn: "24h" });
       const activationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/auth/verify-email?token=${emailToken}`;
@@ -133,7 +131,7 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.userModel.findOne({ email });
     if (!user) {
-      // Return same response to prevent user enumeration
+      
       return { message: "If email exists, password reset link will be sent" };
     }
 

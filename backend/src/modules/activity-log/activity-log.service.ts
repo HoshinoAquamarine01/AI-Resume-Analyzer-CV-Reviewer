@@ -10,9 +10,6 @@ export class ActivityLogService {
     private readonly activityLogModel: Model<ActivityLogDocument>
   ) {}
 
-  /**
-   * Automatically creates an ActivityLog record in MongoDB
-   */
   async createLog(
     userId: string | Types.ObjectId,
     action: string,
@@ -33,9 +30,6 @@ export class ActivityLogService {
     }
   }
 
-  /**
-   * Retrieves paginated activity logs for a specific user
-   */
   async getActivityLogs(userId: string, page = 1, limit = 10) {
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.max(1, Number(limit) || 10);

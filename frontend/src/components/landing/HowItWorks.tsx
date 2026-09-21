@@ -33,7 +33,6 @@ export const HowItWorks: React.FC = () => {
     <section id="how-it-works" className="py-24 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
           <span className="text-xs font-bold tracking-widest text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
             Simple 3-Step Process
@@ -46,7 +45,6 @@ export const HowItWorks: React.FC = () => {
           </p>
         </div>
 
-        {/* Steps Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
           {steps.map((s, index) => (
             <div
@@ -54,7 +52,7 @@ export const HowItWorks: React.FC = () => {
               className="glass-panel rounded-3xl p-8 border border-slate-800 relative hover:border-slate-700 transition-all group flex flex-col justify-between"
             >
               <div>
-                {/* Step Header */}
+                
                 <div className="flex items-center justify-between mb-8">
                   <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                     {s.icon}
@@ -64,7 +62,6 @@ export const HowItWorks: React.FC = () => {
                   </span>
                 </div>
 
-                {/* Content */}
                 <h3 className="text-xl font-bold text-white mb-3 group-hover:text-emerald-400 transition-colors">
                   {s.title}
                 </h3>
@@ -73,7 +70,6 @@ export const HowItWorks: React.FC = () => {
                 </p>
               </div>
 
-              {/* Step Footer Badge */}
               <div className="pt-4 border-t border-slate-800 flex items-center gap-2 text-xs font-medium text-emerald-400">
                 <Check className="w-4 h-4" />
                 <span>{s.badge}</span>

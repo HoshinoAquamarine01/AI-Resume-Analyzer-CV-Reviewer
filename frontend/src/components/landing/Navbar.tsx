@@ -28,7 +28,7 @@ export const Navbar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow-md group-hover:border-emerald-500/50 transition-all">
               <FileSearch className="w-5 h-5 text-emerald-400 group-hover:scale-105 transition-transform" />
@@ -43,7 +43,6 @@ export const Navbar: React.FC = () => {
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-8">
             <a
               href="#features"
@@ -89,7 +88,6 @@ export const Navbar: React.FC = () => {
             </Link>
           </nav>
 
-          {/* Action Buttons */}
           <div className="hidden md:flex items-center gap-4">
             <Link
               to="/login"
@@ -106,7 +104,6 @@ export const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none"
@@ -117,7 +114,6 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Nav Overlay */}
       {mobileMenuOpen && (
         <div className="md:hidden glass-panel border-b border-slate-800 px-4 pt-4 pb-6 mt-3 space-y-4">
           <nav className="flex flex-col space-y-3">

@@ -32,7 +32,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     try {
-      // Extract JWT token from handshake auth, query, or authorization header
+      
       const token =
         client.handshake.auth?.token ||
         client.handshake.query?.token ||
@@ -67,10 +67,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Socket client ${client.id} disconnected`);
   }
 
-  /**
-   * Real-time AI Interview Streaming handler
-   * Client sends: { sessionId: string, question?: string, answer: string }
-   */
   @SubscribeMessage("interview:send-answer")
   async handleInterviewAnswer(
     @ConnectedSocket() client: Socket,
@@ -86,12 +82,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Received interview answer for session ${sessionId} from client ${client.id}`);
 
     try {
-      // Notify client that streaming has started
+      
       client.emit("interview:stream-start", { sessionId });
 
       let fullResponse = "";
 
-      // Stream chunks from Gemini AI
       await this.aiService.streamInterviewFeedback(
         question || "General interview question",
         answer,
@@ -107,7 +102,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       );
 
-      // Stream complete
       client.emit("interview:stream-end", {
         sessionId,
         fullResponse,
@@ -123,9 +117,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  /**
-   * Helper method to send real-time notification to a specific user
-   */
   sendNotificationToUser(userId: string, event: string, payload: any) {
     if (!this.server) return;
     const room = `user_${userId}`;
@@ -133,9 +124,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(room).emit(event, payload);
   }
 
-  /**
-   * Real-Time Notification Push when CV Analysis completes
-   */
   sendCvAnalysisComplete(userId: string, analysisData: any) {
     this.sendNotificationToUser(userId, "notification:cv-analysis-complete", {
       type: "CV_ANALYSIS_COMPLETE",

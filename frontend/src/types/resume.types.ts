@@ -1,10 +1,9 @@
-// Shared TypeScript types for Resume domain
 
-export type DateString = string; // ISO date string, e.g. 2022-09-01
+export type DateString = string; 
 
 export interface Location {
   city?: string;
-  region?: string; // state/province
+  region?: string; 
   country?: string;
 }
 
@@ -12,7 +11,7 @@ export interface PersonalInfo {
   firstName?: string;
   lastName?: string;
   fullName?: string;
-  title?: string; // e.g. "Senior Software Engineer"
+  title?: string; 
   email?: string;
   phone?: string;
   website?: string;
@@ -28,10 +27,10 @@ export interface Experience {
   company?: string;
   location?: Location | string;
   startDate?: DateString;
-  endDate?: DateString | null; // null = currently working
+  endDate?: DateString | null; 
   currentlyWorking?: boolean;
   description?: string;
-  highlights?: string[]; // bullet points
+  highlights?: string[]; 
 }
 
 export interface Education {
@@ -101,7 +100,7 @@ export interface Resume {
   certifications?: Certification[];
   languages?: Language[];
   links?: Link[];
-  rawText?: string; // original parsed text (if any)
+  rawText?: string; 
   extractedText?: string;
   fileUrl?: string;
   source?: "upload" | "manual" | "parsed" | string;
@@ -118,7 +117,7 @@ export interface ResumeAnalysis {
   id?: string;
   _id?: string;
   resumeId?: string;
-  score?: number; // overall fit/quality score
+  score?: number; 
   strengths?: string[];
   weaknesses?: string[];
   recommendations?: string[];

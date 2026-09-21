@@ -1,4 +1,3 @@
-// Shared TypeScript types for Admin domain
 
 export type UserRole = "user" | "admin" | "moderator";
 
@@ -48,12 +47,12 @@ export interface AdminLog {
 export type AnalyticsPeriod = "week" | "month" | "year";
 
 export interface AnalyticsTimeSeriesItem {
-  _id: string; // Date string e.g. "2026-08-12"
+  _id: string; 
   count: number;
 }
 
 export interface AnalyticsTopUser {
-  _id: string; // userId
+  _id: string; 
   count: number;
   userInfo?: Array<{
     _id: string;
@@ -228,4 +227,3 @@ export interface FinancialAnalyticsResponse {
   planBreakdown: FinancialPlanBreakdown[];
   recentTransactions: FinancialTransactionItem[];
 }
-

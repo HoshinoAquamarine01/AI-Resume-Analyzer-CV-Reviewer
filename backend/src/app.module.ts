@@ -7,7 +7,6 @@ import * as path from "path";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 
-// Import Custom Modules
 import { AuthModule } from "./modules/auth/auth.module";
 import { UserModule } from "./modules/user/user.module";
 import { ResumeModule } from "./modules/resume/resume.module";
@@ -23,13 +22,12 @@ import { StorageModule } from "./common/services/storage.module";
 
 @Module({
   imports: [
-    // Global Configurations
+    
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: path.resolve(__dirname, "../../.env"),
     }),
     
-    // Database Connection
     MongooseModule.forRootAsync({
       useFactory: () => {
         const uri = process.env.MONGO_URL;
@@ -40,19 +38,15 @@ import { StorageModule } from "./common/services/storage.module";
       },
     }),
 
-    // Rate Limiting / Throttling Support (60 requests / minute global default)
     ThrottlerModule.forRoot([{
       ttl: 60000,
       limit: 60,
     }]),
 
-    // Cron Schedule Support
     ScheduleModule.forRoot(),
 
-    // Global Cloud Storage
     StorageModule,
 
-    // Feature Modules
     ActivityLogModule,
     AuthModule,
     UserModule,

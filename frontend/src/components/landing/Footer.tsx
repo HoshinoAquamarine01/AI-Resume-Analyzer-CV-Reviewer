@@ -9,7 +9,6 @@ export const Footer: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-slate-800/80">
           
-          {/* Col 1: Brand */}
           <div className="md:col-span-2 space-y-4">
             <Link to="/" className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow-md">
@@ -28,7 +27,6 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Col 2: Product */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
               Product
@@ -62,7 +60,6 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Col 3: Resources */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
               Resources
@@ -96,7 +93,6 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Col 4: Company */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
               Company
@@ -127,7 +123,6 @@ export const Footer: React.FC = () => {
 
         </div>
 
-        {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © {new Date().getFullYear()} CVPulse. All rights reserved.

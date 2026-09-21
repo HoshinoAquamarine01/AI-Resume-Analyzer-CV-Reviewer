@@ -101,7 +101,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
           />
         </div>
 
- 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-gray-900/60 border border-gray-800 px-3 py-1.5 rounded-xl text-xs text-gray-400">
             <Filter className="w-3.5 h-3.5 text-blue-400" />
@@ -133,7 +132,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </div>
       </div>
 
-      
       <div className="overflow-x-auto rounded-xl border border-gray-800/80">
         <table className="w-full text-left text-sm text-gray-300">
           <thead className="bg-gray-900/90 text-xs font-semibold uppercase text-gray-400 tracking-wider border-b border-gray-800">
@@ -222,7 +220,6 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </table>
       </div>
 
-      {/* Pagination Footer */}
       <div className="flex items-center justify-between pt-2 text-xs text-gray-400">
         <p>
           Showing <span className="font-semibold text-white">{users.length}</span> of{" "}

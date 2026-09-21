@@ -9,13 +9,10 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Global Prefix
   app.setGlobalPrefix("api");
 
-  // Helmet Security
   app.use(helmet({ contentSecurityPolicy: false }));
 
-  // CORS Policy
   const allowedOrigins = [
     process.env.FRONTEND_URL,
     "http://localhost:5173",
@@ -35,7 +32,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Custom Cookie Parser middleware to populate req.cookies without requiring external dependencies
   app.use((req: any, res: any, next: any) => {
     const rawCookies = req.headers.cookie || "";
     const cookies: Record<string, string> = {};
@@ -49,7 +45,6 @@ async function bootstrap() {
     next();
   });
 
-  // Basic input sanitization matching the original security middleware
   const sanitize = (input: any): any => {
     if (typeof input === "string") {
       return input
@@ -78,11 +73,9 @@ async function bootstrap() {
     next();
   });
 
-  // Global Exception Filters & Interceptors
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  // Global Validation Pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -90,7 +83,6 @@ async function bootstrap() {
     })
   );
 
-  // Register Swagger UI documentation
   const config = new DocumentBuilder()
     .setTitle("ResumeIQ-AI API")
     .setDescription("The ResumeIQ-AI application backend API documentation")

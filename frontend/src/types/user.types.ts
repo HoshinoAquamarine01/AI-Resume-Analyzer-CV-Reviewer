@@ -1,4 +1,3 @@
-// Shared TypeScript types for User domain
 
 export type CareerLevel = "student" | "junior" | "mid" | "senior";
 
@@ -34,7 +33,7 @@ export interface UserActivityLog {
   id?: string;
   _id?: string;
   userId: string;
-  action: string; // e.g. "LOGIN", "UPLOAD_RESUME", "ANALYZE_RESUME"
+  action: string; 
   details?: Record<string, any> | string;
   ipAddress?: string;
   createdAt: string;

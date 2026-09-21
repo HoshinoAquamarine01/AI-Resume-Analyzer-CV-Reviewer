@@ -19,7 +19,6 @@ export function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<"overview" | "users" | "logs" | "settings">("overview");
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
 
-  
   const dashboardHook = useAdminDashboard("month");
   const usersHook = useAdminUsers(1, 10);
   const logsHook = useAdminLogs("logs");
@@ -77,16 +76,13 @@ export function AdminDashboardPage() {
         </Link>
       </div>
 
-      
       {activeTab === "overview" && (
         <div className="space-y-6 animate-fadeIn">
           
           <AdminStatGrid stats={dashboardHook.stats} loading={dashboardHook.loading} />
 
-         
           <AdminAnalyticsCharts analytics={dashboardHook.analytics} loading={dashboardHook.loading} />
 
-         
           <div className="pt-2">
             <h3 className="text-base font-bold text-white mb-3">Recent User Registrations</h3>
             <UserManagementTable
@@ -115,7 +111,6 @@ export function AdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB CONTENT: 2. USER MANAGEMENT */}
       {activeTab === "users" && (
         <div className="space-y-6 animate-fadeIn">
           <UserManagementTable
@@ -143,7 +138,6 @@ export function AdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB CONTENT: 3. AUDIT LOGS */}
       {activeTab === "logs" && (
         <div className="space-y-6 animate-fadeIn">
           <SystemLogsTable
@@ -155,7 +149,6 @@ export function AdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB CONTENT: 4. BROADCAST & SETTINGS */}
       {activeTab === "settings" && (
         <div className="rounded-2xl bg-[#111827]/80 backdrop-blur-xl border border-gray-800 p-8 shadow-xl max-w-2xl space-y-6 animate-fadeIn">
           <div>
@@ -183,7 +176,6 @@ export function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Action Modals */}
       <UserRoleModal
         isOpen={usersHook.isRoleModalOpen}
         user={usersHook.selectedUser}
