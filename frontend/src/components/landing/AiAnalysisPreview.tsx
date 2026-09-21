@@ -16,7 +16,6 @@ export const AiAnalysisPreview: React.FC = () => {
     <section id="preview" className="py-24 relative overflow-hidden bg-slate-950/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
           <span className="text-xs font-bold tracking-widest text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
             Interactive Product Audit Preview
@@ -29,7 +28,6 @@ export const AiAnalysisPreview: React.FC = () => {
           </p>
         </div>
 
-        {/* Tab Selection */}
         <div className="flex justify-center mb-10">
           <div className="p-1.5 glass-panel rounded-2xl flex flex-wrap justify-center gap-2 border border-slate-800">
             <button
@@ -68,14 +66,11 @@ export const AiAnalysisPreview: React.FC = () => {
           </div>
         </div>
 
-        {/* Interactive Preview Container */}
         <div className="max-w-5xl mx-auto glass-panel rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl">
           
-          {/* TAB 1: ATS SCORE BREAKDOWN */}
           {activeTab === "ats" && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
               
-              {/* Score Gauge Visual */}
               <div className="glass-card rounded-2xl p-8 text-center border border-slate-800 flex flex-col items-center justify-center">
                 <div className="relative w-36 h-36 flex items-center justify-center">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
@@ -107,7 +102,6 @@ export const AiAnalysisPreview: React.FC = () => {
                 <p className="text-xs text-slate-400 mt-1">Target Role: Senior Full Stack Engineer</p>
               </div>
 
-              {/* Score Details Bar Charts */}
               <div className="md:col-span-2 space-y-6">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
@@ -150,12 +144,10 @@ export const AiAnalysisPreview: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 2: BEFORE VS AFTER BULLET REWRITER */}
           {activeTab === "bullets" && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-                {/* BEFORE */}
                 <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-bold text-red-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -171,7 +163,6 @@ export const AiAnalysisPreview: React.FC = () => {
                   </div>
                 </div>
 
-                {/* AFTER */}
                 <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -192,7 +183,6 @@ export const AiAnalysisPreview: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 3: KEYWORD GAP ANALYSIS */}
           {activeTab === "keywords" && (
             <div className="space-y-6">
               <h4 className="text-base font-bold text-white flex items-center gap-2">

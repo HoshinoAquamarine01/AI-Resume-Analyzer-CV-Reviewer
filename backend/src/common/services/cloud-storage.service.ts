@@ -27,9 +27,6 @@ export class CloudStorageService {
     }
   }
 
-  /**
-   * Upload file to Cloudinary CDN or return local path fallback
-   */
   async uploadFile(
     file: Express.Multer.File,
     folder: "resumes" | "avatars" = "resumes"
@@ -48,7 +45,7 @@ export class CloudStorageService {
             folder: `ai-resume-analyzer/${folder}`,
             resource_type: resourceType,
           });
-          // Clean up temp file after Cloudinary upload
+          
           fs.unlinkSync(file.path);
         } else if (file.buffer) {
           result = await new Promise((resolve, reject) => {
@@ -75,7 +72,6 @@ export class CloudStorageService {
       }
     }
 
-    // Local Disk Fallback
     const relativeUrl = `/uploads/${folder}/${file.filename || path.basename(file.path || '')}`;
     return { url: relativeUrl, isCloud: false };
   }

@@ -13,15 +13,13 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
-      {/* Top Navigation */}
+      
       <Navbar />
 
-      {/* Main Content Area */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
-        {/* Header & Tab Bar */}
+        
         <SettingsHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* Tab Content */}
         <div className="transition-all duration-300">
           {activeTab === "profile" && <ProfileTab />}
           {activeTab === "security" && <SecurityTab />}
@@ -29,11 +27,9 @@ export const SettingsPage: React.FC = () => {
           {activeTab === "notifications" && <NotificationsTab />}
         </div>
 
-        {/* Danger Zone */}
         <DangerZone />
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

@@ -35,7 +35,6 @@ export const StatsGrid: React.FC = () => {
           const list = Array.isArray(raw.data) ? raw.data : Array.isArray(raw) ? raw : raw.resumes || [];
           resumeCount = raw.total ?? list.length;
 
-          // Calculate real average score
           const scoredList = list.filter((r: any) => typeof r.score === "number" || typeof r.atsScore === "number");
           if (scoredList.length > 0) {
             const sum = scoredList.reduce((acc: number, cur: any) => acc + (cur.score ?? cur.atsScore ?? 0), 0);
@@ -125,4 +124,3 @@ export const StatsGrid: React.FC = () => {
 };
 
 export default StatsGrid;
-

@@ -14,7 +14,7 @@ export const SocialLogin: React.FC<SocialLoginProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-5 w-full">
-      {/* Divider */}
+      
       <div className="relative flex items-center justify-center w-full my-1">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-slate-800/80" />
@@ -24,7 +24,6 @@ export const SocialLogin: React.FC<SocialLoginProps> = ({
         </div>
       </div>
 
-    
       <div className="grid grid-cols-2 gap-3 w-full">
        
         <Button
@@ -58,7 +57,6 @@ export const SocialLogin: React.FC<SocialLoginProps> = ({
           Google
         </Button>
 
-        {/* GitHub Button */}
         <Button
           type="button"
           variant="social"

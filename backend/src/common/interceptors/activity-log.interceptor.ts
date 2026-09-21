@@ -36,7 +36,7 @@ export class ActivityLogInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap(async (resData) => {
         try {
-          // Determine userId from request user (auth routes) or response payload (login)
+          
           const userId =
             req.user?._id ||
             req.user?.id ||
@@ -46,7 +46,6 @@ export class ActivityLogInterceptor implements NestInterceptor {
 
           if (!userId) return;
 
-          // Extract non-sensitive metadata for details
           const details: Record<string, unknown> = {};
           if (resData?.data) {
             if (resData.data._id) details.resourceId = resData.data._id;

@@ -187,7 +187,6 @@ export class AdminService {
     return { userGrowth, resumeCreated, topUsers };
   }
 
-  // Content, Roles, Permissions, Notifications, Integrations, Themes, Languages, Currencies, PaymentMethods
   async manageContent(action: string, contentId?: string, title?: string, body?: string, type?: string) {
     if (action === "create") {
       const content = { title, body, type, createdAt: new Date() };
@@ -454,7 +453,6 @@ export class AdminService {
     return paymentMethods;
   }
 
-
   async getUserDetail(userId: string) {
     if (!Types.ObjectId.isValid(userId)) {
       throw new BadRequestException("Invalid user ID format");
@@ -465,7 +463,6 @@ export class AdminService {
       throw new NotFoundException("User not found");
     }
 
-   
     const userObjectId = new Types.ObjectId(userId);
     const subscriptions = await this.subscriptionModel
       .find({ userId: userObjectId })
@@ -473,7 +470,6 @@ export class AdminService {
 
     const activeSubscription = subscriptions.find((s) => s.status === "active") || subscriptions[0] || null;
 
-  
     const resumes = await this.resumeModel
       .find({ userId: userObjectId })
       .select("title targetRole status createdAt updatedAt atsScore")
@@ -482,7 +478,6 @@ export class AdminService {
 
     const totalResumes = await this.resumeModel.countDocuments({ userId: userObjectId });
 
-    
     const activities = await this.activityModel
       .find({ userId: userObjectId })
       .sort({ createdAt: -1 })
@@ -498,7 +493,6 @@ export class AdminService {
     };
   }
 
-  
   async updateUserDetail(
     adminId: string,
     userId: string,
@@ -529,7 +523,6 @@ export class AdminService {
 
     await this.userModel.findByIdAndUpdate(userId, { $set: updates });
 
-   
     if (payload.plan) {
       const userObjectId = new Types.ObjectId(userId);
       let sub = await this.subscriptionModel.findOne({ userId: userObjectId }).sort({ createdAt: -1 });
@@ -567,7 +560,6 @@ export class AdminService {
       }
     }
 
-  
     await this.logModel.create({
       adminId: new Types.ObjectId(adminId),
       action: "USER_DETAIL_UPDATED",
@@ -577,7 +569,6 @@ export class AdminService {
 
     return this.getUserDetail(userId);
   }
-
 
   async getFinancialAnalytics(period: "week" | "month" | "year" | "all" = "month") {
     const now = new Date();
@@ -595,7 +586,6 @@ export class AdminService {
 
     const matchQuery = { createdAt: { $gte: startDate } };
 
-   
     const totalRevenueAgg = await this.subscriptionModel.aggregate([
       { $match: { paymentStatus: "paid" } },
       { $group: { _id: null, total: { $sum: "$price" }, count: { $sum: 1 } } },
@@ -616,7 +606,6 @@ export class AdminService {
       plan: { $ne: "free" },
     });
 
-
     const planBreakdown = await this.subscriptionModel.aggregate([
       {
         $group: {
@@ -631,7 +620,6 @@ export class AdminService {
       },
     ]);
 
-    
     const dateFormat = period === "year" || period === "all" ? "%Y-%m" : "%Y-%m-%d";
     const timeSeries = await this.subscriptionModel.aggregate([
       { $match: { ...matchQuery, paymentStatus: "paid" } },
@@ -645,7 +633,6 @@ export class AdminService {
       { $sort: { _id: 1 } },
     ]);
 
-    
     const statusCounts = await this.subscriptionModel.aggregate([
       {
         $group: {
@@ -660,7 +647,6 @@ export class AdminService {
       return acc;
     }, {} as Record<string, number>);
 
-    
     const recentTransactions = await this.subscriptionModel
       .find()
       .populate("userId", "name email avatar")
@@ -686,4 +672,3 @@ export class AdminService {
     };
   }
 }
-

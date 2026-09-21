@@ -29,23 +29,17 @@ export class PaymentService {
       "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
   }
 
-  /**
-   * Price list in VND
-   */
   private getPlanPrice(plan: PaymentPlan): number {
     switch (plan) {
       case PaymentPlan.PRO:
-        return 199000; // 199,000 VND
+        return 199000; 
       case PaymentPlan.PREMIUM:
-        return 499000; // 499,000 VND
+        return 499000; 
       default:
         return 199000;
     }
   }
 
-  /**
-   * Helper to compute HMAC SHA512 signature
-   */
   public generateSignature(data: Record<string, any>): string {
     const sortedKeys = Object.keys(data)
       .filter((key) => key !== "signature" && data[key] !== undefined && data[key] !== null)
@@ -61,9 +55,6 @@ export class PaymentService {
       .digest("hex");
   }
 
-  /**
-   * Generate payment transaction URL for checkout
-   */
   async createPaymentUrl(userId: string, dto: CreatePaymentUrlDto) {
     const user = await this.userModel.findById(userId);
     if (!user) {
@@ -73,19 +64,17 @@ export class PaymentService {
     const price = this.getPlanPrice(dto.plan);
     const provider = dto.provider || PaymentProvider.VNPAY;
 
-    // Create a pending Subscription record
     const subscription = await this.subscriptionModel.create({
       userId: new mongoose.Types.ObjectId(userId),
       plan: dto.plan,
       price,
-      status: "cancelled", // Remains inactive until paid
+      status: "cancelled", 
       paymentStatus: "pending",
       features: dto.plan === PaymentPlan.PREMIUM
         ? ["Unlimited Resume Analysis", "AI Cover Letter Generator", "Mock Interview AI", "Priority Support"]
         : ["50 Resume Analyses/month", "AI Cover Letter Generator", "Basic Interview Practice"],
     });
 
-    // Link subscriptionId to user
     user.subscriptionId = subscription._id as mongoose.Types.ObjectId;
     await user.save();
 
@@ -121,13 +110,9 @@ export class PaymentService {
     };
   }
 
-  /**
-   * Process and verify Webhook callback from Payment Gateway (VNPay / PayOS / Stripe)
-   */
   async processWebhook(dto: PaymentWebhookDto) {
     const { orderId, amount, status, signature } = dto;
 
-    // Verify HMAC signature checksum
     const payloadToSign = {
       orderId,
       amount,
@@ -135,12 +120,10 @@ export class PaymentService {
     };
     const expectedSignature = this.generateSignature(payloadToSign);
 
-    // If signature provided doesn't match expected (and not running in soft-mock fallback mode)
     if (signature !== expectedSignature && signature !== "bypass_test_signature") {
       throw new BadRequestException("Invalid payment signature checksum verification failed");
     }
 
-    // Find the pending subscription
     const subscriptionId = dto.subscriptionId || orderId;
     if (!mongoose.Types.ObjectId.isValid(subscriptionId)) {
       throw new BadRequestException("Invalid orderId/subscriptionId format");
@@ -158,7 +141,7 @@ export class PaymentService {
 
     if (isSuccess) {
       const now = new Date();
-      const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
+      const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); 
 
       subscription.paymentStatus = "paid";
       subscription.status = "active";
@@ -166,7 +149,6 @@ export class PaymentService {
       subscription.endDate = endDate;
       await subscription.save();
 
-      // Ensure user subscription link is active
       await this.userModel.findByIdAndUpdate(subscription.userId, {
         subscriptionId: subscription._id,
       });
@@ -191,9 +173,6 @@ export class PaymentService {
     }
   }
 
-  /**
-   * Get current subscription for a user
-   */
   async getUserSubscription(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) {
@@ -205,7 +184,7 @@ export class PaymentService {
     }).sort({ createdAt: -1 });
 
     if (!subscription) {
-      // Create default free subscription
+      
       subscription = await this.subscriptionModel.create({
         userId: new mongoose.Types.ObjectId(userId),
         plan: "free",
@@ -216,7 +195,6 @@ export class PaymentService {
       });
     }
 
-    // Check expiration
     if (subscription.endDate && new Date(subscription.endDate) < new Date() && subscription.status === "active") {
       subscription.status = "expired";
       await subscription.save();

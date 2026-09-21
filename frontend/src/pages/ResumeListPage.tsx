@@ -15,7 +15,6 @@ export const ResumeListPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
- 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [formatFilter, setFormatFilter] = useState<FormatFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
@@ -23,10 +22,8 @@ export const ResumeListPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  // Modal State
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
 
-  // Fetch Resumes from API
   const fetchResumes = useCallback(async () => {
     try {
       setLoading(true);
@@ -39,7 +36,6 @@ export const ResumeListPage: React.FC = () => {
         response = await resumeService.getResumes(page, 12);
       }
 
-     
       const payload = response?.data || response;
       let items: ResumeItem[] = [];
 
@@ -75,7 +71,6 @@ export const ResumeListPage: React.FC = () => {
     fetchResumes();
   }, [fetchResumes]);
 
-
   const filteredResumes = resumes
     .filter((item) => {
       if (formatFilter === "pdf") {
@@ -95,7 +90,6 @@ export const ResumeListPage: React.FC = () => {
       return sortBy === "oldest" ? dateA - dateB : dateB - dateA;
     });
 
-  
   const handleDuplicate = async (resumeId: string) => {
     try {
       toast.loading("Duplicating resume...", { id: "dup" });
@@ -159,7 +153,6 @@ export const ResumeListPage: React.FC = () => {
           onOpenUpload={() => setIsUploadModalOpen(true)}
         />
 
-     
         <ResumeFilterBar
           searchQuery={searchQuery}
           onSearchChange={(q) => {
@@ -172,7 +165,6 @@ export const ResumeListPage: React.FC = () => {
           onSortChange={setSortBy}
         />
 
-      
         {error && (
           <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-between text-sm">
             <div className="flex items-center gap-3">
@@ -188,7 +180,6 @@ export const ResumeListPage: React.FC = () => {
           </div>
         )}
 
-      
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((idx) => (
@@ -234,7 +225,6 @@ export const ResumeListPage: React.FC = () => {
           </div>
         )}
 
-        
         {!loading && totalPages > 1 && (
           <div className="flex items-center justify-between pt-6 border-t border-slate-800/80">
             <div className="text-xs text-slate-400 font-medium">
@@ -262,7 +252,6 @@ export const ResumeListPage: React.FC = () => {
         )}
       </div>
 
-     
       <UploadResumeModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}

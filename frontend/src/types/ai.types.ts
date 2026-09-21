@@ -1,4 +1,3 @@
-// AI feature TypeScript types
 
 export interface AIRequest {
   prompt: string;

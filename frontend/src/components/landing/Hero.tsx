@@ -15,30 +15,27 @@ import {
 export const Hero: React.FC = () => {
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-      {/* Soft Glow Background Orbs */}
+      
       <div className="glow-effect w-[500px] h-[500px] bg-blue-900/40 top-0 left-1/2 -translate-x-1/2"></div>
       <div className="glow-effect w-[400px] h-[400px] bg-emerald-900/30 top-32 right-10"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto space-y-6">
-          {/* Badge */}
+          
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-800/90 border border-slate-700 text-emerald-400 text-xs sm:text-sm font-medium shadow-sm">
             <Target className="w-4 h-4 text-emerald-400" />
             <span>Advanced ATS Parsing & Job Alignment Engine v3.2</span>
           </div>
 
-          {/* Main Title */}
           <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
             Land Your Dream Job <br className="hidden sm:inline" />
             <span className="text-gradient">3x Faster</span> with Resume Intelligence
           </h1>
 
-          {/* Subtitle */}
           <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto">
             Beat Applicant Tracking Systems (ATS), eliminate weak bullets, and receive line-by-line expert feedback tailored to top job descriptions in seconds.
           </p>
 
-          {/* Primary CTA Group */}
           <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               to="/dashboard"
@@ -57,7 +54,6 @@ export const Hero: React.FC = () => {
             </a>
           </div>
 
-          {/* Micro Trust Indicators */}
           <div className="pt-2 flex items-center justify-center gap-6 text-xs sm:text-sm text-slate-400">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -70,12 +66,10 @@ export const Hero: React.FC = () => {
           </div>
         </div>
 
-        {/* Upload Mock Container */}
         <div className="mt-14 max-w-4xl mx-auto relative">
           <div className="p-1 rounded-3xl bg-slate-800/60 border border-slate-700/60 shadow-2xl">
             <div className="glass-panel rounded-[22px] p-6 sm:p-10 text-center border border-slate-800">
               
-              {/* Drag & Drop Visual Card */}
               <div className="border-2 border-dashed border-slate-700 hover:border-emerald-500/80 rounded-2xl p-8 sm:p-12 transition-all bg-slate-900/60 group cursor-pointer">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-all">
                   <UploadCloud className="w-7 h-7" />
@@ -95,7 +89,6 @@ export const Hero: React.FC = () => {
                 </Link>
               </div>
 
-              {/* Realtime Floating Metrics Badges */}
               <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
                 <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
                   <div className="text-xs text-slate-400">ATS Match Score</div>

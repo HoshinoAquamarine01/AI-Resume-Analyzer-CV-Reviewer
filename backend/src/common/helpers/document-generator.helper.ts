@@ -26,9 +26,7 @@ export interface DocumentData {
 }
 
 export class DocumentGeneratorHelper {
-  /**
-   * Intelligently parses plain text/markdown into structured DocumentData
-   */
+  
   public static parseTextToDocumentData(rawText: string, fallbackTitle = 'Document'): DocumentData {
     if (!rawText || !rawText.trim()) {
       return {
@@ -48,7 +46,6 @@ export class DocumentGeneratorHelper {
       const line = lines[i].trim();
       if (!line) continue;
 
-      // Extract top header info if first non-empty lines look like name/title/contact
       if (!isHeaderParsed && !line.startsWith('#') && !line.startsWith('-') && !line.startsWith('*')) {
         if (!title) {
           title = line.replace(/^[#\s]+/, '');
@@ -63,7 +60,6 @@ export class DocumentGeneratorHelper {
         isHeaderParsed = true;
       }
 
-      // Check for section headings (# Heading, ## Heading, SECTION:, uppercase titles, etc.)
       const headingMatch = line.match(/^#{1,3}\s+(.+)$/) || line.match(/^([A-Z\s]{3,30}):?$/);
       if (headingMatch) {
         if (currentSection) {
@@ -76,7 +72,6 @@ export class DocumentGeneratorHelper {
         continue;
       }
 
-      // Check for bullet points (- bullet, * bullet, • bullet, 1. bullet)
       const bulletMatch = line.match(/^[\-\*•\d+\.]\s+(.+)$/);
       if (bulletMatch) {
         if (!currentSection) {
@@ -87,7 +82,6 @@ export class DocumentGeneratorHelper {
         continue;
       }
 
-      // Normal paragraph text
       if (!currentSection) {
         currentSection = { title: 'Overview', content: line, bullets: [] };
       } else if (!currentSection.content) {
@@ -109,9 +103,6 @@ export class DocumentGeneratorHelper {
     };
   }
 
-  /**
-   * Generates a styled PDF Buffer using PDFKit
-   */
   public static async generatePdfBuffer(input: DocumentData | string): Promise<Buffer> {
     const data = typeof input === 'string'
       ? this.parseTextToDocumentData(input)
@@ -130,13 +121,11 @@ export class DocumentGeneratorHelper {
         doc.on('data', buffers.push.bind(buffers));
         doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-        // Color Palette
-        const primaryColor = '#1E3A8A'; // Deep Navy Blue
-        const secondaryColor = '#4B5563'; // Slate Gray
-        const bodyColor = '#1F2937'; // Dark Charcoal
-        const accentLineColor = '#3B82F6'; // Royal Blue
+        const primaryColor = '#1E3A8A'; 
+        const secondaryColor = '#4B5563'; 
+        const bodyColor = '#1F2937'; 
+        const accentLineColor = '#3B82F6'; 
 
-        // 1. Header Section
         doc
           .font('Helvetica-Bold')
           .fontSize(20)
@@ -162,7 +151,6 @@ export class DocumentGeneratorHelper {
 
         doc.moveDown(0.8);
 
-        // Summary / Overview
         if (data.summary) {
           doc
             .font('Helvetica-Oblique')
@@ -172,10 +160,9 @@ export class DocumentGeneratorHelper {
           doc.moveDown(0.8);
         }
 
-        // 2. Sections Rendering
         if (data.sections && data.sections.length > 0) {
           for (const sec of data.sections) {
-            // Check if near bottom of page
+            
             if (doc.y > 750) {
               doc.addPage();
             }
@@ -251,7 +238,6 @@ export class DocumentGeneratorHelper {
             .text(data.rawText, { align: 'justify', lineGap: 3 });
         }
 
-        // 3. Footer / Page Numbers
         const range = doc.bufferedPageRange();
         for (let i = range.start; i < range.start + range.count; i++) {
           doc.switchToPage(i);
@@ -281,9 +267,6 @@ export class DocumentGeneratorHelper {
     });
   }
 
-  /**
-   * Generates a styled DOCX Buffer using docx
-   */
   public static async generateDocxBuffer(input: DocumentData | string): Promise<Buffer> {
     const data = typeof input === 'string'
       ? this.parseTextToDocumentData(input)
@@ -291,7 +274,6 @@ export class DocumentGeneratorHelper {
 
     const docChildren: Paragraph[] = [];
 
-    // Title Paragraph (Heading 1)
     docChildren.push(
       new Paragraph({
         text: data.title,
@@ -300,7 +282,6 @@ export class DocumentGeneratorHelper {
       })
     );
 
-    // Subtitle / Contact Paragraph
     if (data.subtitle) {
       docChildren.push(
         new Paragraph({
@@ -308,7 +289,7 @@ export class DocumentGeneratorHelper {
             new TextRun({
               text: data.subtitle,
               color: '4B5563',
-              size: 20, // 10pt
+              size: 20, 
               italics: true,
             }),
           ],
@@ -317,7 +298,6 @@ export class DocumentGeneratorHelper {
       );
     }
 
-    // Summary Paragraph
     if (data.summary) {
       docChildren.push(
         new Paragraph({
@@ -332,7 +312,6 @@ export class DocumentGeneratorHelper {
       );
     }
 
-    // Sections
     if (data.sections && data.sections.length > 0) {
       for (const sec of data.sections) {
         if (sec.title) {
@@ -429,7 +408,7 @@ export class DocumentGeneratorHelper {
           properties: {
             page: {
               margin: {
-                top: 1440, // 1 inch
+                top: 1440, 
                 right: 1440,
                 bottom: 1440,
                 left: 1440,
