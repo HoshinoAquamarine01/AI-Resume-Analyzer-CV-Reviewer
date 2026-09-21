@@ -1,4 +1,3 @@
-// Authentication related TypeScript types
 
 export type Role = "user" | "admin" | "moderator" | string;
 

@@ -20,7 +20,6 @@ export const ActivityLogPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  
   const [category, setCategory] = useState<ActivityActionCategory>("all");
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
@@ -54,12 +53,10 @@ export const ActivityLogPage: React.FC = () => {
     fetchActivityLogs();
   }, [fetchActivityLogs]);
 
- 
   const filteredLogs = useMemo(() => {
     return logs.filter((item) => {
       const act = (item.action || "").toLowerCase();
 
-      
       if (category !== "all") {
         if (category === "auth" && !act.includes("auth") && !act.includes("login") && !act.includes("register") && !act.includes("password")) {
           return false;
@@ -81,7 +78,6 @@ export const ActivityLogPage: React.FC = () => {
         }
       }
 
-      // Search keyword check
       if (search.trim() !== "") {
         const query = search.toLowerCase().trim();
         const actionMatch = act.includes(query);
@@ -94,7 +90,6 @@ export const ActivityLogPage: React.FC = () => {
     });
   }, [logs, category, search]);
 
-  // Computed summary statistics
   const stats: ActivityStats = useMemo(() => {
     if (!logs || logs.length === 0) {
       return {
@@ -116,7 +111,6 @@ export const ActivityLogPage: React.FC = () => {
       }
     }
 
-    // Tally action categories
     const categoryCounts: Record<string, number> = {};
     logs.forEach((log) => {
       const cat = (log.action || "other").split(".")[0] || "other";
@@ -153,17 +147,15 @@ export const ActivityLogPage: React.FC = () => {
   return (
     <MainLayout>
       <div className="space-y-6 pb-12">
-        {/* Header Banner */}
+        
         <ActivityLogHeader
           loading={loading}
           totalLogs={totalLogs}
           onRefresh={handleRefresh}
         />
 
-        {/* Summary Stat Cards */}
         <ActivityLogStats stats={stats} loading={loading} />
 
-        {/* Filters & Search Bar */}
         <ActivityLogFilterBar
           category={category}
           search={search}
@@ -178,7 +170,6 @@ export const ActivityLogPage: React.FC = () => {
           onReset={handleResetFilters}
         />
 
-        {/* Timeline Event List */}
         <ActivityLogTimeline
           items={filteredLogs}
           loading={loading}
@@ -186,7 +177,6 @@ export const ActivityLogPage: React.FC = () => {
           onResetFilters={handleResetFilters}
         />
 
-        {/* Pagination Bar */}
         {!loading && !error && (
           <ActivityLogPagination
             page={page}

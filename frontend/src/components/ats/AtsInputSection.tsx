@@ -111,7 +111,6 @@ Requirements:
         )}
       </div>
 
- 
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="block text-sm font-semibold text-slate-200 flex items-center gap-2">
@@ -156,14 +155,12 @@ Requirements:
         </div>
       </div>
 
-      {/* Error Banner */}
       {errorMsg && (
         <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs font-medium flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           {errorMsg}
         </div>
       )}
-
 
       <button
         type="submit"

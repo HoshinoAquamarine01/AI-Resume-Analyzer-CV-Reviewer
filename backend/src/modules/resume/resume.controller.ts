@@ -55,7 +55,7 @@ export class ResumeController {
           cb(null, `${name}-${uniqueSuffix}${ext}`);
         },
       }),
-      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      limits: { fileSize: 10 * 1024 * 1024 }, 
       fileFilter: (req, file, cb) => {
         const allowedMimes = [
           "application/pdf",
@@ -254,7 +254,7 @@ export class ResumeController {
     @UserDec() user: any,
     @Param("resumeId") resumeId: string
   ) {
-    const analysis = await this.resumeService.createAnalysis(user._id, resumeId, 75); // mock score 75 matching original Express mock
+    const analysis = await this.resumeService.createAnalysis(user._id, resumeId, 75); 
     return formatResponse(analysis, "Resume analysis completed");
   }
 

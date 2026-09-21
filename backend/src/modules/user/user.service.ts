@@ -93,31 +93,26 @@ export class UserService {
   async deleteAccount(userId: string) {
     const userObjectId = new Types.ObjectId(userId);
 
-    // 1. Verify user exists
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException("User not found");
     }
 
-    // 2. Clean up physical uploaded resume files
     const resumes = await this.resumeModel.find({ userId: userObjectId });
     for (const resume of resumes) {
       this.deletePhysicalFile(resume.fileUrl);
     }
 
-    // Clean up physical interview media files (video/audio)
     const interviewSessions = await this.interviewModel.find({ userId: userObjectId });
     for (const session of interviewSessions) {
       this.deletePhysicalFile(session.videoUrl);
       this.deletePhysicalFile(session.audioUrl);
     }
 
-    // Clean up physical avatar file if stored locally
     if (user.avatarUrl) {
       this.deletePhysicalFile(user.avatarUrl);
     }
 
-    // 3. Cascade delete related database records
     await Promise.all([
       this.resumeModel.deleteMany({ userId: userObjectId }),
       this.coverLetterModel.deleteMany({ userId: userObjectId }),
@@ -128,7 +123,6 @@ export class UserService {
       this.activityLogModel.deleteMany({ userId: userObjectId }),
     ]);
 
-    // 4. Delete user document
     await this.userModel.findByIdAndDelete(userId);
 
     return { message: "Account and associated data deleted successfully" };

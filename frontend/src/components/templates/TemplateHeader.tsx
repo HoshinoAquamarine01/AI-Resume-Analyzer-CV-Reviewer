@@ -4,7 +4,7 @@ import { Layout, CheckCircle2, ShieldCheck, Sparkles, FileText } from "lucide-re
 export const TemplateHeader: React.FC = () => {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 p-6 sm:p-8 mb-8 shadow-xl">
-      {/* Background ambient light effects */}
+      
       <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/3 -mb-12 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
 
@@ -24,7 +24,6 @@ export const TemplateHeader: React.FC = () => {
           </p>
         </div>
 
-        {/* Feature Highlights Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-3 w-full lg:w-auto shrink-0">
           <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs font-medium text-slate-200">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />

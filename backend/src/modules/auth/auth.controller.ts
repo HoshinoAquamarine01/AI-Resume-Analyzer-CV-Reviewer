@@ -77,7 +77,7 @@ export class AuthController {
     @Body("refreshToken") bodyToken: string,
     @Res({ passthrough: true }) res: Response
   ) {
-    // Check request cookies or request body
+    
     const token = (req.cookies && req.cookies["refreshToken"]) || bodyToken;
 
     if (!token) {

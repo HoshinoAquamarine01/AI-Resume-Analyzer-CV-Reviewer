@@ -80,7 +80,7 @@ export const NotificationsTab: React.FC = () => {
         </div>
 
         <div className="divide-y divide-slate-800/80">
-          {/* Item 1: CV Analysis result */}
+          
           <div className="py-4 flex items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">
@@ -109,7 +109,6 @@ export const NotificationsTab: React.FC = () => {
             </button>
           </div>
 
-          {/* Item 2: Weekly Report */}
           <div className="py-4 flex items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shrink-0">
@@ -138,7 +137,6 @@ export const NotificationsTab: React.FC = () => {
             </button>
           </div>
 
-          {/* Item 3: Marketing & Feature Updates */}
           <div className="py-4 flex items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
@@ -167,7 +165,6 @@ export const NotificationsTab: React.FC = () => {
             </button>
           </div>
 
-          {/* Item 4: Push notifications */}
           <div className="py-4 flex items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">

@@ -46,7 +46,6 @@ rawRedis.on("end", () => {
   connected = false;
 });
 
-// Safe Proxy wrapping rawRedis methods to prevent app crashes when Redis is offline or fails
 const safeRedisProxy = new Proxy(rawRedis, {
   get(target: any, prop: string | symbol) {
     const original = target[prop];
@@ -121,7 +120,7 @@ const gracefulShutdown = async () => {
   try {
     await rawRedis.quit();
   } catch {
-    // Ignore error on shutdown
+    
   }
   process.exit(0);
 };
