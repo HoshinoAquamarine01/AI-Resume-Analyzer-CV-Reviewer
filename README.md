@@ -116,6 +116,4 @@ npm start
 - CORS đang cho phép origin từ `FRONTEND_URL` hoặc mặc định là `http://localhost:5173`.
 - Route index hiện đang là placeholder, nên nếu bạn muốn public API đầy đủ thì nên kiểm tra thêm các file `routes/` và `controllers/`.
 
-## License
 
-Chưa cấu hình license riêng trong repository này.
