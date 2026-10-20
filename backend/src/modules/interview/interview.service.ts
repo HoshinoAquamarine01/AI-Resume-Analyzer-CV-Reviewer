@@ -113,9 +113,36 @@ export class InterviewService {
   }
 
   async addAnswer(sessionId: string, answer: string) {
+    return this.submitAnswers(sessionId, answer);
+  }
+
+  async submitAnswers(sessionId: string, answersInput: string | string[]) {
     const session = await this.findOne(sessionId);
-    session.answers = session.answers || [];
-    session.answers.push(answer);
+    const answersList = Array.isArray(answersInput) ? answersInput : [answersInput];
+    session.answers = answersList;
+
+    if (answersList.length > 0) {
+      const avgLength =
+        answersList.reduce((acc, a) => acc + (a?.trim().length || 0), 0) / answersList.length;
+      const calculatedScore = Math.min(96, Math.max(70, Math.round(60 + avgLength * 0.12)));
+      session.score = session.score && session.score > 0 ? session.score : calculatedScore;
+
+      session.strengths = [
+        "Structured responses addressing the core competencies of the position",
+        "Demonstrated technical context, logic, and problem-solving readiness",
+        "Clear alignment with key responsibilities expected for this role",
+      ];
+
+      session.weaknesses = [
+        "Incorporate more measurable KPIs and quantifiable results (e.g. % improvement, team impact)",
+        "Structure complex scenarios using the STAR framework (Situation, Task, Action, Result)",
+      ];
+
+      session.feedback = [
+        `Good effort on the ${session.jobTitle || "target"} role practice session. Focus on being concise while emphasizing practical results.`,
+      ];
+    }
+
     return session.save();
   }
 

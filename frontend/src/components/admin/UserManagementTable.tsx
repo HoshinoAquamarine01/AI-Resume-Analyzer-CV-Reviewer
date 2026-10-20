@@ -6,7 +6,7 @@ import {
   Filter,
   ShieldCheck,
   User,
-  Sparkles,
+  Shield,
   UserX,
   UserCheck,
   ChevronLeft,
@@ -61,7 +61,7 @@ export const UserManagementTable: React.FC<UserManagementTableProps> = ({
       case "moderator":
         return (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-            <Sparkles className="w-3.5 h-3.5" /> Moderator
+            <Shield className="w-3.5 h-3.5" /> Moderator
           </span>
         );
       default:

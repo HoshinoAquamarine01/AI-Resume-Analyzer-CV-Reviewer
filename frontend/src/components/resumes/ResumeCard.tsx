@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import {
   FileText,
-  Sparkles,
+  FileEdit,
+  Target,
   Download,
   Copy,
   Trash2,
@@ -116,7 +117,7 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
                   }}
                   className="w-full px-3.5 py-2 flex items-center gap-2.5 hover:bg-slate-800 hover:text-indigo-400 transition-colors text-left"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <FileEdit className="w-3.5 h-3.5 text-indigo-400" />
                   <span>Edit in Visual Builder</span>
                 </button>
 
@@ -186,7 +187,7 @@ export const ResumeCard: React.FC<ResumeCardProps> = ({
 
       <div className="my-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
-          <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+          <Target className="w-3.5 h-3.5 text-blue-400" />
           <span>ATS Optimised Score</span>
         </div>
         {score !== undefined ? (

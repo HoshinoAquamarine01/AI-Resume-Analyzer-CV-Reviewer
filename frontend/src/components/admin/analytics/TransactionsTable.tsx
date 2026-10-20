@@ -1,15 +1,50 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Receipt, Search, ExternalLink, CheckCircle2, Clock, XCircle, Filter } from "lucide-react";
+import { Receipt, Search, ExternalLink, CheckCircle2, Clock, XCircle, Filter, Check, X, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { FinancialTransactionItem } from "../../../types/admin.types";
+import adminService from "../../../services/adminService";
 
 interface TransactionsTableProps {
   transactions: FinancialTransactionItem[];
+  onRefresh?: () => void;
 }
 
-export const TransactionsTable: React.FC<TransactionsTableProps> = ({ transactions }) => {
+export const TransactionsTable: React.FC<TransactionsTableProps> = ({ transactions, onRefresh }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [actionLoading, setActionLoading] = useState<{ [id: string]: boolean }>({});
+
+  const handleApprove = async (tx: FinancialTransactionItem) => {
+    try {
+      setActionLoading((prev) => ({ ...prev, [tx._id]: true }));
+      await adminService.approvePayment(tx._id);
+      toast.success(`Đã phê duyệt thanh toán thành công cho ${tx.userId?.name || "khách hàng"}!`);
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error("Failed to approve payment:", err);
+      toast.error(err?.response?.data?.message || "Không thể phê duyệt thanh toán.");
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [tx._id]: false }));
+    }
+  };
+
+  const handleReject = async (tx: FinancialTransactionItem) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn từ chối giao dịch của ${tx.userId?.name || "khách hàng"} không?`)) {
+      return;
+    }
+    try {
+      setActionLoading((prev) => ({ ...prev, [tx._id]: true }));
+      await adminService.rejectPayment(tx._id, "Quản trị viên từ chối giao dịch");
+      toast.success("Đã từ chối giao dịch thanh toán.");
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error("Failed to reject payment:", err);
+      toast.error(err?.response?.data?.message || "Không thể từ chối thanh toán.");
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [tx._id]: false }));
+    }
+  };
 
   const filteredTransactions = transactions.filter((tx) => {
     const userName = tx.userId?.name || "";
@@ -151,15 +186,44 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ transactio
                       })}
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      {userIdStr && (
-                        <Link
-                          to={`/admin/users/${userIdStr}`}
-                          className="inline-flex items-center gap-1 p-1.5 rounded-lg bg-gray-800 hover:bg-blue-600 text-gray-300 hover:text-white transition-all text-xs font-semibold"
-                          title="Inspect User Details"
-                        >
-                          User <ExternalLink className="w-3 h-3" />
-                        </Link>
-                      )}
+                      <div className="flex items-center justify-end gap-1.5">
+                        {tx.paymentStatus === "pending" && (
+                          <>
+                            <button
+                              disabled={actionLoading[tx._id]}
+                              onClick={() => handleApprove(tx)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 transition-all active:scale-95 disabled:opacity-50"
+                              title="Phê duyệt thanh toán & Nâng cấp tài khoản"
+                            >
+                              {actionLoading[tx._id] ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                              <span>Duyệt</span>
+                            </button>
+                            <button
+                              disabled={actionLoading[tx._id]}
+                              onClick={() => handleReject(tx)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/30 text-xs font-semibold transition-all active:scale-95 disabled:opacity-50"
+                              title="Từ chối thanh toán"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span>Từ chối</span>
+                            </button>
+                          </>
+                        )}
+
+                        {userIdStr && (
+                          <Link
+                            to={`/admin/users/${userIdStr}`}
+                            className="inline-flex items-center gap-1 p-1.5 rounded-lg bg-gray-800 hover:bg-blue-600 text-gray-300 hover:text-white transition-all text-xs font-semibold"
+                            title="Inspect User Details"
+                          >
+                            User <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

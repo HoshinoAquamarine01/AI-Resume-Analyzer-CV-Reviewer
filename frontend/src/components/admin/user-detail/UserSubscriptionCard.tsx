@@ -1,5 +1,5 @@
 import React from "react";
-import { Crown, Zap, Clock, CreditCard, Sparkles } from "lucide-react";
+import { Crown, Zap, Clock, CreditCard } from "lucide-react";
 import { AdminSubscriptionItem } from "../../../types/admin.types";
 
 interface UserSubscriptionCardProps {
@@ -76,7 +76,7 @@ export const UserSubscriptionCard: React.FC<UserSubscriptionCardProps> = ({
     
       <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 space-y-4">
         <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
-          <Sparkles className="w-4 h-4 text-indigo-400" /> Admin Plan Assignment & Extension
+          <Crown className="w-4 h-4 text-indigo-400" /> Admin Plan Assignment & Extension
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

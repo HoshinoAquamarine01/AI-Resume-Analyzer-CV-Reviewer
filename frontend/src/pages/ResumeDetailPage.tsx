@@ -6,8 +6,25 @@ import ResumeDetailHeader from "../components/resumes/ResumeDetailHeader";
 import ResumeScoreOverview from "../components/resumes/ResumeScoreOverview";
 import ResumeAnalysisDetails from "../components/resumes/ResumeAnalysisDetails";
 import resumeService from "../services/resumeService";
+import aiService from "../services/aiService";
 import { Resume } from "../types/resume.types";
 import { ResumeAnalysisResult } from "../types/ai.types";
+
+
+const normalizeAnalysis = (raw: any): ResumeAnalysisResult | null => {
+  if (!raw) return null;
+  return {
+    ...raw,
+    score: raw.score ?? raw.overallScore ?? 0,
+    strengths: raw.strengths || [],
+    weaknesses: [...(raw.weaknesses || []), ...(raw.missingSkills || []).map((s: string) => `Missing skill: ${s}`)],
+    recommendations: raw.recommendations || [...(raw.improvementTips || []), ...(raw.keywordSuggestions || [])],
+    detailedFeedback: raw.detailedFeedback || {
+      formatting: [...(raw.formattingIssues || []), ...(raw.grammarIssues || [])],
+      impact: raw.recommendedRoles?.length ? raw.recommendedRoles.map((r: string) => `Recommended role: ${r}`) : [],
+    },
+  } as ResumeAnalysisResult;
+};
 
 export const ResumeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,7 +45,7 @@ export const ResumeDetailPage: React.FC = () => {
       try {
         const analysisRes = await resumeService.getResumeAnalysis(id);
         const analysisData = analysisRes.data || analysisRes.analysis || analysisRes;
-        setAnalysis(analysisData);
+        setAnalysis(normalizeAnalysis(analysisData));
       } catch {
 
         setAnalysis(null);
@@ -50,12 +67,11 @@ export const ResumeDetailPage: React.FC = () => {
     try {
       setIsAnalyzing(true);
       toast.loading("Analyzing CV with AI...", { id: "analyze-toast" });
-      const res = await resumeService.analyzeResume(id);
-      const newAnalysis = res.data || res.analysis || res;
-      setAnalysis(newAnalysis);
+      const res: any = await aiService.analyzeResume(id);
+      setAnalysis(normalizeAnalysis(res?.analysis || res));
       toast.success("AI Analysis Complete!", { id: "analyze-toast" });
     } catch (err: any) {
-      toast.error("Failed to perform AI analysis", { id: "analyze-toast" });
+      toast.error(err?.response?.data?.message || "Failed to perform AI analysis", { id: "analyze-toast" });
     } finally {
       setIsAnalyzing(false);
     }

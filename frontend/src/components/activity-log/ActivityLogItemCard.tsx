@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   FileText,
   KeyRound,
-  Sparkles,
+  FileEdit,
   MessageSquare,
   User,
   CreditCard,
@@ -44,7 +44,7 @@ export const ActivityLogItemCard: React.FC<ActivityLogItemCardProps> = ({ item }
     if (act.includes("cover") || act.includes("letter")) {
       return {
         title: actionStr.replaceAll(".", " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-        icon: Sparkles,
+        icon: FileEdit,
         badgeBg: "bg-amber-500/10 text-amber-400 border-amber-500/20",
         category: "Cover Letter",
       };

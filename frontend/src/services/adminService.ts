@@ -80,6 +80,16 @@ export const adminService = {
     });
     return response.data;
   },
+
+  approvePayment: async (subscriptionId: string) => {
+    const response = await axiosInstance.post("/api/admin/payments/approve", { subscriptionId });
+    return response.data;
+  },
+
+  rejectPayment: async (subscriptionId: string, reason?: string) => {
+    const response = await axiosInstance.post("/api/admin/payments/reject", { subscriptionId, reason });
+    return response.data;
+  },
 };
 
 export default adminService;

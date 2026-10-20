@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Target, Sparkles } from "lucide-react";
+import { ArrowLeft, Target } from "lucide-react";
 
 export const AtsHeader: React.FC = () => {
   return (
@@ -15,7 +15,6 @@ export const AtsHeader: React.FC = () => {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full text-indigo-400 text-xs font-semibold tracking-wide">
-            <Sparkles className="w-3.5 h-3.5" />
             <span>AI Resume Optimizer</span>
           </div>
         </div>

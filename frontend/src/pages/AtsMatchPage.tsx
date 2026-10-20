@@ -9,7 +9,7 @@ import AtsSuggestionsList from "../components/ats/AtsSuggestionsList";
 
 import resumeService from "../services/resumeService";
 import aiService, { AtsOptimizationResult } from "../services/aiService";
-import { Target, Sparkles } from "lucide-react";
+import { Target } from "lucide-react";
 
 export const AtsMatchPage: React.FC = () => {
   const [resumes, setResumes] = useState<ResumeOption[]>([]);
@@ -135,7 +135,6 @@ export const AtsMatchPage: React.FC = () => {
                   <strong className="text-slate-200 font-semibold">"Scan ATS Match & Optimize"</strong> to view real-time score analytics.
                 </p>
                 <div className="pt-2 flex items-center gap-2 text-xs text-indigo-400 font-medium">
-                  <Sparkles className="w-4 h-4" />
                   Powered by Gemini AI Engine
                 </div>
               </div>

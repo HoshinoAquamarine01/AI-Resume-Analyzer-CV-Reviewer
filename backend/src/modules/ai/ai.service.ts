@@ -102,25 +102,40 @@ export class AiService {
 
   private async callGemini(prompt: string): Promise<string> {
     const client = this.getClient();
-    const model = this.getModelName();
+    const primary = this.getModelName();
+    const fallbacks = ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest", "gemini-3.5-flash-lite"];
+    const models = [primary, ...fallbacks.filter((m) => m !== primary)];
 
-    try {
-      const response = await client.models.generateContent({
-        model: model,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
-
-      if (!response || !response.text) {
-        throw new Error("Empty response returned from Gemini API");
+    let lastErr: any;
+    for (const model of models) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const response = await client.models.generateContent({
+            model,
+            contents: prompt,
+            config: { responseMimeType: "application/json" },
+          });
+          if (!response || !response.text) {
+            throw new Error("Empty response returned from Gemini API");
+          }
+          if (model !== primary) this.logger.warn(`Used fallback Gemini model: ${model}`);
+          return response.text;
+        } catch (err: any) {
+          lastErr = err;
+          const msg = String(err?.message || err);
+          const retryable = /\b(503|429|500)\b|UNAVAILABLE|RESOURCE_EXHAUSTED|high demand/i.test(msg);
+          const notFound = /\b404\b|NOT_FOUND/i.test(msg);
+          this.logger.warn(`Gemini [${model}] attempt ${attempt + 1} failed: ${msg.slice(0, 200)}`);
+          if (notFound) break; // try next model
+          if (!retryable) {
+            throw new BadRequestException(`Gemini API Error: ${msg}`);
+          }
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
       }
-      return response.text;
-    } catch (err: any) {
-      this.logger.error(`Gemini API call failed: ${err?.message || err}`);
-      throw new BadRequestException(`Gemini API Error: ${err?.message || "Failed to generate AI response"}`);
     }
+    this.logger.error(`Gemini API call failed on all models: ${lastErr?.message || lastErr}`);
+    throw new BadRequestException(`Gemini API Error: ${lastErr?.message || "Failed to generate AI response"}`);
   }
 
   async analyzeResume(userId: string, resumeId: string) {

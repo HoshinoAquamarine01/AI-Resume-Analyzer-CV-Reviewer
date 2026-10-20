@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ExperienceItem } from "../../../types/builder.types";
-import { Plus, Trash2, Sparkles, Building2, Calendar, MapPin } from "lucide-react";
+import { Plus, Trash2, Zap, Building2, Calendar, MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface ExperienceSectionProps {
@@ -180,7 +180,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                       className="p-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 text-xs flex items-center gap-1 transition-colors"
                       title="Enhance with AI"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                      <Zap className="w-3.5 h-3.5 text-indigo-400" />
                     </button>
                     <button
                       onClick={() => handleRemoveHighlight(exp.id, exp, hIdx)}

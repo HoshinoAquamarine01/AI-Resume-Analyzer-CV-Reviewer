@@ -5,14 +5,12 @@ import { Link } from "react-router-dom";
 interface AdminHeaderProps {
   onRefresh: () => void;
   onOpenNotificationModal: () => void;
-  isUsingMock?: boolean;
   loading?: boolean;
 }
 
 export const AdminHeader: React.FC<AdminHeaderProps> = ({
   onRefresh,
   onOpenNotificationModal,
-  isUsingMock,
   loading,
 }) => {
   return (
@@ -31,11 +29,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
               <ShieldCheck className="w-7 h-7 text-amber-400" />
               Admin Command Control Center
             </h1>
-            {isUsingMock && (
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 animate-pulse">
-                Demo Preview Mode
-              </span>
-            )}
           </div>
           <p className="text-xs text-gray-400 mt-1 flex items-center gap-2">
             <Server className="w-3.5 h-3.5 text-emerald-400" />

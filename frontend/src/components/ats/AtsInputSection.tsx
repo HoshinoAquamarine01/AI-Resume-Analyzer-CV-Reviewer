@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FileText, Briefcase, Sparkles, Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { FileText, Briefcase, Loader2, RefreshCw, AlertCircle } from "lucide-react";
 
 export interface ResumeOption {
   _id: string;
@@ -123,7 +123,6 @@ Requirements:
               onClick={handlePasteSample}
               className="text-xs text-indigo-400 hover:text-indigo-300 font-medium hover:underline flex items-center gap-1"
             >
-              <Sparkles className="w-3 h-3" />
               Paste Sample JD
             </button>
             {jobDescription && (
@@ -174,7 +173,6 @@ Requirements:
           </>
         ) : (
           <>
-            <Sparkles className="w-5 h-5 text-blue-200 group-hover:scale-110 transition-transform" />
             Scan ATS Match & Optimize
           </>
         )}

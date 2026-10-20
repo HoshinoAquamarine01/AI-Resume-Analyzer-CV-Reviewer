@@ -4,7 +4,7 @@ import {
   LayoutDashboard,
   FileText,
   Target,
-  Sparkles,
+  FileEdit,
   MessageSquareCode,
   Settings,
   CreditCard,
@@ -84,31 +84,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       label: "My Resumes",
       path: "/resumes",
       icon: FileText,
-      badge: "3",
+      badge: null,
     },
     {
       label: "CV Templates",
       path: "/templates",
       icon: Layers,
-      badge: "New",
+      badge: null,
     },
     {
       label: "ATS Matcher",
       path: "/ats-match",
       icon: Target,
-      badge: "AI",
+      badge: null,
     },
     {
       label: "Cover Letter",
       path: "/cover-letter",
-      icon: Sparkles,
+      icon: FileEdit,
       badge: null,
     },
     {
       label: "AI Interview Prep",
       path: "/interview",
       icon: MessageSquareCode,
-      badge: "Beta",
+      badge: null,
     },
   ];
 
@@ -150,7 +150,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
           <Link to="/dashboard" className="flex items-center gap-3 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 p-0.5 shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
               <div className="w-full h-full bg-[#0b0f19] rounded-[10px] flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-blue-400" />
+                <Zap className="w-5 h-5 text-blue-400" />
               </div>
             </div>
             <div>

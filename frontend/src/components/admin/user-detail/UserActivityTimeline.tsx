@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, Activity, LogIn, FileUp, Sparkles, CheckCircle2 } from "lucide-react";
+import { Clock, Activity, LogIn, FileUp, Zap, CheckCircle2 } from "lucide-react";
 import { AdminActivityItem } from "../../../types/admin.types";
 
 interface UserActivityTimelineProps {
@@ -11,7 +11,7 @@ export const UserActivityTimeline: React.FC<UserActivityTimelineProps> = ({ acti
     const act = action.toUpperCase();
     if (act.includes("LOGIN") || act.includes("AUTH")) return LogIn;
     if (act.includes("RESUME") || act.includes("UPLOAD")) return FileUp;
-    if (act.includes("AI") || act.includes("MATCH")) return Sparkles;
+    if (act.includes("AI") || act.includes("MATCH")) return Zap;
     return Activity;
   };
 

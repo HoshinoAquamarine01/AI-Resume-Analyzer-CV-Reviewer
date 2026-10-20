@@ -40,6 +40,20 @@ export class PaymentService {
     }
   }
 
+  private getBankAccount() {
+    return {
+      bankId: this.configService.get<string>("BANK_ID") || "MB",
+      bankName:
+        this.configService.get<string>("BANK_NAME") ||
+        "MBBank (Ngân hàng TMCP Quân Đội)",
+      accountNumber:
+        this.configService.get<string>("BANK_ACCOUNT_NUMBER") || "0388889999",
+      accountName:
+        this.configService.get<string>("BANK_ACCOUNT_NAME") ||
+        "CONG TY AI RESUME",
+    };
+  }
+
   public generateSignature(data: Record<string, any>): string {
     const sortedKeys = Object.keys(data)
       .filter((key) => key !== "signature" && data[key] !== undefined && data[key] !== null)
@@ -203,6 +217,118 @@ export class PaymentService {
     return {
       success: true,
       subscription,
+    };
+  }
+
+  async createQrPayment(userId: string, plan: PaymentPlan) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    const price = this.getPlanPrice(plan);
+
+    const subscription = await this.subscriptionModel.create({
+      userId: new mongoose.Types.ObjectId(userId),
+      plan,
+      price,
+      status: "cancelled",
+      paymentStatus: "pending",
+      features:
+        plan === PaymentPlan.PREMIUM
+          ? ["Unlimited Resume Analysis", "AI Cover Letter Generator", "Mock Interview AI", "Priority Support"]
+          : ["50 Resume Analyses/month", "AI Cover Letter Generator", "Basic Interview Practice"],
+    });
+
+    const orderId = (subscription._id as mongoose.Types.ObjectId).toString();
+    const shortCode = orderId.slice(-6).toUpperCase();
+    const transferContent = `RESUME ${shortCode}`;
+
+    subscription.transferContent = transferContent;
+    await subscription.save();
+
+    user.subscriptionId = subscription._id as mongoose.Types.ObjectId;
+    await user.save();
+
+    const bankAccount = this.getBankAccount();
+
+    const qrCodeUrl = `https://img.vietqr.io/image/${bankAccount.bankId}-${bankAccount.accountNumber}-compact2.png?amount=${price}&addInfo=${encodeURIComponent(
+      transferContent
+    )}&accountName=${encodeURIComponent(bankAccount.accountName)}`;
+
+    return {
+      success: true,
+      orderId,
+      plan,
+      amount: price,
+      bankAccount,
+      transferContent,
+      qrCodeUrl,
+      paymentStatus: "pending",
+      message: "Vui lòng quét mã QR hoặc chuyển khoản theo thông tin bên dưới để hoàn tất nâng cấp.",
+    };
+  }
+
+  async confirmUserTransfer(userId: string, orderId: string, note?: string) {
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      throw new BadRequestException("Invalid orderId format");
+    }
+
+    const subscription = await this.subscriptionModel.findOne({
+      _id: new mongoose.Types.ObjectId(orderId),
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
+    if (!subscription) {
+      throw new NotFoundException("Không tìm thấy đơn hàng yêu cầu");
+    }
+
+    subscription.userConfirmedAt = new Date();
+    await subscription.save();
+
+    return {
+      success: true,
+      orderId,
+      status: "pending",
+      userConfirmedAt: subscription.userConfirmedAt,
+      message: "Đã ghi nhận thông tin chuyển khoản thành công! Vui lòng đợi Quản trị viên duyệt và kích hoạt gói.",
+    };
+  }
+
+  async getPendingPayment(userId: string) {
+    const subscription = await this.subscriptionModel
+      .findOne({
+        userId: new mongoose.Types.ObjectId(userId),
+        paymentStatus: "pending",
+      })
+      .sort({ createdAt: -1 });
+
+    if (!subscription) {
+      return { hasPending: false, pendingPayment: null };
+    }
+
+    const orderId = (subscription._id as mongoose.Types.ObjectId).toString();
+    const shortCode = orderId.slice(-6).toUpperCase();
+    const transferContent = subscription.transferContent || `RESUME ${shortCode}`;
+
+    const bankAccount = this.getBankAccount();
+
+    const qrCodeUrl = `https://img.vietqr.io/image/${bankAccount.bankId}-${bankAccount.accountNumber}-compact2.png?amount=${subscription.price || 199000}&addInfo=${encodeURIComponent(
+      transferContent
+    )}&accountName=${encodeURIComponent(bankAccount.accountName)}`;
+
+    return {
+      hasPending: true,
+      pendingPayment: {
+        orderId,
+        plan: subscription.plan,
+        amount: subscription.price || 199000,
+        transferContent,
+        bankAccount,
+        qrCodeUrl,
+        userConfirmedAt: subscription.userConfirmedAt || null,
+        createdAt: subscription.createdAt,
+      },
     };
   }
 }

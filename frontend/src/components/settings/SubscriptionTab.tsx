@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Zap, CheckCircle2, ArrowUpRight, CreditCard, Sparkles } from "lucide-react";
+import { Zap, CheckCircle2, ArrowUpRight, CreditCard } from "lucide-react";
 import Button from "../common/Button";
 import { Link } from "react-router-dom";
 import userService from "../../services/userService";
@@ -66,7 +66,7 @@ export const SubscriptionTab: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="inline-flex items-center gap-1 text-xs font-bold text-indigo-400 bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-0.5 rounded-full">
-                <Sparkles className="w-3 h-3" /> CURRENT PLAN
+                <Zap className="w-3 h-3" /> CURRENT PLAN
               </span>
               <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
                 {subData.status}

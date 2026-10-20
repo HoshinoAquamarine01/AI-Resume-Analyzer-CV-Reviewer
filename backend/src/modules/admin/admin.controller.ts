@@ -10,6 +10,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
@@ -209,5 +210,32 @@ export class AdminController {
   ) {
     const result = await this.adminService.managePaymentMethods(action, methodName, config, enabled);
     return formatResponse(result, `Payment method ${action}ed successfully`);
+  }
+
+  @Post("payments/approve")
+  @HttpCode(HttpStatus.OK)
+  async approvePayment(
+    @UserDec() admin: any,
+    @Body("subscriptionId") subscriptionId: string
+  ) {
+    if (!subscriptionId) {
+      throw new BadRequestException("subscriptionId is required");
+    }
+    const result = await this.adminService.approvePayment(admin._id, subscriptionId);
+    return formatResponse(result, "Thanh toán đã được phê duyệt thành công!");
+  }
+
+  @Post("payments/reject")
+  @HttpCode(HttpStatus.OK)
+  async rejectPayment(
+    @UserDec() admin: any,
+    @Body("subscriptionId") subscriptionId: string,
+    @Body("reason") reason?: string
+  ) {
+    if (!subscriptionId) {
+      throw new BadRequestException("subscriptionId is required");
+    }
+    const result = await this.adminService.rejectPayment(admin._id, subscriptionId, reason);
+    return formatResponse(result, "Thanh toán đã bị từ chối.");
   }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Activity, CheckCircle2, Sparkles, Target, MessageSquare, FileText, Loader2 } from "lucide-react";
+import { Activity, CheckCircle2, FileEdit, Target, MessageSquare, FileText, Loader2 } from "lucide-react";
 import userService from "../../services/userService";
 
 export interface ActivityLogItem {
@@ -82,7 +82,7 @@ export const RecentActivityFeed: React.FC = () => {
       case "ats":
         return <Target className="w-4 h-4 text-emerald-400" />;
       case "cover_letter":
-        return <Sparkles className="w-4 h-4 text-purple-400" />;
+        return <FileEdit className="w-4 h-4 text-purple-400" />;
       case "interview":
         return <MessageSquare className="w-4 h-4 text-amber-400" />;
       default:

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Bell, Mail, Sparkles, FileText, CheckCircle } from "lucide-react";
+import { Bell, Mail, Zap, FileText, CheckCircle } from "lucide-react";
 import Button from "../common/Button";
 import { toast } from "react-hot-toast";
 import userService from "../../services/userService";
@@ -140,7 +140,7 @@ export const NotificationsTab: React.FC = () => {
           <div className="py-4 flex items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">
-                <Sparkles className="w-4 h-4" />
+                <Zap className="w-4 h-4" />
               </div>
               <div>
                 <p className="text-sm font-medium text-slate-200">Product News & Feature Announcements</p>

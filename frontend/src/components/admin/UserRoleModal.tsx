@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { AdminUserItem, UserRole } from "../../types/admin.types";
-import { ShieldAlert, X, Check, ShieldCheck, User, Sparkles } from "lucide-react";
+import { ShieldAlert, X, Check, ShieldCheck, User, Shield } from "lucide-react";
 
 interface UserRoleModalProps {
   isOpen: boolean;
@@ -33,7 +33,7 @@ export const UserRoleModal: React.FC<UserRoleModalProps> = ({
       role: "moderator",
       label: "Moderator",
       desc: "Can review candidate profiles, monitor activity logs, and issue support.",
-      icon: Sparkles,
+      icon: Shield,
       color: "border-purple-500/30 text-purple-400 bg-purple-500/10",
     },
     {

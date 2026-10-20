@@ -28,6 +28,21 @@ export const paymentService = {
   },
 
   
+  createQrPayment: async (plan: 'pro' | 'premium') => {
+    const response = await axiosInstance.post('/api/payment/create-qr', { plan });
+    return response.data;
+  },
+
+  confirmTransfer: async (orderId: string, note?: string) => {
+    const response = await axiosInstance.post('/api/payment/confirm-transfer', { orderId, note });
+    return response.data;
+  },
+
+  getPendingPayment: async () => {
+    const response = await axiosInstance.get('/api/payment/pending');
+    return response.data;
+  },
+
   processWebhook: async (payload: PaymentWebhookPayload) => {
     const response = await axiosInstance.post('/api/payment/webhook', payload);
     return response.data;

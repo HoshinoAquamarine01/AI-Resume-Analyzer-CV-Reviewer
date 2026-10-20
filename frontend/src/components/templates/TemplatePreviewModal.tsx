@@ -1,5 +1,5 @@
 import React from "react";
-import { X, ArrowRight, ShieldCheck, Sparkles, Check, FileText, Download, Briefcase, GraduationCap, Award } from "lucide-react";
+import { X, ArrowRight, ShieldCheck, Check, FileText, Download, Briefcase, GraduationCap, Award } from "lucide-react";
 import { ResumeTemplate } from "../../types/template";
 
 interface TemplatePreviewModalProps {
@@ -32,7 +32,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Check className="w-3.5 h-3.5" />
               {template.atsScore}% ATS Pass Score
             </span>
 

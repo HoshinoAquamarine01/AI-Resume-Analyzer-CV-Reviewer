@@ -671,4 +671,86 @@ export class AdminService {
       recentTransactions,
     };
   }
+
+  async approvePayment(adminId: string, subscriptionId: string) {
+    if (!Types.ObjectId.isValid(subscriptionId)) {
+      throw new BadRequestException("Invalid subscription ID format");
+    }
+
+    const subscription = await this.subscriptionModel.findById(subscriptionId);
+    if (!subscription) {
+      throw new NotFoundException("Subscription record not found");
+    }
+
+    const now = new Date();
+    const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    subscription.paymentStatus = "paid";
+    subscription.status = "active";
+    subscription.startDate = now;
+    subscription.endDate = endDate;
+    await subscription.save();
+
+    await this.userModel.findByIdAndUpdate(subscription.userId, {
+      subscriptionId: subscription._id,
+    });
+
+    try {
+      await this.logModel.create({
+        adminId: new Types.ObjectId(adminId),
+        action: "approve_payment",
+        target: "subscription",
+        details: {
+          subscriptionId,
+          userId: subscription.userId,
+          plan: subscription.plan,
+          price: subscription.price,
+        },
+      });
+    } catch (e) {
+      // ignore logging error if any
+    }
+
+    return {
+      success: true,
+      message: "Subscription payment approved and user upgraded successfully",
+      subscription,
+    };
+  }
+
+  async rejectPayment(adminId: string, subscriptionId: string, reason?: string) {
+    if (!Types.ObjectId.isValid(subscriptionId)) {
+      throw new BadRequestException("Invalid subscription ID format");
+    }
+
+    const subscription = await this.subscriptionModel.findById(subscriptionId);
+    if (!subscription) {
+      throw new NotFoundException("Subscription record not found");
+    }
+
+    subscription.paymentStatus = "failed";
+    subscription.status = "cancelled";
+    await subscription.save();
+
+    try {
+      await this.logModel.create({
+        adminId: new Types.ObjectId(adminId),
+        action: "reject_payment",
+        target: "subscription",
+        details: {
+          subscriptionId,
+          userId: subscription.userId,
+          reason: reason || "Admin rejected payment transaction",
+        },
+      });
+    } catch (e) {
+      // ignore
+    }
+
+    return {
+      success: true,
+      message: "Subscription payment rejected",
+      subscription,
+    };
+  }
 }

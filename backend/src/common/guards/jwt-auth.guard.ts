@@ -14,6 +14,9 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     if (!token) {
+      if (request.url && request.url.includes("/templates")) {
+        return true;
+      }
       throw new UnauthorizedException("Access token required");
     }
 

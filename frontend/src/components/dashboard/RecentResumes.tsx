@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FileText, ArrowUpRight, Target, Sparkles, Plus, Loader2 } from "lucide-react";
+import { FileText, ArrowUpRight, Target, Plus, Loader2 } from "lucide-react";
 import resumeService from "../../services/resumeService";
 
 export interface ResumeItem {
@@ -30,7 +30,7 @@ export const RecentResumes: React.FC = () => {
             id: item._id || item.id,
             title: item.title || item.originalName || "Untitled Resume",
             targetRole: item.personal?.title || item.targetRole || "Software Candidate",
-            atsScore: item.score ?? item.atsScore ?? 75,
+            atsScore: item.atsScore ?? item.aiScore ?? item.score ?? 75,
             updatedAt: item.updatedAt
               ? new Date(item.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
               : "Recently",
@@ -129,7 +129,6 @@ export const RecentResumes: React.FC = () => {
 
                 <div className="flex items-center gap-3 shrink-0">
                   <div className={`px-2.5 py-1 rounded-xl text-xs font-bold border ${getScoreColor(resume.atsScore)} flex items-center gap-1`}>
-                    <Sparkles className="w-3 h-3" />
                     <span>{resume.atsScore}% ATS</span>
                   </div>
 
