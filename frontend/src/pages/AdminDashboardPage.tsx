@@ -23,8 +23,6 @@ export function AdminDashboardPage() {
   const usersHook = useAdminUsers(1, 10);
   const logsHook = useAdminLogs("logs");
 
-  const isUsingMock = dashboardHook.isUsingMock || usersHook.isUsingMock || logsHook.isUsingMock;
-
   const handleRefreshAll = () => {
     dashboardHook.refetch();
     usersHook.refetch();
@@ -37,7 +35,6 @@ export function AdminDashboardPage() {
       <AdminHeader
         onRefresh={handleRefreshAll}
         onOpenNotificationModal={() => setIsNotificationModalOpen(true)}
-        isUsingMock={isUsingMock}
         loading={dashboardHook.loading || usersHook.loading}
       />
 
@@ -157,13 +154,6 @@ export function AdminDashboardPage() {
             </h3>
             <p className="text-xs text-gray-400 mt-1">
               Send global push announcements or schedule system maintenance notifications for all users.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs space-y-2">
-            <p className="font-semibold">💡 Pro Tip for CV / Demo:</p>
-            <p>
-              Notifications trigger real-time Redis queue operations in backend NestJS gateway module.
             </p>
           </div>
 

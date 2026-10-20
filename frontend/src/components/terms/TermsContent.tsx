@@ -2,7 +2,6 @@ import React from "react";
 import {
   AlertTriangle,
   Lock,
-  Sparkles,
   CreditCard,
   Scale,
   UserCheck,
@@ -105,7 +104,6 @@ export const TermsContent: React.FC = () => {
           </div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <span>AI Analysis & Recommendations Disclaimer</span>
-            <Sparkles className="w-4 h-4 text-amber-400" />
           </h2>
         </div>
 

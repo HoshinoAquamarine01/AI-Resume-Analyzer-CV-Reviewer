@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2, ArrowRight, Sparkles, CreditCard, Calendar, Hash, ShieldCheck } from "lucide-react";
+import { CheckCircle2, ArrowRight, CreditCard, Calendar, Hash, ShieldCheck } from "lucide-react";
 import { PaymentDetails } from "../../hooks/usePaymentCallback";
 
 interface PaymentSuccessCardProps {
@@ -28,7 +28,7 @@ export const PaymentSuccessCard: React.FC<PaymentSuccessCardProps> = ({
         </div>
 
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
-          <Sparkles className="w-3.5 h-3.5" /> Payment Successful
+          <CheckCircle2 className="w-3.5 h-3.5" /> Payment Successful
         </div>
 
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">

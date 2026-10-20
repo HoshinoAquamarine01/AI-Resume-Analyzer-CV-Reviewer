@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, ArrowRight, Star, ShieldCheck, Sparkles, CheckCircle2 } from "lucide-react";
+import { Eye, ArrowRight, Star, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { ResumeTemplate } from "../../types/template";
 
 interface TemplateCardProps {
@@ -46,7 +46,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
               </span>
             )}
             <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
               {template.atsScore}% ATS
             </span>
           </div>

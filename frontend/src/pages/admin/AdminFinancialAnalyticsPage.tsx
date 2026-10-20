@@ -78,7 +78,7 @@ export const AdminFinancialAnalyticsPage: React.FC = () => {
       </div>
 
       
-      <TransactionsTable transactions={recentTransactions} />
+      <TransactionsTable transactions={recentTransactions} onRefresh={fetchAnalytics} />
     </div>
   );
 };

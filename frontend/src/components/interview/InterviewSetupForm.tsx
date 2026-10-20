@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Briefcase, Building, FileText, Sparkles, Code, Users, ArrowRight } from "lucide-react";
+import { Briefcase, Building, FileText, Bot, Code, Users, ArrowRight } from "lucide-react";
 import { SessionType } from "../../types/interview.types";
 
 interface ResumeOption {
@@ -48,7 +48,7 @@ export const InterviewSetupForm: React.FC<InterviewSetupFormProps> = ({
     <div className="max-w-2xl mx-auto bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
       <div className="mb-8">
         <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
-          <Sparkles className="w-6 h-6" />
+          <Bot className="w-6 h-6" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Step 1: Setup AI Mock Interview</h2>
         <p className="text-slate-400 text-sm">

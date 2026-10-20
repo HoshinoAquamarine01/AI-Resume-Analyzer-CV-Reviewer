@@ -4,7 +4,7 @@ import {
   AlertCircle,
   Lightbulb,
   FileText,
-  Sparkles,
+  FileCheck,
   ChevronRight,
   ShieldAlert,
 } from "lucide-react";
@@ -27,7 +27,7 @@ export const ResumeAnalysisDetails: React.FC<ResumeAnalysisDetailsProps> = ({
     return (
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-12 text-center space-y-4">
         <div className="inline-flex p-4 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 animate-spin">
-          <Sparkles className="w-8 h-8" />
+          <FileCheck className="w-8 h-8" />
         </div>
         <h3 className="text-lg font-bold text-white">AI Scanner is Analyzing Your CV</h3>
         <p className="text-slate-400 text-sm max-w-md mx-auto">
@@ -54,7 +54,7 @@ export const ResumeAnalysisDetails: React.FC<ResumeAnalysisDetailsProps> = ({
               : "text-slate-400 hover:text-white hover:bg-slate-800/60"
           }`}
         >
-          <Sparkles className="w-4 h-4" />
+          <FileCheck className="w-4 h-4" />
           <span>AI Overview & Recommendations</span>
         </button>
 

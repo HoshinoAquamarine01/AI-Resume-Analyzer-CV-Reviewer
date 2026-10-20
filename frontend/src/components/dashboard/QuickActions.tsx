@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FileUp, Target, Sparkles, MessageSquare, ArrowRight } from "lucide-react";
+import { FileUp, Target, FileEdit, MessageSquare, ArrowRight } from "lucide-react";
 
 export const QuickActions: React.FC = () => {
   const actions = [
@@ -28,7 +28,7 @@ export const QuickActions: React.FC = () => {
       title: "Generate Cover Letter",
       description: "Write compelling, personalized application letters in seconds.",
       link: "/cover-letter",
-      icon: Sparkles,
+      icon: FileEdit,
       badge: "1-Click",
       gradient: "from-purple-600/20 to-pink-600/20",
       borderColor: "border-purple-500/30",

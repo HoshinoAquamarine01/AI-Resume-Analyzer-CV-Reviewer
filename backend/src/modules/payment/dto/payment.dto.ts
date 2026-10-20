@@ -49,3 +49,19 @@ export class PaymentWebhookDto {
   @IsString()
   subscriptionId?: string;
 }
+
+export class CreateQrPaymentDto {
+  @IsEnum(PaymentPlan, { message: "plan must be either 'pro' or 'premium'" })
+  @IsNotEmpty({ message: "plan is required" })
+  plan: PaymentPlan;
+}
+
+export class ConfirmTransferDto {
+  @IsString()
+  @IsNotEmpty({ message: "orderId is required" })
+  orderId: string;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+}

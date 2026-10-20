@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MessageSquare, ArrowRight, ArrowLeft, Send, Sparkles } from "lucide-react";
+import { MessageSquare, ArrowRight, ArrowLeft, Send, Bot } from "lucide-react";
 
 interface InterviewQuestionCardProps {
   questions: string[];
@@ -71,7 +71,7 @@ export const InterviewQuestionCard: React.FC<InterviewQuestionCardProps> = ({
       <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
         <div className="flex gap-4 p-4 rounded-xl bg-blue-950/30 border border-blue-800/40 text-blue-100">
           <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5" />
+            <Bot className="w-5 h-5" />
           </div>
           <div className="flex-1">
             <span className="text-xs font-semibold text-blue-400 block mb-1">AI Interviewer Asks:</span>

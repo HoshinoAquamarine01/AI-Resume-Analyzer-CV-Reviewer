@@ -4,7 +4,7 @@ import {
   Menu,
   Search,
   Bell,
-  Sparkles,
+  CreditCard,
   User,
   Settings,
   LogOut,
@@ -156,7 +156,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileSidebar }) => {
                 onClick={() => setShowUserDropdown(false)}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
               >
-                <Sparkles className="w-4 h-4 text-blue-400" />
+                <CreditCard className="w-4 h-4 text-blue-400" />
                 Subscription Plan
               </Link>
               <div className="my-1 border-t border-slate-800/80" />

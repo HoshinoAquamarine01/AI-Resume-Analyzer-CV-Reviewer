@@ -6,24 +6,24 @@ export const interviewService = {
     const response = await axiosInstance.get("/api/interview", {
       params: { page, limit },
     });
-    return response.data;
+    return response.data?.data || response.data;
   },
 
   getInterviewStats: async () => {
     const response = await axiosInstance.get("/api/interview/stats");
-    return response.data;
+    return response.data?.data || response.data;
   },
 
   createInterviewSession: async (payload: CreateInterviewPayload): Promise<InterviewSession> => {
-    const response = await axiosInstance.post("/api/interview/generate", payload);
-    return response.data;
+    const response = await axiosInstance.post("/api/interview/start", payload);
+    return response.data?.data || response.data;
   },
 
   submitAnswers: async (payload: SubmitAnswersPayload): Promise<InterviewSession> => {
     const response = await axiosInstance.post(`/api/interview/${payload.sessionId}/submit`, {
       answers: payload.answers,
     });
-    return response.data;
+    return response.data?.data || response.data;
   },
 };
 

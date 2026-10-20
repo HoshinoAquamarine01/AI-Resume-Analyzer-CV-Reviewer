@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, SlidersHorizontal, ShieldCheck, Sparkles, Code, Briefcase, Award, Palette, TrendingUp, DollarSign, Layers } from "lucide-react";
+import { Search, SlidersHorizontal, ShieldCheck, Code, Briefcase, Award, Palette, TrendingUp, DollarSign, Layers } from "lucide-react";
 import { TemplateCategory, TemplateFilterState } from "../../types/template";
 
 interface TemplateFilterBarProps {
@@ -10,6 +10,7 @@ interface TemplateFilterBarProps {
 
 const CATEGORIES: TemplateCategory[] = [
   { id: "all", name: "All Templates" },
+  { id: "topcv", name: "TopCV Series" },
   { id: "tech", name: "Tech & Engineering" },
   { id: "executive", name: "Executive & Leadership" },
   { id: "minimal", name: "Minimal & ATS Clean" },
@@ -40,6 +41,7 @@ export const TemplateFilterBar: React.FC<TemplateFilterBarProps> = ({
               }`}
             >
               {cat.id === "all" && <Layers className="w-3.5 h-3.5" />}
+              {cat.id === "topcv" && <Award className="w-3.5 h-3.5 text-emerald-400" />}
               {cat.id === "tech" && <Code className="w-3.5 h-3.5" />}
               {cat.id === "executive" && <Briefcase className="w-3.5 h-3.5" />}
               {cat.id === "minimal" && <ShieldCheck className="w-3.5 h-3.5" />}

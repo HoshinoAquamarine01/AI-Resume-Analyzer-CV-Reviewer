@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, CheckCircle2, ShieldCheck, Sparkles, FileText } from "lucide-react";
+import { Layout, CheckCircle2, ShieldCheck, FileText } from "lucide-react";
 
 export const TemplateHeader: React.FC = () => {
   return (
@@ -11,7 +11,7 @@ export const TemplateHeader: React.FC = () => {
       <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div className="space-y-3 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide uppercase">
-            <Sparkles className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-3.5 h-3.5" />
             <span>ATS Verified Formats</span>
           </div>
 

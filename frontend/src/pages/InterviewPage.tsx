@@ -23,7 +23,14 @@ export const InterviewPage: React.FC = () => {
         setLoadingResumes(true);
         const res = await resumeService.getResumes();
         if (isMounted) {
-          const list = Array.isArray(res) ? res : res?.data || [];
+          const payload: any = (res as any)?.data ?? res;
+          const list = Array.isArray(payload)
+            ? payload
+            : Array.isArray(payload?.resumes)
+            ? payload.resumes
+            : Array.isArray((res as any)?.resumes)
+            ? (res as any).resumes
+            : [];
           setResumes(list);
         }
       } catch (err) {

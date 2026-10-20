@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Sparkles, Download, Trash2, Calendar, FileText } from "lucide-react";
+import { ArrowLeft, RefreshCw, Download, Trash2, Calendar, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ResumeDetailHeaderProps {
@@ -87,7 +87,7 @@ export const ResumeDetailHeader: React.FC<ResumeDetailHeaderProps> = ({
             disabled={isAnalyzing}
             className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <Sparkles className={`w-4 h-4 ${isAnalyzing ? "animate-spin text-amber-300" : "text-blue-200"}`} />
+            <RefreshCw className={`w-4 h-4 ${isAnalyzing ? "animate-spin text-amber-300" : "text-blue-200"}`} />
             <span>{isAnalyzing ? "Analyzing..." : "Re-Scan AI"}</span>
           </button>
 

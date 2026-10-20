@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import StatCard from "./StatCard";
-import { FileText, Target, Sparkles, MessageSquareCode } from "lucide-react";
+import { FileText, Target, FileEdit, MessageSquareCode } from "lucide-react";
 import resumeService from "../../services/resumeService";
 import coverLetterService from "../../services/coverLetterService";
 import interviewService from "../../services/interviewService";
@@ -30,28 +30,53 @@ export const StatsGrid: React.FC = () => {
         let coverLetterCount = 0;
         let interviewCount = 0;
 
-        if (resumesRes.status === "fulfilled" && resumesRes.value) {
-          const raw = resumesRes.value;
-          const list = Array.isArray(raw.data) ? raw.data : Array.isArray(raw) ? raw : raw.resumes || [];
-          resumeCount = raw.total ?? list.length;
+        const extractListAndTotal = (resValue: any, key: string) => {
+          if (!resValue) return { list: [], total: 0 };
+          const payload = resValue.data ?? resValue;
+          if (Array.isArray(payload)) {
+            return { list: payload, total: payload.length };
+          }
+          const list = Array.isArray(payload?.[key])
+            ? payload[key]
+            : Array.isArray(resValue?.[key])
+            ? resValue[key]
+            : [];
+          const total = typeof payload?.total === "number"
+            ? payload.total
+            : typeof resValue?.total === "number"
+            ? resValue.total
+            : list.length;
+          return { list, total };
+        };
 
-          const scoredList = list.filter((r: any) => typeof r.score === "number" || typeof r.atsScore === "number");
+        if (resumesRes.status === "fulfilled" && resumesRes.value) {
+          const { list, total } = extractListAndTotal(resumesRes.value, "resumes");
+          resumeCount = total;
+
+          const scoredList = list.filter(
+            (r: any) =>
+              typeof r.atsScore === "number" ||
+              typeof r.aiScore === "number" ||
+              typeof r.score === "number"
+          );
           if (scoredList.length > 0) {
-            const sum = scoredList.reduce((acc: number, cur: any) => acc + (cur.score ?? cur.atsScore ?? 0), 0);
+            const sum = scoredList.reduce(
+              (acc: number, cur: any) =>
+                acc + (cur.atsScore ?? cur.aiScore ?? cur.score ?? 0),
+              0
+            );
             avgAtsScore = Math.round(sum / scoredList.length);
           }
         }
 
         if (coverLettersRes.status === "fulfilled" && coverLettersRes.value) {
-          const raw = coverLettersRes.value;
-          const list = Array.isArray(raw.data) ? raw.data : Array.isArray(raw) ? raw : raw.coverLetters || [];
-          coverLetterCount = raw.total ?? list.length;
+          const { total } = extractListAndTotal(coverLettersRes.value, "coverLetters");
+          coverLetterCount = total;
         }
 
         if (interviewRes.status === "fulfilled" && interviewRes.value) {
-          const raw = interviewRes.value;
-          const list = Array.isArray(raw.data) ? raw.data : Array.isArray(raw) ? raw : raw.sessions || [];
-          interviewCount = raw.total ?? list.length;
+          const { total } = extractListAndTotal(interviewRes.value, "sessions");
+          interviewCount = total;
         }
 
         if (isMounted) {
@@ -99,7 +124,7 @@ export const StatsGrid: React.FC = () => {
       value: loading ? "..." : `${metrics.coverLetterCount} Letters`,
       subtitle: metrics.coverLetterCount === 0 ? "0 generated" : "Tailored by AI",
       trend: metrics.coverLetterCount > 0 ? { value: `${metrics.coverLetterCount} ready`, isPositive: true } : undefined,
-      icon: Sparkles,
+      icon: FileEdit,
       iconBgColor: "bg-purple-500/10",
       iconTextColor: "text-purple-400",
     },

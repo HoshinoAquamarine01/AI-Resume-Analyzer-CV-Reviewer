@@ -1,10 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FileSearch, Menu, X, ArrowRight, ShieldCheck } from "lucide-react";
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+
+    if (location.pathname === "/") {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate(`/#${sectionId}`);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,19 +62,22 @@ export const Navbar: React.FC = () => {
           <nav className="hidden md:flex items-center gap-8">
             <a
               href="#features"
-              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              onClick={(e) => handleScrollTo(e, "features")}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors cursor-pointer"
             >
               Features
             </a>
             <a
               href="#how-it-works"
-              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              onClick={(e) => handleScrollTo(e, "how-it-works")}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors cursor-pointer"
             >
               How It Works
             </a>
             <a
               href="#preview"
-              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              onClick={(e) => handleScrollTo(e, "preview")}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors cursor-pointer"
             >
               Live Preview
             </a>
@@ -119,22 +138,22 @@ export const Navbar: React.FC = () => {
           <nav className="flex flex-col space-y-3">
             <a
               href="#features"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-300 hover:text-white py-1"
+              onClick={(e) => handleScrollTo(e, "features")}
+              className="text-base font-medium text-slate-300 hover:text-white py-1 cursor-pointer"
             >
               Features
             </a>
             <a
               href="#how-it-works"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-300 hover:text-white py-1"
+              onClick={(e) => handleScrollTo(e, "how-it-works")}
+              className="text-base font-medium text-slate-300 hover:text-white py-1 cursor-pointer"
             >
               How It Works
             </a>
             <a
               href="#preview"
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-300 hover:text-white py-1"
+              onClick={(e) => handleScrollTo(e, "preview")}
+              className="text-base font-medium text-slate-300 hover:text-white py-1 cursor-pointer"
             >
               Live Preview
             </a>

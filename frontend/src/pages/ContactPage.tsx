@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle2,
   HelpCircle,
-  Sparkles,
   Phone,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -94,7 +93,6 @@ export const ContactPage: React.FC = () => {
      
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
             <span>24/7 Dedicated Support</span>
           </div>
 

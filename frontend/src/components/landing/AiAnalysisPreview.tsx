@@ -13,7 +13,7 @@ export const AiAnalysisPreview: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"ats" | "bullets" | "keywords">("ats");
 
   return (
-    <section id="preview" className="py-24 relative overflow-hidden bg-slate-950/80">
+    <section id="preview" className="py-24 relative overflow-hidden bg-slate-950/80 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">

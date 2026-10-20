@@ -1,6 +1,6 @@
 import React from "react";
 import { AdminAnalyticsResponse } from "../../types/admin.types";
-import { TrendingUp, Award, FileSpreadsheet, Sparkles } from "lucide-react";
+import { TrendingUp, Award, FileSpreadsheet } from "lucide-react";
 
 interface AdminAnalyticsChartsProps {
   analytics: AdminAnalyticsResponse | null;
@@ -124,7 +124,6 @@ export const AdminAnalyticsCharts: React.FC<AdminAnalyticsChartsProps> = ({ anal
                 </div>
                 <div className="text-right">
                   <span className="inline-flex items-center gap-1 text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-1 rounded-lg border border-purple-500/20">
-                    <Sparkles className="w-3 h-3" />
                     {topUser.count} CVs
                   </span>
                 </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, Upload, ArrowUpRight } from "lucide-react";
+import { Target, Upload, ArrowUpRight } from "lucide-react";
 import userService from "../../services/userService";
 
 export const DashboardHeader: React.FC = () => {
@@ -96,7 +96,7 @@ export const DashboardHeader: React.FC = () => {
             to="/ats-match"
             className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 text-xs sm:text-sm font-semibold transition-all hover:border-slate-600"
           >
-            <Sparkles className="w-4 h-4 text-blue-400" />
+            <Target className="w-4 h-4 text-blue-400" />
             <span className="hidden sm:inline">ATS Match</span>
             <ArrowUpRight className="w-4 h-4 text-slate-400" />
           </Link>
