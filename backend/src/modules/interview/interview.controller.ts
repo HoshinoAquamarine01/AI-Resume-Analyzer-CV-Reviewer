@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
   HttpCode,
   HttpStatus,
 } from "@nestjs/common";
@@ -14,13 +15,17 @@ import { InterviewService } from "./interview.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
 import { formatResponse } from "../../utils/formatResponse";
+import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
+import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
 @Controller("interview")
 @UseGuards(JwtAuthGuard)
 export class InterviewController {
   constructor(private readonly interviewService: InterviewService) {}
 
-  @Post("start")
+  @Post(["start", "generate"])
+  @UseInterceptors(ActivityLogInterceptor)
+  @LogActivity("PRACTICE_INTERVIEW")
   async startInterviewSession(
     @UserDec() user: any,
     @Body("resumeId") resumeId: string,
@@ -64,9 +69,11 @@ export class InterviewController {
   @HttpCode(HttpStatus.OK)
   async submitInterviewAnswer(
     @Param("sessionId") sessionId: string,
-    @Body("answer") answer: string
+    @Body("answer") answer?: string,
+    @Body("answers") answers?: string[]
   ) {
-    const session = await this.interviewService.addAnswer(sessionId, answer);
+    const ans = answers && answers.length > 0 ? answers : (answer ? [answer] : []);
+    const session = await this.interviewService.submitAnswers(sessionId, ans);
     return formatResponse(session, "Answer added to session");
   }
 

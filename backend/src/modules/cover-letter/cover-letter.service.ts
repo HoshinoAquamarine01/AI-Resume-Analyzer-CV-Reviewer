@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { CoverLetter, CoverLetterDocument } from "../../models/CoverLetter";
 import { AiService } from "../ai/ai.service";
+import { DocumentGeneratorHelper, DocumentData } from "../../common/helpers/document-generator.helper";
 
 @Injectable()
 export class CoverLetterService {
@@ -110,8 +111,33 @@ export class CoverLetterService {
     });
   }
 
-  async generatePdf(content: string): Promise<Buffer> {
-    return Buffer.from(content || "");
+  private buildCoverLetterDocumentData(input: any, defaultTitle = 'Cover Letter'): DocumentData {
+    if (typeof input === 'string') {
+      return DocumentGeneratorHelper.parseTextToDocumentData(input, defaultTitle);
+    }
+
+    if (input && typeof input === 'object') {
+      const jobTitle = input.jobTitle || '';
+      const companyName = input.companyName || '';
+      const title = jobTitle ? `Cover Letter - ${jobTitle}` : defaultTitle;
+      const subtitle = companyName ? `Application for ${companyName}` : undefined;
+
+      const parsed = DocumentGeneratorHelper.parseTextToDocumentData(input.content || '', title);
+      parsed.subtitle = subtitle || parsed.subtitle;
+      return parsed;
+    }
+
+    return DocumentGeneratorHelper.parseTextToDocumentData('', defaultTitle);
+  }
+
+  async generatePdf(input: any, title?: string): Promise<Buffer> {
+    const docData = this.buildCoverLetterDocumentData(input, title);
+    return DocumentGeneratorHelper.generatePdfBuffer(docData);
+  }
+
+  async generateDocx(input: any, title?: string): Promise<Buffer> {
+    const docData = this.buildCoverLetterDocumentData(input, title);
+    return DocumentGeneratorHelper.generateDocxBuffer(docData);
   }
 
   async search(userId: string, query: string, page = 1, limit = 10) {

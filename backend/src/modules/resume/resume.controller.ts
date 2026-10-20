@@ -23,14 +23,22 @@ import { ResumeService } from "./resume.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
 import { formatResponse } from "../../utils/formatResponse";
+import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
+import { LogActivity } from "../../common/decorators/activity-log.decorator";
+
+import { CloudStorageService } from "../../common/services/cloud-storage.service";
 
 @Controller("resume")
 @UseGuards(JwtAuthGuard)
 export class ResumeController {
-  constructor(private readonly resumeService: ResumeService) {}
+  constructor(
+    private readonly resumeService: ResumeService,
+    private readonly cloudStorageService: CloudStorageService
+  ) {}
 
   @Post()
   @UseInterceptors(
+    ActivityLogInterceptor,
     FileInterceptor("file", {
       storage: diskStorage({
         destination: (req, file, cb) => {
@@ -47,7 +55,7 @@ export class ResumeController {
           cb(null, `${name}-${uniqueSuffix}${ext}`);
         },
       }),
-      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      limits: { fileSize: 10 * 1024 * 1024 }, 
       fileFilter: (req, file, cb) => {
         const allowedMimes = [
           "application/pdf",
@@ -62,6 +70,7 @@ export class ResumeController {
       },
     })
   )
+  @LogActivity("UPLOAD_CV")
   async createResume(
     @UserDec() user: any,
     @Body("title") title: string,
@@ -73,19 +82,25 @@ export class ResumeController {
     let fileUrl = bodyFileUrl;
     let fileType = bodyFileType;
 
+    let extractedText = "";
+
     if (file) {
-      fileUrl = `/uploads/resumes/${file.filename}`;
       fileType = file.filename.endsWith(".pdf") ? "pdf" : "docx";
       if (!finalTitle) {
         finalTitle = path.basename(file.originalname, path.extname(file.originalname));
       }
+      if (file.path && fs.existsSync(file.path)) {
+        extractedText = await this.resumeService.extractTextFromFile(file.path, fileType);
+      }
+      const uploaded = await this.cloudStorageService.uploadFile(file, "resumes");
+      fileUrl = uploaded.url;
     }
 
     if (!fileUrl || !fileType || !finalTitle) {
       throw new BadRequestException("Resume title, fileUrl/file and fileType are required");
     }
 
-    const resume = await this.resumeService.create(user._id, finalTitle, fileUrl, fileType);
+    const resume = await this.resumeService.create(user._id, finalTitle, fileUrl, fileType, extractedText);
     return formatResponse(resume, "Resume created");
   }
 
@@ -100,8 +115,11 @@ export class ResumeController {
   }
 
   @Get("templates")
-  async getTemplates() {
-    const templates = await this.resumeService.getAvailableTemplates();
+  async getTemplates(
+    @Query("category") category?: string,
+    @Query("query") query?: string
+  ) {
+    const templates = await this.resumeService.getAvailableTemplates(category, query);
     return formatResponse(templates, "Templates retrieved");
   }
 
@@ -188,12 +206,12 @@ export class ResumeController {
     @Res() res: Response
   ) {
     const resume = await this.resumeService.share(user._id, resumeId);
-    const pdfBuffer = await this.resumeService.generatePdf(resume.extractedText || "");
+    const pdfBuffer = await this.resumeService.generatePdf(resume);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${resume.title}.pdf"`
+      `attachment; filename="${encodeURIComponent(resume.title)}.pdf"`
     );
     res.send(pdfBuffer);
   }
@@ -209,32 +227,34 @@ export class ResumeController {
     let exported: any;
 
     if (format === "pdf") {
-      exported = await this.resumeService.generatePdf(resume.extractedText || "");
+      exported = await this.resumeService.generatePdf(resume);
       res.setHeader("Content-Type", "application/pdf");
     } else if (format === "docx") {
-      exported = await this.resumeService.generateDocx(resume.extractedText || "");
+      exported = await this.resumeService.generateDocx(resume);
       res.setHeader(
         "Content-Type",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       );
     } else {
-      exported = Buffer.from(resume.extractedText || "");
+      exported = Buffer.from(JSON.stringify(resume, null, 2));
       res.setHeader("Content-Type", "application/json");
     }
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${resume.title}.${format}"`
+      `attachment; filename="${encodeURIComponent(resume.title)}.${format}"`
     );
     res.send(exported);
   }
 
   @Post(":resumeId/analyze")
+  @UseInterceptors(ActivityLogInterceptor)
+  @LogActivity("RUN_AI_ANALYSIS")
   async generateResumeAnalysis(
     @UserDec() user: any,
     @Param("resumeId") resumeId: string
   ) {
-    const analysis = await this.resumeService.createAnalysis(user._id, resumeId, 75); // mock score 75 matching original Express mock
+    const analysis = await this.resumeService.createAnalysis(user._id, resumeId, 75); 
     return formatResponse(analysis, "Resume analysis completed");
   }
 

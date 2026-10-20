@@ -5,6 +5,7 @@ import {
   Post,
   Delete,
   Body,
+  Query,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -22,12 +23,15 @@ import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
 import { formatResponse } from "../../utils/formatResponse";
 
+import { CloudStorageService } from "../../common/services/cloud-storage.service";
+
 @Controller("user")
 @UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly cloudStorageService: CloudStorageService
   ) {}
 
   @Get("profile")
@@ -60,7 +64,7 @@ export class UserController {
           cb(null, `${name}-${uniqueSuffix}${ext}`);
         },
       }),
-      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+      limits: { fileSize: 5 * 1024 * 1024 }, 
       fileFilter: (req, file, cb) => {
         const allowedMimes = ["image/jpeg", "image/png", "image/webp"];
         if (allowedMimes.includes(file.mimetype)) {
@@ -78,7 +82,8 @@ export class UserController {
     if (!file) {
       throw new BadRequestException("No file uploaded");
     }
-    const updated = await this.userService.updateAvatar(user._id, file.filename);
+    const uploaded = await this.cloudStorageService.uploadFile(file, "avatars");
+    const updated = await this.userService.updateAvatar(user._id, uploaded.url);
     return formatResponse(updated, "Avatar uploaded");
   }
 
@@ -119,8 +124,12 @@ export class UserController {
   }
 
   @Get("activity-log")
-  async getActivityLog(@UserDec() user: any) {
-    const logs = await this.userService.getActivityLog(user._id);
+  async getActivityLog(
+    @UserDec() user: any,
+    @Query("page") page = 1,
+    @Query("limit") limit = 10
+  ) {
+    const logs = await this.userService.getActivityLog(user._id, Number(page), Number(limit));
     return formatResponse(logs, "Activity log retrieved");
   }
 

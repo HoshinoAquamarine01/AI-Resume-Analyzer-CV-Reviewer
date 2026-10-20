@@ -5,10 +5,12 @@ import {
   Put,
   Delete,
   Body,
+  Param,
   Query,
   UseGuards,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
@@ -27,6 +29,28 @@ export class AdminController {
   async getAdminDashboard() {
     const data = await this.adminService.getDashboard();
     return formatResponse(data, "Dashboard data retrieved successfully");
+  }
+
+  @Get("financial-analytics")
+  async getFinancialAnalytics(@Query("period") period = "month") {
+    const analytics = await this.adminService.getFinancialAnalytics(period as any);
+    return formatResponse(analytics, "Financial analytics retrieved successfully");
+  }
+
+  @Get("users/:id")
+  async getUserDetail(@Param("id") id: string) {
+    const data = await this.adminService.getUserDetail(id);
+    return formatResponse(data, "User details retrieved successfully");
+  }
+
+  @Put("users/:id")
+  async updateUserDetail(
+    @UserDec() admin: any,
+    @Param("id") id: string,
+    @Body() body: any
+  ) {
+    const data = await this.adminService.updateUserDetail(admin._id, id, body);
+    return formatResponse(data, "User details updated successfully");
   }
 
   @Post("users/manage")
@@ -186,5 +210,32 @@ export class AdminController {
   ) {
     const result = await this.adminService.managePaymentMethods(action, methodName, config, enabled);
     return formatResponse(result, `Payment method ${action}ed successfully`);
+  }
+
+  @Post("payments/approve")
+  @HttpCode(HttpStatus.OK)
+  async approvePayment(
+    @UserDec() admin: any,
+    @Body("subscriptionId") subscriptionId: string
+  ) {
+    if (!subscriptionId) {
+      throw new BadRequestException("subscriptionId is required");
+    }
+    const result = await this.adminService.approvePayment(admin._id, subscriptionId);
+    return formatResponse(result, "Thanh toán đã được phê duyệt thành công!");
+  }
+
+  @Post("payments/reject")
+  @HttpCode(HttpStatus.OK)
+  async rejectPayment(
+    @UserDec() admin: any,
+    @Body("subscriptionId") subscriptionId: string,
+    @Body("reason") reason?: string
+  ) {
+    if (!subscriptionId) {
+      throw new BadRequestException("subscriptionId is required");
+    }
+    const result = await this.adminService.rejectPayment(admin._id, subscriptionId, reason);
+    return formatResponse(result, "Thanh toán đã bị từ chối.");
   }
 }

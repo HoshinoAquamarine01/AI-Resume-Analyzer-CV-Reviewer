@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Res, Req, UseGuards, HttpStatus, HttpCode } from "@nestjs/common";
+import { Controller, Post, Body, Res, Req, UseGuards, UseInterceptors, HttpStatus, HttpCode } from "@nestjs/common";
 import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from "./dto/auth.dto";
 import { formatResponse } from "../../utils/formatResponse";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
+import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
+import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -36,9 +38,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response
   ) {
-    const result = await this.authService.login(dto);
+    const rawIp = req.headers["x-forwarded-for"] || req.ip || req.socket?.remoteAddress || "unknown";
+    const ipAddress = typeof rawIp === "string" ? rawIp.split(",")[0].trim() : String(rawIp);
+
+    const result = await this.authService.login(dto, ipAddress);
 
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
@@ -71,7 +77,7 @@ export class AuthController {
     @Body("refreshToken") bodyToken: string,
     @Res({ passthrough: true }) res: Response
   ) {
-    // Check request cookies or request body
+    
     const token = (req.cookies && req.cookies["refreshToken"]) || bodyToken;
 
     if (!token) {

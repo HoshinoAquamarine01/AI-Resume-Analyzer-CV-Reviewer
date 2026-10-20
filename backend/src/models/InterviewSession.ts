@@ -33,6 +33,9 @@ export class InterviewSession extends Document {
   @Prop({ type: [String] })
   weaknesses?: string[];
 
+  @Prop({ type: [String] })
+  generalTips?: string[];
+
   @Prop({
     type: String,
     enum: ["technical", "hr"],

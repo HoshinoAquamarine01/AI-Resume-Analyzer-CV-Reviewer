@@ -1,15 +1,21 @@
-import { Controller, Post, Body, UseGuards } from "@nestjs/common";
+import { Controller, Post, Body, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { AiService } from "./ai.service";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { UserDec } from "../../common/decorators/user.decorator";
 import { formatResponse } from "../../utils/formatResponse";
+import { ActivityLogInterceptor } from "../../common/interceptors/activity-log.interceptor";
+import { LogActivity } from "../../common/decorators/activity-log.decorator";
 
 @Controller("ai")
 @UseGuards(JwtAuthGuard)
+@Throttle({ default: { limit: 10, ttl: 60000 } })
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Post("analyze")
+  @UseInterceptors(ActivityLogInterceptor)
+  @LogActivity("RUN_AI_ANALYSIS")
   async analyzeResume(@UserDec() user: any, @Body("resumeId") resumeId: string) {
     const analysis = await this.aiService.analyzeResume(user._id, resumeId);
     return formatResponse(analysis, "Resume analysis completed");

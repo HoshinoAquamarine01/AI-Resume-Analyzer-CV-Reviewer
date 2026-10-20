@@ -5,12 +5,15 @@ import { User, UserDocument } from "../../models/User";
 import { RegisterDto, LoginDto, ChangePasswordDto } from "./dto/auth.dto";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { sendEmail } from "../../services/email.service";
+import { sendEmail, sendActivationEmail, sendOtpResetPasswordEmail } from "../../services/email.service";
+
+import { ActivityLogService } from "../activity-log/activity-log.service";
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly activityLogService: ActivityLogService
   ) {}
 
   async register(dto: RegisterDto) {
@@ -19,7 +22,6 @@ export class AuthService {
       throw new BadRequestException("Email already registered");
     }
 
-    // Save the user in MongoDB. Schema pre-save hook will hash the password.
     const createdUser = await this.userModel.create({
       email: dto.email,
       password: dto.password,
@@ -29,6 +31,14 @@ export class AuthService {
 
     const token = await this.generateToken(createdUser._id);
     const refreshToken = await this.generateRefreshToken(createdUser._id);
+
+    try {
+      const emailToken = jwt.sign({ userId: createdUser._id }, process.env.EMAIL_TOKEN_SECRET || "secret", { expiresIn: "24h" });
+      const activationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/auth/verify-email?token=${emailToken}`;
+      await sendActivationEmail(createdUser.email, activationUrl, createdUser.name);
+    } catch (err) {
+      console.error("[AuthService] Failed to send activation email:", err);
+    }
 
     return {
       user: {
@@ -42,7 +52,7 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, ipAddress?: string) {
     const user = await this.userModel.findOne({ email: dto.email });
     if (!user) {
       throw new UnauthorizedException("Invalid email or password");
@@ -55,6 +65,13 @@ export class AuthService {
 
     const token = await this.generateToken(user._id);
     const refreshToken = await this.generateRefreshToken(user._id);
+
+    await this.activityLogService.createLog(
+      user._id,
+      "LOGIN",
+      { email: dto.email },
+      ipAddress
+    );
 
     return {
       user: {
@@ -114,16 +131,12 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.userModel.findOne({ email });
     if (!user) {
-      // Return same response to prevent user enumeration
+      
       return { message: "If email exists, password reset link will be sent" };
     }
 
     const resetToken = await this.generatePasswordResetToken(user._id);
-    await sendEmail(
-      email,
-      "Password Reset Request",
-      `To reset your password, please use the following token: ${resetToken}`
-    );
+    await sendOtpResetPasswordEmail(user.email, resetToken, user.name);
 
     return { message: "Password reset link sent to your email" };
   }

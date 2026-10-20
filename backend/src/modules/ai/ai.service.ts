@@ -1,21 +1,34 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException, Logger, Inject, forwardRef } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { GoogleGenAI } from "@google/genai";
 import { Resume, ResumeDocument } from "../../models/Resume";
 import { ResumeAnalysis, ResumeAnalysisDocument } from "../../models/ResumeAnalysis";
+import {
+  getResumeAnalysisPrompt,
+  getAtsOptimizationPrompt,
+  getCoverLetterPrompt,
+  getInterviewQuestionsPrompt,
+  getJobMatchPrompt,
+} from "../../prompts";
+
+import { ActivityLogService } from "../activity-log/activity-log.service";
+import { EventsGateway } from "../gateway/events.gateway";
 
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
   private ai: GoogleGenAI | null = null;
-  private defaultModel = "gemini-2.5-flash";
+  private defaultModel = "gemini-3.5-flash";
 
   constructor(
     @InjectModel(Resume.name) private readonly resumeModel: Model<ResumeDocument>,
     @InjectModel(ResumeAnalysis.name) private readonly analysisModel: Model<ResumeAnalysisDocument>,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly activityLogService: ActivityLogService,
+    @Inject(forwardRef(() => EventsGateway))
+    private readonly eventsGateway: EventsGateway
   ) {
     this.initGeminiClient();
   }
@@ -89,25 +102,40 @@ export class AiService {
 
   private async callGemini(prompt: string): Promise<string> {
     const client = this.getClient();
-    const model = this.getModelName();
+    const primary = this.getModelName();
+    const fallbacks = ["gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest", "gemini-3.5-flash-lite"];
+    const models = [primary, ...fallbacks.filter((m) => m !== primary)];
 
-    try {
-      const response = await client.models.generateContent({
-        model: model,
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
-
-      if (!response || !response.text) {
-        throw new Error("Empty response returned from Gemini API");
+    let lastErr: any;
+    for (const model of models) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const response = await client.models.generateContent({
+            model,
+            contents: prompt,
+            config: { responseMimeType: "application/json" },
+          });
+          if (!response || !response.text) {
+            throw new Error("Empty response returned from Gemini API");
+          }
+          if (model !== primary) this.logger.warn(`Used fallback Gemini model: ${model}`);
+          return response.text;
+        } catch (err: any) {
+          lastErr = err;
+          const msg = String(err?.message || err);
+          const retryable = /\b(503|429|500)\b|UNAVAILABLE|RESOURCE_EXHAUSTED|high demand/i.test(msg);
+          const notFound = /\b404\b|NOT_FOUND/i.test(msg);
+          this.logger.warn(`Gemini [${model}] attempt ${attempt + 1} failed: ${msg.slice(0, 200)}`);
+          if (notFound) break; // try next model
+          if (!retryable) {
+            throw new BadRequestException(`Gemini API Error: ${msg}`);
+          }
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        }
       }
-      return response.text;
-    } catch (err: any) {
-      this.logger.error(`Gemini API call failed: ${err?.message || err}`);
-      throw new BadRequestException(`Gemini API Error: ${err?.message || "Failed to generate AI response"}`);
     }
+    this.logger.error(`Gemini API call failed on all models: ${lastErr?.message || lastErr}`);
+    throw new BadRequestException(`Gemini API Error: ${lastErr?.message || "Failed to generate AI response"}`);
   }
 
   async analyzeResume(userId: string, resumeId: string) {
@@ -118,31 +146,7 @@ export class AiService {
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a world-class HR Director, Resume Auditor, and Senior Recruiter.
-Analyze the following candidate resume thoroughly and evaluate its overall score, ATS compatibility, strengths, weaknesses, missing skills, keyword suggestions, grammar/phrasing issues, formatting recommendations, suitable roles, and actionable improvement steps.
-
-Candidate Resume Text:
-"""
-${resumeText}
-"""
-
-Return ONLY a valid JSON object matching this exact schema:
-{
-  "overallScore": 85,
-  "atsCompatibility": 80,
-  "strengths": ["Strong TypeScript background", "Good experience with microservices"],
-  "weaknesses": ["Lacks quantitative metrics in bullet points", "Summary section is brief"],
-  "missingSkills": ["Docker", "Kubernetes", "CI/CD"],
-  "keywordSuggestions": ["Scalability", "Unit Testing", "System Architecture"],
-  "grammarIssues": ["Consider changing 'responsible for' to active verbs like 'spearheaded'"],
-  "formattingIssues": ["Add clear section dividers"],
-  "recommendedRoles": ["Fullstack Engineer", "Backend Developer", "Node.js Developer"],
-  "improvementTips": ["Quantify experience achievements with percentage increases or revenue impact"]
-}
-
-All scores must be integers between 0 and 100.
-All arrays should contain clear, actionable strings.
-Return ONLY pure JSON.`;
+    const prompt = getResumeAnalysisPrompt(resumeText);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{
@@ -177,11 +181,27 @@ Return ONLY pure JSON.`;
       analyzedAt: new Date(),
     });
 
-    // Update resume scores
     await this.resumeModel.findByIdAndUpdate(resumeId, {
       aiScore: overallScore,
       atsScore: atsCompatibility,
     });
+
+    await this.activityLogService.createLog(userId, "RUN_AI_ANALYSIS", {
+      resumeId,
+      overallScore,
+      atsCompatibility,
+    });
+
+    try {
+      this.eventsGateway?.sendCvAnalysisComplete(userId, {
+        analysisId: analysis._id,
+        resumeId,
+        overallScore,
+        atsCompatibility,
+      });
+    } catch (err: any) {
+      this.logger.warn(`Failed to push real-time CV analysis notification: ${err?.message}`);
+    }
 
     return analysis;
   }
@@ -194,29 +214,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are an expert ATS (Applicant Tracking System) Specialist and Executive Resume Writer.
-Analyze this resume against the target job description. Optimize the text to maximize ATS match score and highlight relevant skills.
-
-Candidate Resume Text:
-"""
-${resumeText}
-"""
-
-Target Job Description:
-"""
-${jobDescription}
-"""
-
-Return ONLY a valid JSON object matching this schema:
-{
-  "atsScore": 88,
-  "matchingKeywords": ["TypeScript", "NestJS", "REST API"],
-  "missingKeywords": ["GraphQL", "Docker"],
-  "optimizedResumeText": "Full rewritten and ATS-optimized resume content here...",
-  "optimizationSuggestions": ["Emphasize experience with REST APIs in the summary section"]
-}
-
-Return ONLY pure JSON.`;
+    const prompt = getAtsOptimizationPrompt(resumeText, jobDescription);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{
@@ -257,28 +255,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a Professional Career Coach and Executive Resume Writer.
-Generate a high-converting, professional cover letter tailored for the target role and company based on the candidate's resume.
-
-Candidate Resume:
-"""
-${resumeText}
-"""
-
-Target Role: ${jobTitle}
-Company Name: ${companyName}
-Job Description:
-"""
-${jobDescription}
-"""
-
-Return ONLY a valid JSON object matching this schema:
-{
-  "coverLetter": "Dear Hiring Manager at ${companyName}...",
-  "keyHighlights": ["Highlight 1", "Highlight 2"]
-}
-
-Return ONLY pure JSON.`;
+    const prompt = getCoverLetterPrompt(resumeText, jobTitle, companyName, jobDescription);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{
@@ -300,29 +277,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a Recruitment AI Matcher.
-Compare the candidate's resume against each of the provided job descriptions. Evaluate match percentage, matched skills, missing skills, and recommendations for each job.
-
-Candidate Resume:
-"""
-${resumeText}
-"""
-
-Job Descriptions:
-${jobDescriptions.map((desc, i) => `--- Job #${i} ---\n${desc}`).join("\n\n")}
-
-Return ONLY a valid JSON array of objects, one per job description in exact sequence:
-[
-  {
-    "index": 0,
-    "matchScore": 85,
-    "matchedSkills": ["TypeScript", "Node.js"],
-    "missingSkills": ["AWS"],
-    "recommendations": ["Add cloud deployment experience to your resume"]
-  }
-]
-
-Return ONLY pure JSON.`;
+    const prompt = getJobMatchPrompt(resumeText, jobDescriptions);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<
@@ -352,33 +307,7 @@ Return ONLY pure JSON.`;
 
     const resumeText = this.getResumeText(resume);
 
-    const prompt = `You are a Hiring Manager and Technical Interviewer.
-Based on the candidate's resume and target job description, generate top interview questions along with key points the candidate should address in their answers.
-
-Candidate Resume:
-"""
-${resumeText}
-"""
-
-Job Description:
-"""
-${jobDescription}
-"""
-
-Return ONLY a valid JSON object:
-{
-  "questions": [
-    {
-      "question": "Can you describe a challenging backend problem you solved with NestJS?",
-      "category": "technical",
-      "purpose": "Evaluate backend depth and framework mastery",
-      "answerOutline": "Mention architecture, caching, MongoDB indexing, and performance results."
-    }
-  ],
-  "generalTips": ["Focus on quantifiable achievements during technical questions"]
-}
-
-Return ONLY pure JSON.`;
+    const prompt = getInterviewQuestionsPrompt(resumeText, jobDescription);
 
     const rawResult = await this.callGemini(prompt);
     const parsed = this.cleanAndParseJson<{
@@ -391,14 +320,17 @@ Return ONLY pure JSON.`;
       generalTips?: string[];
     }>(rawResult);
 
-    return parsed.questions || [
-      {
-        question: `How does your experience align with the ${jobDescription.substring(0, 30)} role?`,
-        category: "general",
-        purpose: "Overall fit assessment",
-        answerOutline: "Connect key achievements from resume to role requirements.",
-      },
-    ];
+    return {
+      questions: parsed.questions || [
+        {
+          question: `How does your experience align with the ${jobDescription.substring(0, 30)} role?`,
+          category: "general",
+          purpose: "Overall fit assessment",
+          answerOutline: "Connect key achievements from resume to role requirements.",
+        },
+      ],
+      generalTips: parsed.generalTips || ["Focus on quantifiable achievements during interview responses"],
+    };
   }
 
   async improveResume(resumeId: string, section: string) {
@@ -489,7 +421,6 @@ Return ONLY pure JSON.`;
 
     const extractedSkills = parsed.skills || [];
 
-    // Save extracted skills back to resume model
     if (extractedSkills.length > 0) {
       await this.resumeModel.findByIdAndUpdate(resumeId, {
         skills: Array.from(new Set([...(resume.skills || []), ...extractedSkills])),
@@ -503,5 +434,46 @@ Return ONLY pure JSON.`;
       toolsAndFrameworks: parsed.toolsAndFrameworks || [],
       languages: parsed.languages || [],
     };
+  }
+
+  async streamInterviewFeedback(
+    question: string,
+    candidateAnswer: string,
+    jobTitle: string,
+    sessionType: string,
+    onChunk: (chunk: string) => void
+  ): Promise<string> {
+    const client = this.getClient();
+    const model = this.getModelName();
+
+    const prompt = `You are an expert AI Interviewer for a ${jobTitle} role (${sessionType} interview).
+The candidate was asked: "${question}"
+The candidate answered: "${candidateAnswer}"
+
+Provide constructiveness, concise feedback on their answer (strengths & areas of improvement), and follow up with the NEXT interview question.
+Format your output cleanly in Markdown.
+
+Start your response directly.`;
+
+    try {
+      const responseStream = await client.models.generateContentStream({
+        model: model,
+        contents: prompt,
+      });
+
+      let fullText = "";
+      for await (const chunk of responseStream) {
+        if (chunk.text) {
+          fullText += chunk.text;
+          onChunk(chunk.text);
+        }
+      }
+      return fullText;
+    } catch (err: any) {
+      this.logger.error(`Error in streaming Gemini response: ${err?.message || err}`);
+      const fallbackMsg = `[AI Feedback]: Thank you for your answer regarding "${question}". Good technical depth. Moving to the next question: How do you handle production incidents under pressure?`;
+      onChunk(fallbackMsg);
+      return fallbackMsg;
+    }
   }
 }

@@ -10,7 +10,7 @@ import { Subscription, SubscriptionDocument } from "../../models/Subscription";
 import { AdminLog, AdminLogDocument } from "../../models/AdminLog";
 import { InterviewSession, InterviewSessionDocument } from "../../models/InterviewSession";
 import { sendEmail } from "../../services/email.service";
-import { redis } from "../../config/db";
+import redis from "../../config/db";
 
 @Injectable()
 export class JobsService implements OnApplicationBootstrap {
@@ -30,7 +30,6 @@ export class JobsService implements OnApplicationBootstrap {
     await this.runAnalyticsJob().catch((err) => console.error("Initial Analytics job failed:", err));
   }
 
-  // Subscription expiry checks: Every 6 hours
   @Cron(CronExpression.EVERY_6_HOURS)
   async runSubscriptionJob() {
     console.log("[Subscription Job] Checking for expired subscriptions...");
@@ -59,12 +58,11 @@ export class JobsService implements OnApplicationBootstrap {
     }
   }
 
-  // System cleanup: Every midnight (24 hours)
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async runCleanupJob() {
     console.log("[Cleanup Job] Running system cleanup...");
     try {
-      // 1. Clean up unused uploaded resume files
+      
       const resumeUploadsDir = path.join(process.cwd(), "uploads", "resumes");
       if (fs.existsSync(resumeUploadsDir)) {
         const files = await fs.promises.readdir(resumeUploadsDir);
@@ -89,7 +87,6 @@ export class JobsService implements OnApplicationBootstrap {
         console.log(`[Cleanup Job] Cleaned up ${filesDeleted} orphaned resume file(s).`);
       }
 
-      // 2. Clean up failed subscriptions older than 30 days
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const subCleanupResult = await this.subscriptionModel.deleteMany({
         paymentStatus: "failed",
@@ -97,7 +94,6 @@ export class JobsService implements OnApplicationBootstrap {
       });
       console.log(`[Cleanup Job] Deleted ${subCleanupResult.deletedCount} failed subscription record(s) older than 30 days.`);
 
-      // 3. Clean up admin logs older than 90 days
       const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
       const logsCleanupResult = await this.logModel.deleteMany({
         createdAt: { $lt: ninetyDaysAgo },
@@ -110,14 +106,12 @@ export class JobsService implements OnApplicationBootstrap {
     }
   }
 
-  // Email reminders: Every 12 hours
   @Cron(CronExpression.EVERY_12_HOURS)
   async runEmailReminderJob() {
     console.log("[Email Reminder Job] Checking for user reminder triggers...");
     try {
       const now = new Date();
 
-      // 1. Remind users who registered > 24 hours ago but have 0 resumes
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const usersWithNoResume = await this.userModel.find({
         createdAt: { $lt: twentyFourHoursAgo },
@@ -136,7 +130,6 @@ export class JobsService implements OnApplicationBootstrap {
       }
       console.log(`[Email Reminder Job] Sent resume upload reminders to ${usersWithNoResume.length} user(s).`);
 
-      // 2. Warn users whose subscriptions are expiring in < 3 days
       const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
       const expiringSoonSubscriptions = await this.subscriptionModel.find({
         endDate: { $gt: now, $lt: threeDaysFromNow },
@@ -157,7 +150,6 @@ export class JobsService implements OnApplicationBootstrap {
       }
       console.log(`[Email Reminder Job] Sent expiration warnings to ${expiryWarningsSent} user(s).`);
 
-      // 3. Remind users who haven't practiced interviews in the last 7 days
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
       const recentSessions = await this.sessionModel.find({
         createdAt: { $gte: sevenDaysAgo },
@@ -183,7 +175,6 @@ export class JobsService implements OnApplicationBootstrap {
     }
   }
 
-  // System analytics generation: Every hour
   @Cron(CronExpression.EVERY_HOUR)
   async runAnalyticsJob() {
     console.log("[Analytics Job] Pre-calculating system metrics...");

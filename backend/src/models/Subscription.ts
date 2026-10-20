@@ -39,6 +39,12 @@ export class Subscription extends Document {
   paymentStatus?: "pending" | "paid" | "failed";
 
   @Prop()
+  transferContent?: string;
+
+  @Prop()
+  userConfirmedAt?: Date;
+
+  @Prop()
   stripeCustomerId?: string;
 
   createdAt: Date;
