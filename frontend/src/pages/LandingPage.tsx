@@ -25,8 +25,7 @@ export const LandingPage: React.FC = () => {
   }, [location.hash]);
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white overflow-x-hidden">
-  
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-emerald-500/20 selection:text-emerald-300 overflow-x-hidden">
       <Navbar />
 
      

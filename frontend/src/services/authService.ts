@@ -117,7 +117,9 @@ class AuthService {
   }
 
   async loginWithProvider(provider: 'google' | 'github'): Promise<void> {
-    const backendUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000';
+    const backendUrl =
+      (import.meta as any).env?.VITE_API_URL ||
+      ((import.meta as any).env?.DEV ? 'http://localhost:5000' : '');
     window.location.href = `${backendUrl}/api/auth/${provider}`;
   }
 }

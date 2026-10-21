@@ -14,6 +14,7 @@ import {
   Zap,
   X,
   Layers,
+  FileSearch,
 } from "lucide-react";
 import userService from "../../services/userService";
 
@@ -105,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       badge: null,
     },
     {
-      label: "AI Interview Prep",
+      label: "Interview Prep",
       path: "/interview",
       icon: MessageSquareCode,
       badge: null,
@@ -132,7 +133,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
 
   return (
     <>
-
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden transition-opacity"
@@ -141,29 +141,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#0b0f19]/95 backdrop-blur-md border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#090d16] border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-  
-        <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800/60">
-          <Link to="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 p-0.5 shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-[#0b0f19] rounded-[10px] flex items-center justify-center">
-                <Zap className="w-5 h-5 text-blue-400" />
-              </div>
+        <div className="h-16 px-6 flex items-center justify-between border-b border-slate-800/80 bg-[#090d16]">
+          <Link to="/dashboard" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700/80 flex items-center justify-center shadow-md group-hover:border-emerald-500/50 transition-all">
+              <FileSearch className="w-5 h-5 text-emerald-400 group-hover:scale-105 transition-transform" />
             </div>
             <div>
-              <span className="font-bold text-white tracking-wide text-base block leading-none">
-                ResumAI <span className="text-xs text-blue-400 font-medium">PRO</span>
+              <span className="font-extrabold text-white tracking-tight text-base block leading-none">
+                CV<span className="text-emerald-400">Pulse</span>
               </span>
-              <span className="text-[10px] text-slate-400 font-mono tracking-wider uppercase mt-1 block">
-                CV & ATS Optimizer
+              <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase mt-1 block">
+                ATS Intelligence
               </span>
             </div>
           </Link>
 
-     
           <button
             onClick={onCloseMobile}
             className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"

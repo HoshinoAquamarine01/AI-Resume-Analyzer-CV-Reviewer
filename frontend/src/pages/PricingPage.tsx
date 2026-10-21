@@ -141,7 +141,7 @@ export const PricingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-slate-100 py-10 px-4 sm:px-6 lg:px-8 font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-[#090d16] text-slate-100 py-10 px-4 sm:px-6 lg:px-8 font-sans selection:bg-emerald-500/20 selection:text-emerald-300">
       {/* Top back navigation */}
       <div className="max-w-7xl mx-auto mb-8 flex items-center justify-between">
         <Link
@@ -160,7 +160,7 @@ export const PricingPage: React.FC = () => {
                 currentPlan === "premium"
                   ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
                   : currentPlan === "pro"
-                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                   : "bg-slate-800 text-slate-300 border border-slate-700"
               }`}
             >
@@ -173,9 +173,9 @@ export const PricingPage: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Pending Banner if user has payment awaiting confirmation */}
         {pendingPayment && (
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-amber-500/5 animate-fade-in">
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-900 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg animate-fade-in">
             <div className="flex items-start sm:items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 mt-0.5 sm:mt-0">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 mt-0.5 sm:mt-0">
                 <Clock className="w-5 h-5 animate-pulse" />
               </div>
               <div className="space-y-0.5">
@@ -186,7 +186,7 @@ export const PricingPage: React.FC = () => {
                   </span>
                 </h4>
                 <p className="text-xs text-slate-300">
-                  Gói <span className="font-bold uppercase text-blue-400">{pendingPayment.plan}</span> •{" "}
+                  Gói <span className="font-bold uppercase text-emerald-400">{pendingPayment.plan}</span> •{" "}
                   Mã giao dịch: <span className="font-mono text-white font-semibold">{pendingPayment.orderId}</span> •{" "}
                   Nội dung CK: <span className="font-mono text-amber-300 font-bold">{pendingPayment.transferContent}</span>
                 </p>
@@ -205,14 +205,14 @@ export const PricingPage: React.FC = () => {
 
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
             <span>Thanh Toán An Toàn & Duyệt Nhanh</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
             Chọn gói nâng cấp phù hợp với{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
+            <span className="saas-highlight-emerald">
               mục tiêu sự nghiệp
             </span>
           </h1>
