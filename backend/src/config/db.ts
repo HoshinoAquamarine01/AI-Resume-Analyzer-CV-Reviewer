@@ -13,7 +13,7 @@ const redisOptions: RedisOptions = {
   enableOfflineQueue: false,
   connectTimeout: 5000,
   maxRetriesPerRequest: 1,
-  retryStrategy(times) {
+  retryStrategy(times: number) {
     const delay = Math.min(times * 100, 3000);
     console.warn(`[Redis Driver] Lost connection, retrying in ${delay} ms (attempt ${times})`);
     return delay;
@@ -32,7 +32,7 @@ rawRedis.on("connect", () => {
   console.log("[Redis Driver] Connecting to Redis...");
 });
 
-rawRedis.on("error", (err) => {
+rawRedis.on("error", (err: any) => {
   console.error("[Redis Driver] Connection error:", err.message);
   connected = false;
 });
