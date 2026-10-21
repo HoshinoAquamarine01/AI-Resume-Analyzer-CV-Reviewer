@@ -93,10 +93,11 @@ export class PaymentService {
     await user.save();
 
     const orderId = (subscription._id as mongoose.Types.ObjectId).toString();
+    const frontendUrl = this.configService.get<string>("FRONTEND_URL");
     const returnUrl =
       dto.returnUrl ||
       this.configService.get<string>("PAYMENT_RETURN_URL") ||
-      "http://localhost:3000/payment/callback";
+      (frontendUrl ? `${frontendUrl}/payment/callback` : "http://localhost:3000/payment/callback");
 
     const params: Record<string, any> = {
       orderId,

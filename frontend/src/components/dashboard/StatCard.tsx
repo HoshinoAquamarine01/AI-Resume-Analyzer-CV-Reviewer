@@ -26,7 +26,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   progressPercentage,
 }) => {
   return (
-    <div className="p-5 rounded-2xl bg-[#0d1322]/80 border border-slate-800/80 hover:border-slate-700/80 backdrop-blur-md transition-all duration-300 shadow-lg group hover:translate-y-[-2px]">
+    <div className="p-5 rounded-2xl bg-[#0d1322] border border-slate-800/90 hover:border-slate-700 transition-all duration-200 shadow-md group hover:-translate-y-0.5">
       <div className="flex items-start justify-between">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">

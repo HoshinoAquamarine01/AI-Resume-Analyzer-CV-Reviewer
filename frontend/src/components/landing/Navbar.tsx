@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-[#0b0f17]/90 backdrop-blur-md border-b border-slate-800 py-3 shadow-xl"
+          ? "bg-[#090d16]/95 border-b border-slate-800/80 py-3 shadow-lg"
           : "bg-transparent py-5"
       }`}
     >
@@ -46,7 +46,7 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between">
           
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center shadow-md group-hover:border-emerald-500/50 transition-all">
+            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700/80 flex items-center justify-center shadow-md group-hover:border-emerald-500/50 transition-all">
               <FileSearch className="w-5 h-5 text-emerald-400 group-hover:scale-105 transition-transform" />
             </div>
             <div className="flex flex-col">
@@ -54,7 +54,7 @@ export const Navbar: React.FC = () => {
                 CV<span className="text-emerald-400">Pulse</span>
               </span>
               <span className="text-[10px] text-slate-400 font-medium tracking-widest -mt-1 uppercase">
-                Smart Career Intelligence
+                ATS Resume Intelligence
               </span>
             </div>
           </Link>
