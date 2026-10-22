@@ -23,6 +23,10 @@ export class JobsService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
+    if (process.env.VERCEL) {
+      console.log("[Jobs Orchestrator] Skipping initial background jobs on serverless cold start.");
+      return;
+    }
     console.log("[Jobs Orchestrator] Running initial jobs execution on startup...");
     await this.runSubscriptionJob().catch((err) => console.error("Initial Subscription job failed:", err));
     await this.runCleanupJob().catch((err) => console.error("Initial Cleanup job failed:", err));
