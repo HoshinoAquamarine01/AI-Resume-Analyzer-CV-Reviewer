@@ -1,58 +1,68 @@
 import Redis, { RedisOptions } from "ioredis";
 
-const redisHost = process.env.REDIS_HOST || "127.0.0.1";
+const isVercel = !!process.env.VERCEL;
+const redisHost = process.env.REDIS_HOST || (isVercel ? "" : "127.0.0.1");
 const redisPort = Number(process.env.REDIS_PORT) || 6379;
 const redisPassword = process.env.REDIS_PASSWORD || undefined;
 const redisDb = Number(process.env.REDIS_DB) || 0;
 
+const shouldDisableRedis =
+  isVercel &&
+  (!process.env.REDIS_HOST ||
+    process.env.REDIS_HOST === "127.0.0.1" ||
+    process.env.REDIS_HOST === "localhost");
+
 const redisOptions: RedisOptions = {
-  host: redisHost,
+  host: redisHost || "127.0.0.1",
   port: redisPort,
   password: redisPassword,
   db: redisDb,
   enableOfflineQueue: false,
-  connectTimeout: 5000,
+  lazyConnect: true,
+  connectTimeout: 2000,
   maxRetriesPerRequest: 1,
   retryStrategy(times: number) {
-    if (times > 3) {
-      console.warn(`[Redis Driver] Max retries reached (${times}). Redis will remain offline.`);
+    if (times > 1 || shouldDisableRedis) {
       return null;
     }
-    const delay = Math.min(times * 100, 3000);
-    console.warn(`[Redis Driver] Lost connection, retrying in ${delay} ms (attempt ${times})`);
-    return delay;
+    return 500;
   },
 };
 
-const rawRedis = new Redis(redisOptions);
+let rawRedis: any = null;
 let connected = false;
 
-rawRedis.on("ready", () => {
-  connected = true;
-  console.log("[Redis Driver] Connected successfully to Redis server.");
-});
+if (!shouldDisableRedis) {
+  try {
+    rawRedis = new Redis(redisOptions);
 
-rawRedis.on("connect", () => {
-  console.log("[Redis Driver] Connecting to Redis...");
-});
+    rawRedis.on("ready", () => {
+      connected = true;
+      console.log("[Redis Driver] Connected successfully to Redis server.");
+    });
 
-rawRedis.on("error", (err: any) => {
-  console.error("[Redis Driver] Connection error:", err.message);
-  connected = false;
-});
+    rawRedis.on("connect", () => {
+      console.log("[Redis Driver] Connecting to Redis...");
+    });
 
-rawRedis.on("reconnect", () => {
-  console.log("[Redis Driver] Reconnecting to Redis...");
-});
+    rawRedis.on("error", (err: any) => {
+      console.warn("[Redis Driver] Connection error (safe bypass active):", err.message);
+      connected = false;
+    });
 
-rawRedis.on("end", () => {
-  console.warn("[Redis Driver] Redis connection closed.");
-  connected = false;
-});
+    rawRedis.on("end", () => {
+      connected = false;
+    });
+  } catch (err: any) {
+    console.warn("[Redis Driver] Could not initialize Redis:", err.message);
+  }
+} else {
+  console.log("[Redis Driver] Redis disabled on serverless environment.");
+}
 
-const safeRedisProxy = new Proxy(rawRedis, {
+const safeRedisProxy = new Proxy(rawRedis || {}, {
   get(target: any, prop: string | symbol) {
-    const original = target[prop];
+    const original = target ? target[prop] : null;
 
     if (typeof original !== "function") {
       return original;
@@ -63,8 +73,7 @@ const safeRedisProxy = new Proxy(rawRedis, {
     }
 
     return async (...args: any[]) => {
-      if (!connected) {
-        console.warn(`[Redis Safe Proxy] Redis is offline. Bypassing '${String(prop)}' call.`);
+      if (!connected || !original) {
         return null;
       }
       try {
