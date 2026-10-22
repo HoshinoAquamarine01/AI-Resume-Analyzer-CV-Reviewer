@@ -1,4 +1,5 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { LoginCredentials, LoginFormErrors } from '../types/auth';
 import authService from '../services/authService';
 
@@ -7,6 +8,7 @@ interface UseLoginFormProps {
 }
 
 export function useLoginForm({ onSuccess }: UseLoginFormProps = {}) {
+  const [searchParams] = useSearchParams();
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: '',
@@ -15,6 +17,16 @@ export function useLoginForm({ onSuccess }: UseLoginFormProps = {}) {
 
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setErrors((prev) => ({
+        ...prev,
+        general: decodeURIComponent(errorParam),
+      }));
+    }
+  }, [searchParams]);
 
   const isValidEmail = (email: string): boolean => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

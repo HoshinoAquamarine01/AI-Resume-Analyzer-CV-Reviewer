@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, Req, UseGuards, UseInterceptors, HttpStatus, HttpCode } from "@nestjs/common";
+import { Controller, Post, Get, Body, Res, Req, UseGuards, UseInterceptors, HttpStatus, HttpCode } from "@nestjs/common";
 import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from "./dto/auth.dto";
@@ -114,5 +114,66 @@ export class AuthController {
   async verifyEmail(@Body("token") token: string) {
     const result = await this.authService.verifyEmail(token);
     return formatResponse(null, result.message);
+  }
+
+  @Get("google")
+  async googleAuth(@Res() res: Response) {
+    const frontendUrl =
+      process.env.FRONTEND_URL || "https://ai-resume-analyzer-cv-reviewer.vercel.app";
+    try {
+      const url = this.authService.getGoogleAuthUrl();
+      return res.redirect(url);
+    } catch (error: any) {
+      console.error("[GoogleAuth] Error generating auth URL:", error.message);
+      return res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          error.message || "Google authentication is not yet configured on this server."
+        )}`
+      );
+    }
+  }
+
+  @Get("google/callback")
+  async googleCallback(@Req() req: Request, @Res() res: Response) {
+    const frontendUrl =
+      process.env.FRONTEND_URL || "https://ai-resume-analyzer-cv-reviewer.vercel.app";
+    const code = req.query.code as string;
+    const error = req.query.error as string;
+
+    if (error || !code) {
+      return res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          error || "Google authorization was cancelled or failed."
+        )}`
+      );
+    }
+
+    try {
+      const rawIp =
+        req.headers["x-forwarded-for"] ||
+        req.ip ||
+        req.socket?.remoteAddress ||
+        "unknown";
+      const ipAddress =
+        typeof rawIp === "string" ? rawIp.split(",")[0].trim() : String(rawIp);
+
+      const result = await this.authService.handleGoogleCallback(code, ipAddress);
+
+      res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.redirect(`${frontendUrl}/auth/callback?token=${result.token}`);
+    } catch (err: any) {
+      console.error("[GoogleCallback] Error:", err.response?.data || err.message);
+      const errorMsg =
+        err.response?.data?.error_description ||
+        err.message ||
+        "Failed to authenticate with Google.";
+      return res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(errorMsg)}`);
+    }
   }
 }
