@@ -143,7 +143,7 @@ if (typeof module !== "undefined" && (module as any).exports) {
   (module as any).exports.default = handler;
 }
 
-// Server listen mode (supports local development, docker, and Vercel Services)
+
 (async () => {
   try {
     const server = await bootstrapServer();
