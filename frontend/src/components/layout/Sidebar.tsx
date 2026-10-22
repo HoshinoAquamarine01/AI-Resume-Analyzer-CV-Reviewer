@@ -15,6 +15,8 @@ import {
   X,
   Layers,
   FileSearch,
+  ShieldAlert,
+  TrendingUp,
 } from "lucide-react";
 import userService from "../../services/userService";
 
@@ -27,7 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+  const [user, setUser] = useState<{ name?: string; email?: string; role?: string } | null>(null);
   const [subscription, setSubscription] = useState<{ plan?: string; status?: string } | null>(null);
 
   useEffect(() => {
@@ -250,6 +252,48 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
             </nav>
           </div>
 
+          {user?.role === "admin" && (
+            <div>
+              <div className="px-3 mb-2 text-[11px] font-semibold text-amber-400 tracking-wider uppercase flex items-center gap-1.5">
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+                Administration
+              </div>
+              <nav className="space-y-1">
+                <Link
+                  to="/admin"
+                  onClick={onCloseMobile}
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group ${
+                    location.pathname === "/admin"
+                      ? "bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-md shadow-amber-500/10"
+                      : "text-amber-400/90 hover:text-amber-200 hover:bg-amber-500/10 border border-amber-500/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <ShieldAlert className="w-4 h-4 text-amber-400" />
+                    <span>Control Center</span>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    ADMIN
+                  </span>
+                </Link>
+                <Link
+                  to="/admin/financial-analytics"
+                  onClick={onCloseMobile}
+                  className={`flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200 group ${
+                    location.pathname === "/admin/financial-analytics"
+                      ? "bg-blue-600/15 text-blue-400 border border-blue-500/30"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <TrendingUp className="w-4 h-4 text-slate-400" />
+                    <span>Financial Analytics</span>
+                  </div>
+                </Link>
+              </nav>
+            </div>
+          )}
+
           
           <div className="p-3.5 rounded-2xl bg-gradient-to-b from-slate-900 to-[#0d1527] border border-slate-800 relative overflow-hidden group">
             <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all" />
@@ -280,7 +324,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, onCloseMob
                 {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
               </div>
               <div className="overflow-hidden">
-                <div className="text-sm font-semibold text-slate-200 truncate">{user?.name || "User"}</div>
+                <div className="text-sm font-semibold text-slate-200 truncate flex items-center gap-1.5">
+                  <span className="truncate">{user?.name || "User"}</span>
+                  {user?.role === "admin" && (
+                    <span className="px-1.5 py-0.2 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] font-bold rounded">
+                      ADMIN
+                    </span>
+                  )}
+                </div>
                 <div className="text-[11px] text-slate-400 truncate">{user?.email || "user@example.com"}</div>
               </div>
             </div>
