@@ -2,11 +2,15 @@
   "name": "resumeiq-ai",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "npm@10.8.2",
   "workspaces": [
     "backend",
     "frontend"
   ],
   "scripts": {
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
     "dev": "echo \"Run backend and frontend separately\""
   },
   "dependencies": {
