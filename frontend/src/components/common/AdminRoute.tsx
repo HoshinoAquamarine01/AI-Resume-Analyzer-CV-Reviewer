@@ -30,7 +30,13 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
- 
+  if (userRole !== "admin") {
+    toast.error("Access denied. Admin privileges required.", {
+      id: "admin-forbidden-redirect",
+    });
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <>{children}</>;
 };
 

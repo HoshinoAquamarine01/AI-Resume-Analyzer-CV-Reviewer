@@ -10,6 +10,7 @@ import {
   LogOut,
   ChevronDown,
   Plus,
+  ShieldAlert,
 } from "lucide-react";
 import userService from "../../services/userService";
 
@@ -20,7 +21,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileSidebar }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+  const [user, setUser] = useState<{ name?: string; email?: string; role?: string } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,7 +81,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileSidebar }) => {
       </div>
 
       <div className="flex items-center gap-3">
-     
+        {user?.role === "admin" && (
+          <Link
+            to="/admin"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 shadow-sm transition-all"
+          >
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">Admin Center</span>
+          </Link>
+        )}
+
         <Link
           to="/resumes"
           className="hidden md:flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-600/20 transition-all hover:scale-[1.02]"
@@ -131,18 +141,40 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenMobileSidebar }) => {
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white text-xs shadow-md">
               {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
             </div>
-            <span className="hidden sm:inline text-xs font-medium text-slate-200 max-w-[120px] truncate">
-              {user?.name || "User Account"}
-            </span>
+            <div className="hidden sm:flex flex-col items-start leading-tight">
+              <span className="text-xs font-medium text-slate-200 max-w-[120px] truncate">
+                {user?.name || "User Account"}
+              </span>
+              {user?.role === "admin" && (
+                <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wide">Admin</span>
+              )}
+            </div>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
           </button>
 
           {showUserDropdown && (
             <div className="absolute right-0 mt-2 w-56 bg-[#0d1322] border border-slate-800 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="px-3 py-2 border-b border-slate-800/80 mb-1">
-                <div className="text-xs font-semibold text-slate-200 truncate">{user?.name || "User"}</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-semibold text-slate-200 truncate">{user?.name || "User"}</div>
+                  {user?.role === "admin" && (
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      ADMIN
+                    </span>
+                  )}
+                </div>
                 <div className="text-[10px] text-slate-400 truncate">{user?.email || "user@example.com"}</div>
               </div>
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  onClick={() => setShowUserDropdown(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 transition-colors mb-1"
+                >
+                  <ShieldAlert className="w-4 h-4 text-amber-400" />
+                  Admin Dashboard
+                </Link>
+              )}
               <Link
                 to="/settings"
                 onClick={() => setShowUserDropdown(false)}
