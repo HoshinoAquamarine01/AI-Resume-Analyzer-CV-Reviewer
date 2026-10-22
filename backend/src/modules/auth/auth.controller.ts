@@ -176,4 +176,65 @@ export class AuthController {
       return res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(errorMsg)}`);
     }
   }
+
+  @Get("github")
+  async githubAuth(@Res() res: Response) {
+    const frontendUrl =
+      process.env.FRONTEND_URL || "https://ai-resume-analyzer-cv-reviewer.vercel.app";
+    try {
+      const url = this.authService.getGithubAuthUrl();
+      return res.redirect(url);
+    } catch (error: any) {
+      console.error("[GithubAuth] Error generating auth URL:", error.message);
+      return res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          error.message || "GitHub authentication is not yet configured on this server."
+        )}`
+      );
+    }
+  }
+
+  @Get("github/callback")
+  async githubCallback(@Req() req: Request, @Res() res: Response) {
+    const frontendUrl =
+      process.env.FRONTEND_URL || "https://ai-resume-analyzer-cv-reviewer.vercel.app";
+    const code = req.query.code as string;
+    const error = req.query.error as string;
+
+    if (error || !code) {
+      return res.redirect(
+        `${frontendUrl}/login?error=${encodeURIComponent(
+          error || "GitHub authorization was cancelled or failed."
+        )}`
+      );
+    }
+
+    try {
+      const rawIp =
+        req.headers["x-forwarded-for"] ||
+        req.ip ||
+        req.socket?.remoteAddress ||
+        "unknown";
+      const ipAddress =
+        typeof rawIp === "string" ? rawIp.split(",")[0].trim() : String(rawIp);
+
+      const result = await this.authService.handleGithubCallback(code, ipAddress);
+
+      res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return res.redirect(`${frontendUrl}/auth/callback?token=${result.token}`);
+    } catch (err: any) {
+      console.error("[GithubCallback] Error:", err.response?.data || err.message);
+      const errorMsg =
+        err.response?.data?.error_description ||
+        err.message ||
+        "Failed to authenticate with GitHub.";
+      return res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(errorMsg)}`);
+    }
+  }
 }

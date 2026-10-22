@@ -27,21 +27,18 @@ export const AuthCallbackPage: React.FC = () => {
       try {
         localStorage.setItem('token', token);
 
-        // Fetch current user details to cache in local storage
         try {
           const profileRes = await userService.getProfile();
           const userData = profileRes?.data || profileRes;
           if (userData) {
             localStorage.setItem('user', JSON.stringify(userData));
           }
-        } catch {
-          // If fetching profile fails, still proceed to dashboard with token
-        }
+        } catch {}
 
-        toast.success('Signed in with Google successfully!');
+        toast.success('Signed in successfully!');
         navigate('/dashboard', { replace: true });
       } catch (err: any) {
-        console.error('Failed to complete Google login:', err);
+        console.error('Failed to complete login:', err);
         toast.error('Failed to finalize login session.');
         navigate('/login', { replace: true });
       }
@@ -55,9 +52,9 @@ export const AuthCallbackPage: React.FC = () => {
       <div className="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 shadow-xl relative">
         <div className="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
-      <h2 className="text-xl font-bold text-white mb-2">Authenticating with Google...</h2>
+      <h2 className="text-xl font-bold text-white mb-2">Authenticating...</h2>
       <p className="text-sm text-slate-400 max-w-sm">
-        Please wait a moment while we verify your Google credentials and prepare your workspace.
+        Please wait a moment while we verify your credentials and prepare your workspace.
       </p>
     </div>
   );

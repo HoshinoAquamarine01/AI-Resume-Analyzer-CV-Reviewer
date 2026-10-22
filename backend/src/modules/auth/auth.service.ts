@@ -306,6 +306,151 @@ export class AuthService {
       // Activity log is non-blocking
     }
 
+      return {
+        user: {
+          _id: user._id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          avatarUrl: user.avatarUrl,
+        },
+        token,
+        refreshToken,
+      };
+    }
+
+  getGithubAuthUrl(): string {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    if (!clientId) {
+      throw new BadRequestException("GitHub Client ID is not configured on the server. Please set GITHUB_CLIENT_ID in .env");
+    }
+
+    const callbackUrl =
+      process.env.GITHUB_CALLBACK_URL ||
+      (process.env.BACKEND_URL
+        ? `${process.env.BACKEND_URL}/api/auth/github/callback`
+        : "https://ai-resume-analyzer-cv-reviewer.vercel.app/api/auth/github/callback");
+
+    const rootUrl = "https://github.com/login/oauth/authorize";
+    const options = {
+      client_id: clientId,
+      redirect_uri: callbackUrl,
+      scope: "read:user user:email",
+    };
+
+    const qs = new URLSearchParams(options);
+    return `${rootUrl}?${qs.toString()}`;
+  }
+
+  async handleGithubCallback(code: string, ipAddress?: string) {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    const callbackUrl =
+      process.env.GITHUB_CALLBACK_URL ||
+      (process.env.BACKEND_URL
+        ? `${process.env.BACKEND_URL}/api/auth/github/callback`
+        : "https://ai-resume-analyzer-cv-reviewer.vercel.app/api/auth/github/callback");
+
+    if (!clientId || !clientSecret) {
+      throw new BadRequestException("GitHub OAuth credentials are not configured on the server. Please set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in .env");
+    }
+
+
+    const tokenResponse = await axios.post(
+      "https://github.com/login/oauth/access_token",
+      {
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+        redirect_uri: callbackUrl,
+      },
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    const { access_token, error, error_description } = tokenResponse.data;
+    if (error || !access_token) {
+      throw new BadRequestException(error_description || "Failed to exchange GitHub authorization code.");
+    }
+
+    const userinfoResponse = await axios.get("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        "User-Agent": "ResumeIQ-AI",
+      },
+    });
+
+    const { id: githubId, login, name, avatar_url } = userinfoResponse.data;
+    let email = userinfoResponse.data.email;
+
+   
+    if (!email) {
+      try {
+        const emailsResponse = await axios.get("https://api.github.com/user/emails", {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "User-Agent": "ResumeIQ-AI",
+          },
+        });
+        const emails = emailsResponse.data || [];
+        const primary = emails.find((e: any) => e.primary && e.verified);
+        email = primary?.email || emails.find((e: any) => e.verified)?.email || emails[0]?.email;
+      } catch (err: any) {
+        console.warn("[GitHubAuth] Failed to fetch user emails:", err.message);
+      }
+    }
+
+    if (!email) {
+      email = `${login}@users.noreply.github.com`;
+    }
+
+  
+    const stringGithubId = String(githubId);
+    let user = await this.userModel.findOne({
+      $or: [{ githubId: stringGithubId }, { email: email.toLowerCase() }],
+    });
+
+    if (user) {
+      let updated = false;
+      if (!user.githubId) {
+        user.githubId = stringGithubId;
+        updated = true;
+      }
+      if (!user.avatarUrl && avatar_url) {
+        user.avatarUrl = avatar_url;
+        updated = true;
+      }
+      if (updated) {
+        await user.save();
+      }
+    } else {
+      user = await this.userModel.create({
+        name: name || login || email.split("@")[0],
+        email: email.toLowerCase(),
+        githubId: stringGithubId,
+        avatarUrl: avatar_url,
+        authProvider: "github",
+        isActive: true,
+      });
+    }
+
+    const token = await this.generateToken(user._id);
+    const refreshToken = await this.generateRefreshToken(user._id);
+
+    try {
+      await this.activityLogService.createLog(
+        user._id,
+        "login",
+        { provider: "github" },
+        ipAddress || "unknown"
+      );
+    } catch {
+   
+    }
+
     return {
       user: {
         _id: user._id,

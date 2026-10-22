@@ -14,6 +14,10 @@ const redisOptions: RedisOptions = {
   connectTimeout: 5000,
   maxRetriesPerRequest: 1,
   retryStrategy(times: number) {
+    if (times > 3) {
+      console.warn(`[Redis Driver] Max retries reached (${times}). Redis will remain offline.`);
+      return null;
+    }
     const delay = Math.min(times * 100, 3000);
     console.warn(`[Redis Driver] Lost connection, retrying in ${delay} ms (attempt ${times})`);
     return delay;
@@ -120,7 +124,7 @@ const gracefulShutdown = async () => {
   try {
     await rawRedis.quit();
   } catch {
-    
+
   }
   process.exit(0);
 };
@@ -128,4 +132,4 @@ const gracefulShutdown = async () => {
 process.on("SIGINT", gracefulShutdown);
 process.on("SIGTERM", gracefulShutdown);
 
-export default safeRedisProxy;
+export default safeRedisProxy;
