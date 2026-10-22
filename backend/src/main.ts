@@ -143,15 +143,17 @@ if (typeof module !== "undefined" && (module as any).exports) {
   (module as any).exports.default = handler;
 }
 
-// Standalone Server mode (for local development or docker/vps)
-if (!process.env.VERCEL) {
-  (async () => {
+// Server listen mode (supports local development, docker, and Vercel Services)
+(async () => {
+  try {
     const server = await bootstrapServer();
     const PORT = process.env.PORT || 5000;
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`Swagger documentation is available at http://localhost:${PORT}/docs`);
     });
-  })();
-}
+  } catch (error) {
+    console.error("Server bootstrap startup error:", error);
+  }
+})();
 
