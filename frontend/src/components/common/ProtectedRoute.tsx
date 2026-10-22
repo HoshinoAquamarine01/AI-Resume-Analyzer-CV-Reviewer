@@ -13,9 +13,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if (!token) {
-    toast.error("Please log in to access your Settings & Profile.", { id: "auth-redirect-toast" });
+    const message = location.pathname.startsWith("/settings")
+      ? "Please log in to access your Settings & Profile."
+      : "Please log in to access this page.";
+    toast.error(message, { id: "auth-redirect-toast" });
 
- 
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

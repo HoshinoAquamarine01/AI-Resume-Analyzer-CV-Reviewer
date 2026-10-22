@@ -17,6 +17,9 @@ export class User extends Document {
   @Prop()
   googleId?: string;
 
+  @Prop()
+  githubId?: string;
+
   @Prop({
     type: String,
     enum: ["local", "google", "github"],
