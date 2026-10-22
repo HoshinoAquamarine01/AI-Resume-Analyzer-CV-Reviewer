@@ -23,8 +23,16 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException("Unauthorized - missing credentials");
     }
 
-    const userRole = user.role;
-    if (!requiredRoles.includes(userRole)) {
+    const userRole = (user.role || "").toLowerCase();
+    const userRoles = Array.isArray(user.roles)
+      ? user.roles.map((r: string) => (r || "").toLowerCase())
+      : [userRole];
+
+    const hasRole = requiredRoles.some((required) =>
+      userRoles.includes(required.toLowerCase())
+    );
+
+    if (!hasRole) {
       throw new ForbiddenException("Forbidden - insufficient permissions");
     }
 

@@ -30,7 +30,7 @@ export class AuthService {
       phoneNumber: dto.phoneNumber,
     });
 
-    const token = await this.generateToken(createdUser._id);
+    const token = await this.generateToken(createdUser._id, createdUser.role);
     const refreshToken = await this.generateRefreshToken(createdUser._id);
 
     try {
@@ -64,7 +64,7 @@ export class AuthService {
       throw new UnauthorizedException("Invalid email or password");
     }
 
-    const token = await this.generateToken(user._id);
+    const token = await this.generateToken(user._id, user.role);
     const refreshToken = await this.generateRefreshToken(user._id);
 
     await this.activityLogService.createLog(
@@ -87,10 +87,14 @@ export class AuthService {
     };
   }
 
-  async generateToken(userId: any): Promise<string> {
-    return jwt.sign({ userId }, process.env.JWT_SECRET || "secret", {
-      expiresIn: "24h",
-    });
+  async generateToken(userId: any, role: string = "user"): Promise<string> {
+    return jwt.sign(
+      { userId, id: userId, sub: userId, role },
+      process.env.JWT_SECRET || "secret",
+      {
+        expiresIn: "24h",
+      }
+    );
   }
 
   async generateRefreshToken(userId: any): Promise<string> {
@@ -228,7 +232,7 @@ export class AuthService {
       throw new BadRequestException("Google OAuth credentials are not configured on the server. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env");
     }
 
-    // 1. Exchange authorization code for access token
+    
     const tokenResponse = await axios.post(
       "https://oauth2.googleapis.com/token",
       new URLSearchParams({
@@ -247,7 +251,7 @@ export class AuthService {
 
     const { access_token } = tokenResponse.data;
 
-    // 2. Fetch user profile from Google
+   
     const userinfoResponse = await axios.get(
       "https://www.googleapis.com/oauth2/v3/userinfo",
       {
@@ -263,7 +267,7 @@ export class AuthService {
       throw new BadRequestException("Unable to retrieve email from Google account");
     }
 
-    // 3. Find or create user
+   
     let user = await this.userModel.findOne({
       $or: [{ googleId }, { email: email.toLowerCase() }],
     });
@@ -292,7 +296,7 @@ export class AuthService {
       });
     }
 
-    const token = await this.generateToken(user._id);
+    const token = await this.generateToken(user._id, user.role);
     const refreshToken = await this.generateRefreshToken(user._id);
 
     try {
@@ -303,7 +307,7 @@ export class AuthService {
         ipAddress || "unknown"
       );
     } catch {
-      // Activity log is non-blocking
+   
     }
 
       return {
@@ -437,7 +441,7 @@ export class AuthService {
       });
     }
 
-    const token = await this.generateToken(user._id);
+    const token = await this.generateToken(user._id, user.role);
     const refreshToken = await this.generateRefreshToken(user._id);
 
     try {
