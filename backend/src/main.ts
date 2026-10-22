@@ -16,7 +16,8 @@ export async function bootstrapServer(): Promise<Express> {
     const expressApp = express();
     const app = await NestFactory.create(
       AppModule,
-      new ExpressAdapter(expressApp)
+      new ExpressAdapter(expressApp),
+      { abortOnError: false }
     );
 
     if (!process.env.VERCEL) {
