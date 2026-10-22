@@ -17,13 +17,13 @@ import {
 export const Hero: React.FC = () => {
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bento-pattern-bg">
-      {/* Subtle, refined atmospheric lighting */}
+    
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto space-y-6">
           
-          {/* Professional Status Pill (Anti-AI Cliché) */}
+        
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-xs sm:text-sm font-medium shadow-sm">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
             <span className="text-slate-200 font-semibold">Taleo, Greenhouse & Workday Compatible</span>
@@ -75,12 +75,12 @@ export const Hero: React.FC = () => {
           </div>
         </div>
 
-        {/* Product Showcase Bento Card (Tangible & Professional) */}
+      
         <div className="mt-14 max-w-4xl mx-auto relative">
           <div className="saas-card rounded-3xl p-2 sm:p-3 border border-slate-800 shadow-2xl">
             <div className="bg-[#0b101d] rounded-2xl p-6 sm:p-8 border border-slate-800/80">
               
-              {/* Dropzone Container */}
+             
               <div className="border-2 border-dashed border-slate-700/80 hover:border-emerald-500/70 rounded-2xl p-8 sm:p-10 transition-all bg-[#090d16]/70 group text-center cursor-pointer">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 group-hover:scale-105 transition-all">
                   <UploadCloud className="w-7 h-7" />
@@ -100,7 +100,7 @@ export const Hero: React.FC = () => {
                 </Link>
               </div>
 
-              {/* Realistic Recruiter Metrics (Clean & Trustworthy) */}
+             
               <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-left">
                 <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800/90">
                   <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">ATS Pass Rate</div>
@@ -139,7 +139,7 @@ export const Hero: React.FC = () => {
           </div>
         </div>
 
-        {/* Company Social Proof Strip */}
+
         <div className="mt-16 text-center">
           <p className="text-xs uppercase tracking-widest text-slate-500 font-medium mb-6">
             Candidates optimized with CVPulse hired at leading enterprises

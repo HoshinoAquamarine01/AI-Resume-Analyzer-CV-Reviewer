@@ -19,7 +19,7 @@ export const Features: React.FC = () => {
     <section id="features" className="py-24 relative overflow-hidden bg-[#090d16] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
+   
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
             <TrendingUp className="w-3.5 h-3.5" />
@@ -34,10 +34,10 @@ export const Features: React.FC = () => {
           </p>
         </div>
 
-        {/* Bento Box Grid Layout */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
-          {/* Bento Card 1 (Span 2 cols on desktop): Multi-Engine ATS Simulator */}
+       
           <div className="lg:col-span-2 saas-card-interactive rounded-3xl p-8 bg-[#0d1322] border border-slate-800/90 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -59,7 +59,7 @@ export const Features: React.FC = () => {
                 Simulates real-world ATS parser behaviors to detect layout pitfalls, unreadable fonts, missing metadata, and unrecognized experience headers before you submit.
               </p>
 
-              {/* Realistic Simulator Widget */}
+     
               <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
                 <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-800">
                   <span className="text-slate-400 font-mono">ATS Parser Diagnostic</span>
@@ -92,7 +92,7 @@ export const Features: React.FC = () => {
             </div>
           </div>
 
-          {/* Bento Card 2: Action-Impact Bullet Polish */}
+     
           <div className="saas-card-interactive rounded-3xl p-8 bg-[#0d1322] border border-slate-800/90 flex flex-col justify-between">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-6">
@@ -116,7 +116,7 @@ export const Features: React.FC = () => {
             </div>
           </div>
 
-          {/* Bento Card 3: Keyword Gap Matrix */}
+         
           <div className="saas-card-interactive rounded-3xl p-8 bg-[#0d1322] border border-slate-800/90 flex flex-col justify-between">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-6">
@@ -145,7 +145,6 @@ export const Features: React.FC = () => {
             </div>
           </div>
 
-          {/* Bento Card 4: Executive Formatting & Layout Inspector */}
           <div className="saas-card-interactive rounded-3xl p-8 bg-[#0d1322] border border-slate-800/90 flex flex-col justify-between">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-6">
@@ -173,7 +172,7 @@ export const Features: React.FC = () => {
             </div>
           </div>
 
-          {/* Bento Card 5: STAR Interview Question Matcher */}
+        
           <div className="saas-card-interactive rounded-3xl p-8 bg-[#0d1322] border border-slate-800/90 flex flex-col justify-between">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 mb-6">

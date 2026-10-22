@@ -9,7 +9,7 @@ export const CtaSection: React.FC = () => {
         
         <div className="saas-card rounded-3xl p-8 sm:p-16 text-center border border-slate-800 bg-[#0d1322] shadow-2xl space-y-8 relative overflow-hidden">
           
-          {/* Subtle top accent border line */}
+   
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-80" />
 
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-emerald-400 text-xs sm:text-sm font-semibold">
