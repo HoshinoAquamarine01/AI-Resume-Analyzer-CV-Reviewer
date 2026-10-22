@@ -59,7 +59,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
   const copyToClipboard = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
     setCopiedField(fieldName);
-    toast.success(`Đã sao chép ${fieldName}!`);
+    toast.success(`Copied ${fieldName} to clipboard!`);
     setTimeout(() => {
       setCopiedField(null);
     }, 2000);
@@ -70,12 +70,12 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
       setIsSubmitting(true);
       await paymentService.confirmTransfer(data.orderId);
       setIsConfirmed(true);
-      toast.success("Đã ghi nhận! Đang chờ Admin xác nhận giao dịch.");
+      toast.success("Transfer recorded! Awaiting Admin verification.");
       if (onSuccess) onSuccess();
     } catch (err: any) {
       console.error("Confirm transfer error:", err);
       toast.error(
-        err?.response?.data?.message || "Không thể gửi xác nhận chuyển khoản."
+        err?.response?.data?.message || "Failed to confirm bank transfer."
       );
     } finally {
       setIsSubmitting(false);
@@ -93,13 +93,13 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                <span>Quét Mã QR Thanh Toán</span>
+                <span>Scan Payment QR Code</span>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                  Gói {data.plan.toUpperCase()}
+                  {data.plan.toUpperCase()} Plan
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
-                Chuyển khoản liên ngân hàng & Chờ Admin duyệt kích hoạt
+                Interbank bank transfer & instant Administrator verification
               </p>
             </div>
           </div>
@@ -121,23 +121,22 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                 <AlertCircle className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <p className="font-semibold text-blue-200">
-                    Hướng dẫn thanh toán nhanh:
+                    Quick Transfer Instructions:
                   </p>
                   <p className="text-slate-300 leading-relaxed">
-                    1. Mở App ngân hàng bất kỳ (Vietcombank, MB, Techcombank...)
-                    hoặc ví MoMo để quét mã QR.
+                    1. Open any mobile banking app or supported e-wallet to scan the QR code.
                     <br />
-                    2. Kiểm tra đúng số tiền và{" "}
+                    2. Verify the exact amount and{" "}
                     <span className="text-amber-300 font-bold">
-                      giữ nguyên nội dung chuyển khoản
+                      keep the transfer memo / content unchanged
                     </span>
                     .
                     <br />
-                    3. Bấm nút{" "}
+                    3. Click{" "}
                     <span className="text-emerald-400 font-bold">
-                      "Tôi đã chuyển khoản"
+                      "I Have Completed Transfer"
                     </span>{" "}
-                    sau khi hoàn tất.
+                    once done.
                   </p>
                 </div>
               </div>
@@ -148,7 +147,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   <div className="relative p-2.5 bg-white rounded-2xl shadow-xl overflow-hidden group">
                     <img
                       src={data.qrCodeUrl}
-                      alt="VietQR Chuyển Khoản"
+                      alt="Bank Payment QR Code"
                       className="w-48 h-48 sm:w-52 sm:h-52 object-contain"
                     />
                   </div>
@@ -156,10 +155,10 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   <div className="space-y-1">
                     <p className="text-xs font-bold text-slate-200 flex items-center justify-center gap-1.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>VietQR Chuẩn Quốc Gia Napas 24/7</span>
+                      <span>National Standard VietQR / Napas 24/7</span>
                     </p>
                     <p className="text-[11px] text-slate-500">
-                      Tương thích tất cả ứng dụng ngân hàng
+                      Compatible with all mobile banking and e-wallet apps
                     </p>
                   </div>
                 </div>
@@ -169,7 +168,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                        Ngân hàng thụ hưởng
+                        Beneficiary Bank
                       </span>
                       <span className="text-xs font-semibold text-white">
                         {data.bankAccount.bankName}
@@ -180,7 +179,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                        Số tài khoản
+                        Account Number
                       </span>
                       <span className="text-sm font-mono font-bold text-emerald-400 tracking-wider">
                         {data.bankAccount.accountNumber}
@@ -190,18 +189,18 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                       onClick={() =>
                         copyToClipboard(
                           data.bankAccount.accountNumber,
-                          "Số tài khoản"
+                          "Account Number"
                         )
                       }
                       className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1 border border-slate-700 transition-colors"
                     >
-                      {copiedField === "Số tài khoản" ? (
+                      {copiedField === "Account Number" ? (
                         <Check className="w-3.5 h-3.5 text-emerald-400" />
                       ) : (
                         <Copy className="w-3.5 h-3.5" />
                       )}
                       <span>
-                        {copiedField === "Số tài khoản" ? "Đã chép" : "Chép"}
+                        {copiedField === "Account Number" ? "Copied" : "Copy"}
                       </span>
                     </button>
                   </div>
@@ -209,7 +208,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                        Chủ tài khoản
+                        Account Holder
                       </span>
                       <span className="text-xs font-semibold text-white">
                         {data.bankAccount.accountName}
@@ -220,7 +219,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                        Số tiền thanh toán
+                        Payment Amount
                       </span>
                       <span className="text-base font-extrabold text-blue-400">
                         {formatVND(data.amount)}
@@ -228,17 +227,17 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                     </div>
                     <button
                       onClick={() =>
-                        copyToClipboard(data.amount.toString(), "Số tiền")
+                        copyToClipboard(data.amount.toString(), "Amount")
                       }
                       className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1 border border-slate-700 transition-colors"
                     >
-                      {copiedField === "Số tiền" ? (
+                      {copiedField === "Amount" ? (
                         <Check className="w-3.5 h-3.5 text-emerald-400" />
                       ) : (
                         <Copy className="w-3.5 h-3.5" />
                       )}
                       <span>
-                        {copiedField === "Số tiền" ? "Đã chép" : "Chép"}
+                        {copiedField === "Amount" ? "Copied" : "Copy"}
                       </span>
                     </button>
                   </div>
@@ -247,7 +246,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] uppercase font-bold text-amber-400 block">
-                        Nội dung chuyển khoản (Bắt buộc)
+                        Transfer Memo (Required)
                       </span>
                       <span className="text-sm font-mono font-extrabold text-amber-300 tracking-wider">
                         {data.transferContent}
@@ -257,20 +256,20 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                       onClick={() =>
                         copyToClipboard(
                           data.transferContent,
-                          "Nội dung chuyển khoản"
+                          "Transfer Memo"
                         )
                       }
                       className="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-semibold flex items-center gap-1 border border-amber-500/40 transition-colors"
                     >
-                      {copiedField === "Nội dung chuyển khoản" ? (
+                      {copiedField === "Transfer Memo" ? (
                         <Check className="w-3.5 h-3.5 text-emerald-400" />
                       ) : (
                         <Copy className="w-3.5 h-3.5" />
                       )}
                       <span>
-                        {copiedField === "Nội dung chuyển khoản"
-                          ? "Đã chép"
-                          : "Chép"}
+                        {copiedField === "Transfer Memo"
+                          ? "Copied"
+                          : "Copy"}
                       </span>
                     </button>
                   </div>
@@ -281,7 +280,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
               <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <span className="text-xs text-slate-400 flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-slate-500" />
-                  <span>Admin duyệt trong 2 - 10 phút sau khi nhận tiền</span>
+                  <span>Admin verification within 2 - 10 minutes upon transfer</span>
                 </span>
 
                 <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -289,7 +288,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                     onClick={onClose}
                     className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors"
                   >
-                    Đóng
+                    Close
                   </button>
 
                   <button
@@ -302,7 +301,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                     ) : (
                       <Check className="w-4 h-4" />
                     )}
-                    <span>Tôi Đã Chuyển Khoản</span>
+                    <span>I Have Completed Transfer</span>
                   </button>
                 </div>
               </div>
@@ -321,43 +320,42 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
 
               <div className="space-y-2 max-w-md">
                 <h3 className="text-xl font-bold text-white">
-                  Đã Gửi Yêu Cầu Thanh Toán Thành Công!
+                  Payment Request Submitted Successfully!
                 </h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Hệ thống đã ghi nhận giao dịch của bạn. Quản trị viên đang tiến
-                  hành đối soát tài khoản và sẽ kích hoạt gói{" "}
+                  Your transaction has been recorded. Our administrators are reconciling the payment and will activate your{" "}
                   <span className="font-bold text-blue-400 uppercase">
                     {data.plan}
                   </span>{" "}
-                  cho bạn ngay sau khi nhận được tiền (thường từ 2 - 10 phút).
+                  plan promptly upon receipt (typically within 2 - 10 minutes).
                 </p>
               </div>
 
               {/* Order Info Card */}
               <div className="w-full max-w-md p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-left space-y-2 text-xs">
                 <div className="flex justify-between py-1 border-b border-slate-800/80">
-                  <span className="text-slate-500">Mã đơn hàng:</span>
+                  <span className="text-slate-500">Order ID:</span>
                   <span className="font-mono font-semibold text-slate-200">
                     {data.orderId}
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-800/80">
-                  <span className="text-slate-500">Gói nâng cấp:</span>
+                  <span className="text-slate-500">Subscription Plan:</span>
                   <span className="font-bold text-blue-400 uppercase">
                     {data.plan}
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-800/80">
-                  <span className="text-slate-500">Số tiền:</span>
+                  <span className="text-slate-500">Amount:</span>
                   <span className="font-extrabold text-emerald-400">
                     {formatVND(data.amount)}
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-slate-500">Trạng thái:</span>
+                  <span className="text-slate-500">Status:</span>
                   <span className="inline-flex items-center gap-1 font-semibold text-amber-400">
                     <Clock className="w-3.5 h-3.5" />
-                    Đang chờ Admin duyệt
+                    Awaiting Admin Verification
                   </span>
                 </div>
               </div>
@@ -367,7 +365,7 @@ export const QrPaymentModal: React.FC<QrPaymentModalProps> = ({
                   onClick={onClose}
                   className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2"
                 >
-                  <span>Hoàn Tất & Về Bảng Điều Khiển</span>
+                  <span>Done & Go to Dashboard</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

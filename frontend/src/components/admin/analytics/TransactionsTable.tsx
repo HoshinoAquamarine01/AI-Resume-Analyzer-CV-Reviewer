@@ -19,28 +19,28 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ transactio
     try {
       setActionLoading((prev) => ({ ...prev, [tx._id]: true }));
       await adminService.approvePayment(tx._id);
-      toast.success(`Đã phê duyệt thanh toán thành công cho ${tx.userId?.name || "khách hàng"}!`);
+      toast.success(`Payment approved successfully for ${tx.userId?.name || "user"}!`);
       if (onRefresh) onRefresh();
     } catch (err: any) {
       console.error("Failed to approve payment:", err);
-      toast.error(err?.response?.data?.message || "Không thể phê duyệt thanh toán.");
+      toast.error(err?.response?.data?.message || "Failed to approve payment transaction.");
     } finally {
       setActionLoading((prev) => ({ ...prev, [tx._id]: false }));
     }
   };
 
   const handleReject = async (tx: FinancialTransactionItem) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn từ chối giao dịch của ${tx.userId?.name || "khách hàng"} không?`)) {
+    if (!window.confirm(`Are you sure you want to reject the transaction for ${tx.userId?.name || "this user"}?`)) {
       return;
     }
     try {
       setActionLoading((prev) => ({ ...prev, [tx._id]: true }));
-      await adminService.rejectPayment(tx._id, "Quản trị viên từ chối giao dịch");
-      toast.success("Đã từ chối giao dịch thanh toán.");
+      await adminService.rejectPayment(tx._id, "Admin rejected transaction");
+      toast.success("Payment transaction rejected.");
       if (onRefresh) onRefresh();
     } catch (err: any) {
       console.error("Failed to reject payment:", err);
-      toast.error(err?.response?.data?.message || "Không thể từ chối thanh toán.");
+      toast.error(err?.response?.data?.message || "Failed to reject payment transaction.");
     } finally {
       setActionLoading((prev) => ({ ...prev, [tx._id]: false }));
     }
@@ -193,23 +193,23 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({ transactio
                               disabled={actionLoading[tx._id]}
                               onClick={() => handleApprove(tx)}
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/20 transition-all active:scale-95 disabled:opacity-50"
-                              title="Phê duyệt thanh toán & Nâng cấp tài khoản"
+                              title="Approve payment & activate subscription"
                             >
                               {actionLoading[tx._id] ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                               ) : (
                                 <Check className="w-3.5 h-3.5" />
                               )}
-                              <span>Duyệt</span>
+                              <span>Approve</span>
                             </button>
                             <button
                               disabled={actionLoading[tx._id]}
                               onClick={() => handleReject(tx)}
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/30 text-xs font-semibold transition-all active:scale-95 disabled:opacity-50"
-                              title="Từ chối thanh toán"
+                              title="Reject payment transaction"
                             >
                               <X className="w-3.5 h-3.5" />
-                              <span>Từ chối</span>
+                              <span>Reject</span>
                             </button>
                           </>
                         )}
