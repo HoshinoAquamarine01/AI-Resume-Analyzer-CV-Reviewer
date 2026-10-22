@@ -31,6 +31,7 @@ const FaqPage = lazy(() => import("./pages/FaqPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
 const ActivityLogPage = lazy(() => import("./pages/ActivityLogPage"));
+const AuthCallbackPage = lazy(() => import("./pages/AuthCallbackPage"));
 
 export function App() {
   return (
@@ -178,6 +179,7 @@ export function App() {
             />
             <Route path="/payment/callback" element={<PaymentCallbackPage />} />
             <Route path="/payment-success" element={<PaymentCallbackPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

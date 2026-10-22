@@ -5,6 +5,7 @@ import { User, UserDocument } from "../../models/User";
 import { RegisterDto, LoginDto, ChangePasswordDto } from "./dto/auth.dto";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import axios from "axios";
 import { sendEmail, sendActivationEmail, sendOtpResetPasswordEmail } from "../../services/email.service";
 
 import { ActivityLogService } from "../activity-log/activity-log.service";
@@ -183,5 +184,138 @@ export class AuthService {
     });
 
     return { message: "Email verified successfully" };
+  }
+
+  getGoogleAuthUrl(): string {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      throw new BadRequestException("Google Client ID is not configured on the server. Please set GOOGLE_CLIENT_ID in .env");
+    }
+
+    const callbackUrl =
+      process.env.GOOGLE_CALLBACK_URL ||
+      (process.env.BACKEND_URL
+        ? `${process.env.BACKEND_URL}/api/auth/google/callback`
+        : "https://ai-resume-analyzer-cv-reviewer.vercel.app/api/auth/google/callback");
+
+    const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+    const options = {
+      redirect_uri: callbackUrl,
+      client_id: clientId,
+      access_type: "offline",
+      response_type: "code",
+      prompt: "consent",
+      scope: [
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
+      ].join(" "),
+    };
+
+    const qs = new URLSearchParams(options);
+    return `${rootUrl}?${qs.toString()}`;
+  }
+
+  async handleGoogleCallback(code: string, ipAddress?: string) {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const callbackUrl =
+      process.env.GOOGLE_CALLBACK_URL ||
+      (process.env.BACKEND_URL
+        ? `${process.env.BACKEND_URL}/api/auth/google/callback`
+        : "https://ai-resume-analyzer-cv-reviewer.vercel.app/api/auth/google/callback");
+
+    if (!clientId || !clientSecret) {
+      throw new BadRequestException("Google OAuth credentials are not configured on the server. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env");
+    }
+
+    // 1. Exchange authorization code for access token
+    const tokenResponse = await axios.post(
+      "https://oauth2.googleapis.com/token",
+      new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: callbackUrl,
+        grant_type: "authorization_code",
+      }).toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    const { access_token } = tokenResponse.data;
+
+    // 2. Fetch user profile from Google
+    const userinfoResponse = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+
+    const { sub: googleId, email, name, picture } = userinfoResponse.data;
+
+    if (!email) {
+      throw new BadRequestException("Unable to retrieve email from Google account");
+    }
+
+    // 3. Find or create user
+    let user = await this.userModel.findOne({
+      $or: [{ googleId }, { email: email.toLowerCase() }],
+    });
+
+    if (user) {
+      let updated = false;
+      if (!user.googleId) {
+        user.googleId = googleId;
+        updated = true;
+      }
+      if (!user.avatarUrl && picture) {
+        user.avatarUrl = picture;
+        updated = true;
+      }
+      if (updated) {
+        await user.save();
+      }
+    } else {
+      user = await this.userModel.create({
+        name: name || email.split("@")[0],
+        email: email.toLowerCase(),
+        googleId,
+        avatarUrl: picture,
+        authProvider: "google",
+        isActive: true,
+      });
+    }
+
+    const token = await this.generateToken(user._id);
+    const refreshToken = await this.generateRefreshToken(user._id);
+
+    try {
+      await this.activityLogService.createLog(
+        user._id,
+        "login",
+        { provider: "google" },
+        ipAddress || "unknown"
+      );
+    } catch {
+      // Activity log is non-blocking
+    }
+
+    return {
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        avatarUrl: user.avatarUrl,
+      },
+      token,
+      refreshToken,
+    };
   }
 }

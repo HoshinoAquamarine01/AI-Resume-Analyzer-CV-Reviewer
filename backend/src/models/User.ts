@@ -11,8 +11,18 @@ export class User extends Document {
   @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
-  password: string;
+  @Prop({ required: false })
+  password?: string;
+
+  @Prop()
+  googleId?: string;
+
+  @Prop({
+    type: String,
+    enum: ["local", "google", "github"],
+    default: "local",
+  })
+  authProvider?: "local" | "google" | "github";
 
   @Prop({
     type: String,
@@ -69,7 +79,7 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 
 UserSchema.pre<UserDocument>("save", async function (next) {
-  if (!this.isModified("password")) {
+  if (!this.password || !this.isModified("password")) {
     return next();
   }
   try {
@@ -81,5 +91,8 @@ UserSchema.pre<UserDocument>("save", async function (next) {
 });
 
 UserSchema.methods.comparePassword = async function (password: string) {
+  if (!this.password) {
+    return false;
+  }
   return comparePasswordUtil(password, this.password);
 };
