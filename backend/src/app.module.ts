@@ -37,9 +37,13 @@ import { StorageModule } from "./common/services/storage.module";
       useFactory: () => {
         const uri = process.env.MONGO_URL;
         if (!uri) {
-          throw new Error("MONGO_URL is not defined in environment variables");
+          console.error("CRITICAL ERROR: MONGO_URL environment variable is missing in Vercel/Environment Settings!");
+          throw new Error("MONGO_URL is not defined in environment variables. Please set MONGO_URL in Vercel project settings.");
         }
-        return { uri };
+        return {
+          uri,
+          serverSelectionTimeoutMS: 5000,
+        };
       },
     }),
 

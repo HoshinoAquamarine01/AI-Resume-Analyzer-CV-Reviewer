@@ -19,7 +19,9 @@ export async function bootstrapServer(): Promise<Express> {
       new ExpressAdapter(expressApp)
     );
 
-    app.useWebSocketAdapter(new IoAdapter(app));
+    if (!process.env.VERCEL) {
+      app.useWebSocketAdapter(new IoAdapter(app));
+    }
 
     app.setGlobalPrefix("api");
 
@@ -118,8 +120,26 @@ export async function bootstrapServer(): Promise<Express> {
 
 // Vercel Serverless Function export
 export default async function handler(req: any, res: any) {
-  const server = await bootstrapServer();
-  return server(req, res);
+  try {
+    const server = await bootstrapServer();
+    return server(req, res);
+  } catch (error: any) {
+    console.error("Vercel Serverless Function Bootstrap Error:", error);
+    if (res && typeof res.status === "function") {
+      return res.status(500).json({
+        statusCode: 500,
+        message: "Server initialization error",
+        error: error?.message || String(error),
+      });
+    }
+    throw error;
+  }
+}
+
+export { handler };
+if (typeof module !== "undefined" && (module as any).exports) {
+  (module as any).exports = handler;
+  (module as any).exports.default = handler;
 }
 
 // Standalone Server mode (for local development or docker/vps)
