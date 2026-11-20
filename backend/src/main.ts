@@ -144,16 +144,18 @@ if (typeof module !== "undefined" && (module as any).exports) {
 }
 
 
-(async () => {
-  try {
-    const server = await bootstrapServer();
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-      console.log(`Swagger documentation is available at http://localhost:${PORT}/docs`);
-    });
-  } catch (error) {
-    console.error("Server bootstrap startup error:", error);
-  }
-})();
+if (!process.env.VERCEL) {
+  (async () => {
+    try {
+      const server = await bootstrapServer();
+      const PORT = process.env.PORT || 5000;
+      server.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`Swagger documentation is available at http://localhost:${PORT}/docs`);
+      });
+    } catch (error) {
+      console.error("Server bootstrap startup error:", error);
+    }
+  })();
+}
 
